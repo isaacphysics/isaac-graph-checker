@@ -17,7 +17,8 @@ import java.util.stream.Collectors;
 
 public class ExpectedSectorsFeature implements Feature<ExpectedSectorsFeature.Data> {
 
-    public static String TAG = "through";
+    @Override
+    public String TAG() { return "through"; }
 
     private static final List<Sector> defaultOrderedSectors = Arrays.asList(
             Sector.origin,
@@ -42,7 +43,7 @@ public class ExpectedSectorsFeature implements Feature<ExpectedSectorsFeature.Da
 
         @Override
         public String serialize() {
-            return TAG + ":" + Joiner.on(",").join(this.expectedSectors);
+            return Joiner.on(",").join(this.expectedSectors);
         }
 
         private boolean match(Line line) {
@@ -145,8 +146,7 @@ public class ExpectedSectorsFeature implements Feature<ExpectedSectorsFeature.Da
 
     @Override
     public Data deserialize(String featureData) {
-        assert featureData.startsWith(TAG + ":");
-        List<Sector> expectedSectors = deserializeSectors(featureData.substring(TAG.length() + 1));
+        List<Sector> expectedSectors = deserializeSectors(featureData);
         return new Data(expectedSectors);
     }
 

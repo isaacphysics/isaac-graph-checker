@@ -8,6 +8,9 @@ public interface Feature<F extends Feature.FeatureData> {
     interface FeatureData {
         String serialize();
     }
+
+    String TAG();
+
     F deserialize(String featureData);
 
     F generate(Line expectedLine);
