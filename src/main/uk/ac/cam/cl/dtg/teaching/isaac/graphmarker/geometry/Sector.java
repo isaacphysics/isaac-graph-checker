@@ -126,4 +126,11 @@ public class Sector {
             Segment.closed(originPoints[3], originPoints[0])
     ));
 
+    public static Sector byName(String s) {
+        try {
+            return (Sector) Sector.class.getDeclaredField(s).get(null);
+        } catch (IllegalAccessException|NoSuchFieldException e) {
+            throw new IllegalArgumentException(s + " is not a valid sector");
+        }
+    }
 }
