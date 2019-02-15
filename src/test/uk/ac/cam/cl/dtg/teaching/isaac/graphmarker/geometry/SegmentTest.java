@@ -1,4 +1,4 @@
-package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geom;
+package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry;
 
 import org.junit.Test;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;

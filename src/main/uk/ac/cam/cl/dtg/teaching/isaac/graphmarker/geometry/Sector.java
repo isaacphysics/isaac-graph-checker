@@ -1,10 +1,9 @@
-package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geom;
+package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry;
 
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Intersection;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,7 +12,6 @@ import java.util.List;
  */
 public class Sector {
 
-    private static final double FAR_AWAY = 1000;
     private static final double SLOP = 0.01;
 
     private final List<Segment> segments;
@@ -109,5 +107,15 @@ public class Sector {
 
     static Sector onAxisWithNegativeX() {
         return sloppyAxis(new Point(0, -SLOP), new Point(0, SLOP), new Point(-1, 0));
+    }
+
+    static Sector origin() {
+        Point[] p = new Point[]{new Point(SLOP, SLOP), new Point(-SLOP, SLOP), new Point(-SLOP, -SLOP), new Point(SLOP, -SLOP)};
+        return new Sector(Arrays.asList(
+            Segment.closed(p[0], p[1]),
+            Segment.closed(p[1], p[2]),
+            Segment.closed(p[2], p[3]),
+            Segment.closed(p[3], p[0])
+        ));
     }
 }

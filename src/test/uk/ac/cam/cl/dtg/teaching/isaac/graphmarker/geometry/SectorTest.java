@@ -1,4 +1,4 @@
-package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geom;
+package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry;
 
 import org.junit.Test;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Intersection;
@@ -34,8 +34,6 @@ public class SectorTest {
     private static final Point x0y0 = new Point(0, 0);
     private static final Point x0y1 = new Point(0, 1);
     private static final Point x0y_1 = new Point(0, -1);
-    private static final Point x1y0 = new Point(1, 0);
-    private static final Point x_1y0 = new Point(-1, 0);
 
 
     @Test
@@ -144,5 +142,21 @@ public class SectorTest {
             outsidePoints = Arrays.stream(outsidePoints).map(p -> new Point(-p.getY(), p.getX())).toArray(Point[]::new);
             insidePoints = Arrays.stream(insidePoints).map(p -> new Point(-p.getY(), p.getX())).toArray(Point[]::new);
         }
+    }
+
+    @Test
+    public void testOrigin() {
+        Sector origin = Sector.origin();
+
+        assertTrue(origin.contains(new Point(0.005, -0.005)));
+        assertFalse(origin.contains(new Point(-0.1, 0)));
+        assertFalse(origin.contains(new Point(0.1, 0.1)));
+        assertFalse(origin.contains(new Point(0, 0.1)));
+
+        assertInside(origin.intersects(lineOf(new Point(0, 0))));
+
+        assertIntersects(origin.intersects(lineOf(new Point(-1, 0), new Point(100, 1))));
+
+        assertOutside(origin.intersects(lineOf(new Point(-0.5, 0), new Point(1, 0.1))));
     }
 }

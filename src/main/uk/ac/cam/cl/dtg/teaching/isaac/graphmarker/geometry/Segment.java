@@ -1,12 +1,14 @@
-package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geom;
+package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry;
 
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
 
-import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geom.Side.LEFT;
-import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geom.Side.RIGHT;
+import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.Side.LEFT;
+import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.Side.RIGHT;
 
 /**
  * Represents a line segment.
+ *
+ * http://www.cs.swan.ac.uk/~cssimon/line_intersection.html was a good reference.
  */
 class Segment {
     private final Point start;
@@ -49,10 +51,11 @@ class Segment {
      * This is a line, through start and end, with side considered the inside.
      */
     private Segment(Point start, Point end, Side side, boolean openBothEnds) {
+        assert openBothEnds;
         this.start = start;
         this.end = end;
         this.side = side;
-        this.openBothEnds = openBothEnds;
+        this.openBothEnds = true;
     }
 
     /**
