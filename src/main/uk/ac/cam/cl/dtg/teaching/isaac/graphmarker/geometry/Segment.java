@@ -10,7 +10,7 @@ import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.Side.RIGHT;
  *
  * http://www.cs.swan.ac.uk/~cssimon/line_intersection.html was a good reference.
  */
-class Segment {
+public class Segment {
     private final Point start;
     private final Point end;
     private Side side;
@@ -61,7 +61,7 @@ class Segment {
     /**
      * Inside is defined as on the anti-clockwise side of the line segment and within the region defined by the tangents to the line at start and end.
      */
-    public boolean inside(Point p) {
+     boolean inside(Point p) {
         Point endPrime = end.minus(start);
         Point pPrime = p.minus(start);
         double crossProduct = endPrime.getX() * pPrime.getY() - endPrime.getY() * pPrime.getX();
@@ -78,7 +78,12 @@ class Segment {
         return (this.openBothEnds || coefficientOfSegment >= 0) && (this.side != null || coefficientOfSegment <= 1);
     }
 
-    public boolean intersects(Segment s) {
+    boolean intersects(Segment s) {
+        Double u = intersectionParam(s);
+        return u != null;
+    }
+
+    public Double intersectionParam(Segment s) {
         double x1 = this.start.getX();
         double x2 = this.end.getX();
         double x3 = s.start.getX();
@@ -93,28 +98,39 @@ class Segment {
 
         if (det == 0) {
             // Lines are parallel, so don't intersect
-            return false;
+            return null;
         }
 
         double t = ((y3-y4) * (x1-x3) + (x4-x3) * (y1-y3)) / det;
+
+        if (!openBothEnds && t < 0) return null;
+        if (side == null && t > 1) return null;
+
         double u = ((y1-y2) * (x1-x3) + (x2-x1) * (y1-y3)) / det;
 
-        return t >= 0 && t <= 1 && u >= 0 && u <= 1;
+        if (!s.openBothEnds && u < 0) return null;
+        if (s.side == null && u > 1) return null;
+
+        return u;
     }
 
     public static Segment closed(Point start, Point end) {
         return new Segment(start, end);
     }
 
-    public static Segment openOneEnd(Point origin, Point direction, Side side) {
+    static Segment openOneEnd(Point origin, Point direction, Side side) {
         return new Segment(origin, origin.add(direction), side);
     }
 
-    public static Segment openOneEnd(Point origin, Point direction, Point inside) {
+    static Segment openOneEnd(Point origin, Point direction, Point inside) {
         return new Segment(origin, origin.add(direction), origin.add(inside));
     }
 
-    public static Segment openBothEnds(Point origin, Point direction, Side side) {
+    static Segment openBothEnds(Point origin, Point direction, Side side) {
         return new Segment(origin, origin.add(direction), side, true);
+    }
+
+    public Point getStart() {
+        return start;
     }
 }

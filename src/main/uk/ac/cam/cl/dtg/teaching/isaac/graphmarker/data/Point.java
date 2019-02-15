@@ -14,6 +14,11 @@ public class Point {
         this.y = y;
     }
 
+    @Override
+    public String toString() {
+        return "(" + x +", " + y + ")";
+    }
+
     public double getX() {
         return x;
     }
@@ -42,5 +47,9 @@ public class Point {
 
     public Point minus(Point p) {
         return new Point(x - p.x, y - p.y);
+    }
+
+    public Point times(double m) {
+        return new Point(x * m, y * m);
     }
 }

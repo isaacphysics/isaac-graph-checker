@@ -2,12 +2,12 @@ package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry;
 
 import org.junit.Test;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Intersection;
-import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
 
 import java.util.Arrays;
 
 import static org.junit.Assert.*;
+import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.TestHelpers.*;
 
 public class SectorTest {
 
@@ -21,10 +21,6 @@ public class SectorTest {
 
     private void assertOutside(Intersection c) {
         assertEquals(Intersection.OUTSIDE, c);
-    }
-
-    private Line lineOf(Point... points) {
-        return new Line(Arrays.asList(points));
     }
 
     private static final Point x1y1 = new Point(1, 1);
@@ -158,5 +154,41 @@ public class SectorTest {
         assertIntersects(origin.intersects(lineOf(new Point(-1, 0), new Point(100, 1))));
 
         assertOutside(origin.intersects(lineOf(new Point(-0.5, 0), new Point(1, 0.1))));
+    }
+
+    @Test
+    public void quadrantsHaveCorrectPointHandling() {
+        Sector[] quadrants = new Sector[] {
+                Sector.topRight(),
+                Sector.topLeft(),
+                Sector.bottomLeft(),
+                Sector.bottomRight()
+        };
+
+        Point[] outsidePoints = new Point[] {
+                x_1y_1,
+                x0y_1,
+                new Point(1, -0.0001),
+                x0y0
+        };
+
+        Point[] insidePoints = new Point[] {
+                x1y1,
+                new Point(+0.005, 0.0001),
+                new Point(+0.005, 10),
+                new Point(100, 0.01),
+        };
+
+        for (Sector quadrant : quadrants) {
+            for (Point p : outsidePoints) {
+                assertFalse(quadrant + " should not contain " + p, quadrant.contains(p));
+            }
+            for (Point p : insidePoints) {
+                assertTrue(quadrant + " should contain " + p, quadrant.contains(p));
+            }
+            // Rotate points by 90 degrees
+            outsidePoints = Arrays.stream(outsidePoints).map(p -> new Point(-p.getY(), p.getX())).toArray(Point[]::new);
+            insidePoints = Arrays.stream(insidePoints).map(p -> new Point(-p.getY(), p.getX())).toArray(Point[]::new);
+        }
     }
 }

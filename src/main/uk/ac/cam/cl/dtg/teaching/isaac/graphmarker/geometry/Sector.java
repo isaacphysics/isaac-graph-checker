@@ -1,23 +1,38 @@
 package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry;
 
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Intersection;
+import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.IntersectionParams;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Represents a region of the graph, e.g. above the x axis, or on the y axis with y < 0
  */
 public class Sector {
 
-    private static final double SLOP = 0.01;
+    private static final double AXIS_SLOP = 0.01;
+    private static final double ORIGIN_SLOP = AXIS_SLOP * 2;
+    private static final Point UP = new Point(0, 1);
+    private static final Point DOWN = new Point(0, -1);
+    private static final Point RIGHT = new Point(1, 0);
+    private static final Point LEFT = new Point(-1, 0);
 
+    private final String name;
     private final List<Segment> segments;
 
-    private Sector(List<Segment> segments) {
+    private Sector(String name, List<Segment> segments) {
+        this.name = name;
         this.segments = segments;
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 
     public boolean contains(Point p) {
@@ -49,69 +64,75 @@ public class Sector {
                 : Intersection.OUTSIDE;
     }
 
+    public IntersectionParams intersectionParams(Segment lineSegment) {
+        return new IntersectionParams(this.segments.stream()
+                .map(segment -> segment.intersectionParam(lineSegment))
+                .filter(Objects::nonNull)
+                .sorted()
+                .collect(Collectors.toList()));
+    }
+
     /*public boolean whollyContains(Line line) {
         return false;
     }*/
 
-    private static Sector quadrant(Point origin, Point axis1, Point axis2) {
-        return new Sector(Arrays.asList(
+    private static Sector quadrant(String name, Point origin, Point axis1, Point axis2) {
+        return new Sector(name, Arrays.asList(
             Segment.openOneEnd(origin, axis1, axis2),
             Segment.openOneEnd(origin, axis2, axis1)
         ));
     }
 
-    private static Sector centeredQuadrant(Point axis1, Point axis2) {
+    private static Sector centeredQuadrant(String name, Point axis1, Point axis2) {
         Point origin = new Point(0, 0);
-        return quadrant(origin, axis1, axis2);
+        return quadrant(name, origin, axis1, axis2);
     }
 
-    private static Sector axialQuadrant(boolean xPositive, boolean yPositive) {
-        return centeredQuadrant(new Point(xPositive ? 1 : -1, 0), new Point(0, yPositive ? 1 : -1));
+    public static Sector topRight() {
+        return centeredQuadrant("topRight", RIGHT, UP);
     }
 
-    static Sector topRight() {
-        return centeredQuadrant(new Point(0, 1), new Point(1, 0));
+    public static Sector topLeft() {
+        return centeredQuadrant("topLeft", LEFT, UP);
     }
 
-    static Sector topLeft() {
-        return axialQuadrant(false, true);
+    public static Sector bottomLeft() {
+        return centeredQuadrant("bottomLeft", LEFT, DOWN);
     }
 
-    static Sector bottomLeft() {
-        return axialQuadrant(false, false);
+    public static Sector bottomRight() {
+        return centeredQuadrant("bottomRight", RIGHT, DOWN);
     }
 
-    static Sector bottomRight() {
-        return axialQuadrant(true, true);
-    }
-
-    private static Sector sloppyAxis(Point left, Point right, Point axis) {
-        return new Sector(Arrays.asList(
+    private static Sector sloppyAxis(String name, Point left, Point right, Point axis) {
+        left = left.times(AXIS_SLOP);
+        right = right.times(AXIS_SLOP);
+        return new Sector(name, Arrays.asList(
                 Segment.closed(left, right),
                 Segment.openOneEnd(left, axis, Side.RIGHT),
                 Segment.openOneEnd(right, axis, Side.LEFT)
         ));
     }
 
-    static Sector onAxisWithPositiveY() {
-        return sloppyAxis(new Point(-SLOP, 0), new Point(SLOP, 0), new Point(0, 1));
+    public static Sector onAxisWithPositiveY() {
+        return sloppyAxis("onAxisWithPositiveY", LEFT, RIGHT, UP);
     }
 
-    static Sector onAxisWithNegativeY() {
-        return sloppyAxis(new Point(SLOP, 0), new Point(-SLOP, 0), new Point(0, -1));
+    public static Sector onAxisWithNegativeY() {
+        return sloppyAxis("onAxisWithNegativeY", RIGHT, LEFT, DOWN);
     }
 
-    static Sector onAxisWithPositiveX() {
-        return sloppyAxis(new Point(0, SLOP), new Point(0, -SLOP), new Point(1, 0));
+    public static Sector onAxisWithPositiveX() {
+        return sloppyAxis("onAxisWithPositiveX", UP, DOWN, RIGHT);
     }
 
-    static Sector onAxisWithNegativeX() {
-        return sloppyAxis(new Point(0, -SLOP), new Point(0, SLOP), new Point(-1, 0));
+    public static Sector onAxisWithNegativeX() {
+        return sloppyAxis("onAxisWithNegativeX", DOWN, UP, LEFT);
     }
 
-    static Sector origin() {
-        Point[] p = new Point[]{new Point(SLOP, SLOP), new Point(-SLOP, SLOP), new Point(-SLOP, -SLOP), new Point(SLOP, -SLOP)};
-        return new Sector(Arrays.asList(
+    public static Sector origin() {
+        Point[] p = new Point[]{new Point(ORIGIN_SLOP, ORIGIN_SLOP), new Point(-ORIGIN_SLOP, ORIGIN_SLOP), new Point(-ORIGIN_SLOP, -ORIGIN_SLOP), new Point(ORIGIN_SLOP, -ORIGIN_SLOP)};
+        return new Sector("origin", Arrays.asList(
             Segment.closed(p[0], p[1]),
             Segment.closed(p[1], p[2]),
             Segment.closed(p[2], p[3]),

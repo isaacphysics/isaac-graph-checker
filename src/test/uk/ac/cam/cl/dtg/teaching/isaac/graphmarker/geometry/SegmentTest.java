@@ -86,6 +86,6 @@ public class SegmentTest {
         Segment s = Segment.openBothEnds(new Point(1, 1), new Point(1, 1), Side.LEFT);
         Segment t = Segment.openBothEnds(new Point(-1, 1), new Point(-1, 1), Side.LEFT);
 
-        assertFalse(s.intersects(t));
+        assertTrue(s.intersects(t));
     }
 }
