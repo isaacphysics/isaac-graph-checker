@@ -30,6 +30,21 @@ public class Sector {
         this.segments = segments;
     }
 
+    // FIXME: This is dirty; make these enums
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Sector sector = (Sector) o;
+        return Objects.equals(name, sector.name);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(name);
+    }
+
     @Override
     public String toString() {
         return name;
@@ -67,7 +82,8 @@ public class Sector {
     public IntersectionParams intersectionParams(Segment lineSegment) {
         return new IntersectionParams(this.segments.stream()
                 .map(segment -> segment.intersectionParam(lineSegment))
-                .filter(Objects::nonNull)
+                .filter(t -> t != null)
+                .distinct()
                 .sorted()
                 .collect(Collectors.toList()));
     }

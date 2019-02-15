@@ -12,7 +12,7 @@ import java.util.List;
 
 public class LineFollowsExpectedPath {
 
-    private final Sector[] orderedSectors = new Sector[] {
+    private static final Sector[] orderedSectors = new Sector[] {
         Sector.origin(),
         Sector.onAxisWithPositiveX(),
         Sector.onAxisWithPositiveY(),
@@ -24,7 +24,18 @@ public class LineFollowsExpectedPath {
         Sector.bottomRight()
     };
 
-    public List<Sector> convertLineToSectorList(Line line) {
+    private final List<Sector> expectedSectors;
+
+    public LineFollowsExpectedPath(List<Sector> expectedSectors) {
+        this.expectedSectors = expectedSectors;
+    }
+
+    public boolean match(Line line) {
+        List<Sector> actualSectors = convertLineToSectorList(line);
+        return expectedSectors.equals(actualSectors);
+    }
+
+    static List<Sector> convertLineToSectorList(Line line) {
         List<Sector> output = new ArrayList<>();
 
         Point lastPoint = null;
@@ -43,7 +54,7 @@ public class LineFollowsExpectedPath {
         return output;
     }
 
-    private void addSector(List<Sector> output, Sector sector) {
+    private static void addSector(List<Sector> output, Sector sector) {
         if (sector == null) {
             return;
         }
@@ -52,14 +63,14 @@ public class LineFollowsExpectedPath {
         }
     }
 
-    private Sector classifyPoint(Point point) {
+    private static Sector classifyPoint(Point point) {
         for (Sector sector : orderedSectors) {
             if (sector.contains(point)) return sector;
         }
         return null;
     }
 
-    private void classifyLineSegment(List<Sector> output, Segment lineSegment) {
+    private static void classifyLineSegment(List<Sector> output, Segment lineSegment) {
         // Calculate when we enter and leave the line segment
         IntersectionParams[] intersectionParams = Arrays.stream(orderedSectors)
                 .map(sector -> sector.intersectionParams(lineSegment))
@@ -72,7 +83,9 @@ public class LineFollowsExpectedPath {
 
         int index = lowestIndex(intersectionParams);
         while (index != -1) {
-            inside[index] = !inside[index];
+            IntersectionParams.IntersectionParam intersection = intersectionParams[index].remove(0);
+
+            inside[index] = intersection.isInside();
 
             int lowest = lowestSetBit(inside);
 
@@ -80,25 +93,23 @@ public class LineFollowsExpectedPath {
                 addSector(output, orderedSectors[lowest]);
             }
 
-            intersectionParams[index].remove(0);
-
             index = lowestIndex(intersectionParams);
         }
     }
 
-    private int lowestSetBit(Boolean[] bits) {
+    private static int lowestSetBit(Boolean[] bits) {
         for (int i = 0; i < bits.length; i++) {
             if (bits[i]) return i;
         }
         return -1;
     }
 
-    private int lowestIndex(IntersectionParams[] intersectionParams) {
+    private static int lowestIndex(IntersectionParams[] intersectionParams) {
         int index = -1;
         double minParam = Double.MAX_VALUE;
         for (int i = 0; i < intersectionParams.length; i++) {
             if (intersectionParams[i].size() > 0) {
-                double param = intersectionParams[i].get(0);
+                double param = intersectionParams[i].get(0).getT();
                 if (param < minParam) {
                     index = i;
                     minParam = param;

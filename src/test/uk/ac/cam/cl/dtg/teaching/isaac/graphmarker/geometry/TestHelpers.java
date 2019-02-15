@@ -14,7 +14,7 @@ public class TestHelpers {
     }
 
     public static Line lineOf(Function<Double, Double> f, double minX, double maxX) {
-        int points = 1000;
+        int points = 100;
         double diff = (maxX - minX) / (points - 1);
         return new Line(IntStream.range(0, points)
             .mapToDouble(i -> minX + diff * i)

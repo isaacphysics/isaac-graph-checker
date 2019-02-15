@@ -117,7 +117,6 @@ public class SectorTest {
                 x_1y_1,
                 x0y_1,
                 new Point(0, -0.0001),
-                x0y0
         };
 
         Point[] insidePoints = new Point[] {
@@ -125,6 +124,7 @@ public class SectorTest {
                 new Point(-0.005, 0.0001),
                 new Point(+0.005, 0.0001),
                 new Point(0, 1e10),
+                x0y0,
         };
 
         for (Sector axis : axes) {
@@ -169,7 +169,6 @@ public class SectorTest {
                 x_1y_1,
                 x0y_1,
                 new Point(1, -0.0001),
-                x0y0
         };
 
         Point[] insidePoints = new Point[] {
@@ -177,6 +176,7 @@ public class SectorTest {
                 new Point(+0.005, 0.0001),
                 new Point(+0.005, 10),
                 new Point(100, 0.01),
+                x0y0,
         };
 
         for (Sector quadrant : quadrants) {

@@ -1,5 +1,6 @@
 package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry;
 
+import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.IntersectionParams;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
 
 import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.Side.LEFT;
@@ -64,26 +65,30 @@ public class Segment {
      boolean inside(Point p) {
         Point endPrime = end.minus(start);
         Point pPrime = p.minus(start);
-        double crossProduct = endPrime.getX() * pPrime.getY() - endPrime.getY() * pPrime.getX();
-        if (this.side == null || this.side == LEFT) {
-            if (crossProduct <= 0) return false;
-        } else {
-            if (crossProduct >= 0) return false;
-        }
+         if (!isOnInside(endPrime, pPrime)) return false;
 
-        // Project p onto line and check inside this segment
+         // Project p onto line and check inside this segment
         double dotEndPrime = endPrime.getX() * endPrime.getX() + endPrime.getY() * endPrime.getY();
         double pDotEndPrime = pPrime.getX() * endPrime.getX() + pPrime.getY() * endPrime.getY();
         double coefficientOfSegment = pDotEndPrime / dotEndPrime;
         return (this.openBothEnds || coefficientOfSegment >= 0) && (this.side != null || coefficientOfSegment <= 1);
     }
 
+    private boolean isOnInside(Point endPrime, Point pPrime) {
+        double crossProduct = endPrime.getX() * pPrime.getY() - endPrime.getY() * pPrime.getX();
+        if (this.side == null || this.side == LEFT) {
+            return crossProduct >= 0;
+        } else {
+            return crossProduct <= 0;
+        }
+    }
+
     boolean intersects(Segment s) {
-        Double u = intersectionParam(s);
+        IntersectionParams.IntersectionParam u = intersectionParam(s);
         return u != null;
     }
 
-    public Double intersectionParam(Segment s) {
+    public IntersectionParams.IntersectionParam intersectionParam(Segment s) {
         double x1 = this.start.getX();
         double x2 = this.end.getX();
         double x3 = s.start.getX();
@@ -111,7 +116,11 @@ public class Segment {
         if (!s.openBothEnds && u < 0) return null;
         if (s.side == null && u > 1) return null;
 
-        return u;
+        Point endPrime = end.minus(start);
+        Point pPrime = s.end.minus(start);
+        boolean inside = isOnInside(endPrime, pPrime);
+
+        return new IntersectionParams.IntersectionParam(u, inside);
     }
 
     public static Segment closed(Point start, Point end) {

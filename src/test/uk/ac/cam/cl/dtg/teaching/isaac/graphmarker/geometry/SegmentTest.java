@@ -4,6 +4,8 @@ import org.junit.Test;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
 
 import static org.junit.Assert.*;
+import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Intersection.INSIDE;
+import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Intersection.OUTSIDE;
 
 public class SegmentTest {
 
@@ -26,11 +28,11 @@ public class SegmentTest {
     }
 
     @Test
-    public void pointOnVerticalLineIsOutside() {
+    public void pointOnVerticalLineIsInside() {
         Point p = new Point(0, 0.5);
         Segment s = Segment.closed(origin, new Point(0, 1));
 
-        assertFalse(s.inside(p));
+        assertTrue(s.inside(p));
     }
 
     @Test
@@ -87,5 +89,23 @@ public class SegmentTest {
         Segment t = Segment.openBothEnds(new Point(-1, 1), new Point(-1, 1), Side.LEFT);
 
         assertTrue(s.intersects(t));
+    }
+
+    @Test
+    public void overlapIsHandledRight() {
+        Segment above = Segment.closed(new Point(-1, 0), new Point(1, 0));
+        Segment below = Segment.closed(new Point(1, 0), new Point(-1, 0));
+
+        Point a = new Point(0, 0);
+        Point b = new Point(0, 1);
+        Segment up = Segment.closed(a, b);
+
+        assertTrue(below.inside(a));
+        assertFalse(below.inside(b));
+        assertTrue(below.intersects(up));
+
+        assertTrue(above.inside(a));
+        assertTrue(above.inside(b));
+        assertTrue(above.intersects(up));
     }
 }
