@@ -30,21 +30,6 @@ public class Sector {
         this.segments = segments;
     }
 
-    // FIXME: This is dirty; make these enums
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Sector sector = (Sector) o;
-        return Objects.equals(name, sector.name);
-    }
-
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(name);
-    }
-
     @Override
     public String toString() {
         return name;
@@ -104,21 +89,13 @@ public class Sector {
         return quadrant(name, origin, axis1, axis2);
     }
 
-    public static Sector topRight() {
-        return centeredQuadrant("topRight", RIGHT, UP);
-    }
+    public static Sector topRight = centeredQuadrant("topRight", RIGHT, UP);
 
-    public static Sector topLeft() {
-        return centeredQuadrant("topLeft", LEFT, UP);
-    }
+    public static Sector topLeft = centeredQuadrant("topLeft", LEFT, UP);
 
-    public static Sector bottomLeft() {
-        return centeredQuadrant("bottomLeft", LEFT, DOWN);
-    }
+    public static Sector bottomLeft = centeredQuadrant("bottomLeft", LEFT, DOWN);
 
-    public static Sector bottomRight() {
-        return centeredQuadrant("bottomRight", RIGHT, DOWN);
-    }
+    public static Sector bottomRight = centeredQuadrant("bottomRight", RIGHT, DOWN);
 
     private static Sector sloppyAxis(String name, Point left, Point right, Point axis) {
         left = left.times(AXIS_SLOP);
@@ -130,29 +107,23 @@ public class Sector {
         ));
     }
 
-    public static Sector onAxisWithPositiveY() {
-        return sloppyAxis("onAxisWithPositiveY", LEFT, RIGHT, UP);
-    }
+    public static Sector onAxisWithPositiveY = sloppyAxis("onAxisWithPositiveY", LEFT, RIGHT, UP);
 
-    public static Sector onAxisWithNegativeY() {
-        return sloppyAxis("onAxisWithNegativeY", RIGHT, LEFT, DOWN);
-    }
+    public static Sector onAxisWithNegativeY = sloppyAxis("onAxisWithNegativeY", RIGHT, LEFT, DOWN);
 
-    public static Sector onAxisWithPositiveX() {
-        return sloppyAxis("onAxisWithPositiveX", UP, DOWN, RIGHT);
-    }
+    public static Sector onAxisWithPositiveX = sloppyAxis("onAxisWithPositiveX", UP, DOWN, RIGHT);
 
-    public static Sector onAxisWithNegativeX() {
-        return sloppyAxis("onAxisWithNegativeX", DOWN, UP, LEFT);
-    }
+    public static Sector onAxisWithNegativeX = sloppyAxis("onAxisWithNegativeX", DOWN, UP, LEFT);
 
-    public static Sector origin() {
-        Point[] p = new Point[]{new Point(ORIGIN_SLOP, ORIGIN_SLOP), new Point(-ORIGIN_SLOP, ORIGIN_SLOP), new Point(-ORIGIN_SLOP, -ORIGIN_SLOP), new Point(ORIGIN_SLOP, -ORIGIN_SLOP)};
-        return new Sector("origin", Arrays.asList(
-            Segment.closed(p[0], p[1]),
-            Segment.closed(p[1], p[2]),
-            Segment.closed(p[2], p[3]),
-            Segment.closed(p[3], p[0])
-        ));
-    }
+    private static final Point[] originPoints = new Point[] {
+            new Point(ORIGIN_SLOP, ORIGIN_SLOP), new Point(-ORIGIN_SLOP, ORIGIN_SLOP),
+            new Point(-ORIGIN_SLOP, -ORIGIN_SLOP), new Point(ORIGIN_SLOP, -ORIGIN_SLOP)};
+
+    public static Sector origin = new Sector("origin", Arrays.asList(
+            Segment.closed(originPoints[0], originPoints[1]),
+            Segment.closed(originPoints[1], originPoints[2]),
+            Segment.closed(originPoints[2], originPoints[3]),
+            Segment.closed(originPoints[3], originPoints[0])
+    ));
+
 }

@@ -67,7 +67,7 @@ public class Segment {
         Point pPrime = p.minus(start);
          if (!isOnInside(endPrime, pPrime)) return false;
 
-         // Project p onto line and check inside this segment
+         // Project originPoints onto line and check inside this segment
         double dotEndPrime = endPrime.getX() * endPrime.getX() + endPrime.getY() * endPrime.getY();
         double pDotEndPrime = pPrime.getX() * endPrime.getX() + pPrime.getY() * endPrime.getY();
         double coefficientOfSegment = pDotEndPrime / dotEndPrime;

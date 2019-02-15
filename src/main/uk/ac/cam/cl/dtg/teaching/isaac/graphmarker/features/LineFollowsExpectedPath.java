@@ -12,22 +12,27 @@ import java.util.List;
 
 public class LineFollowsExpectedPath {
 
-    private static final Sector[] orderedSectors = new Sector[] {
-        Sector.origin(),
-        Sector.onAxisWithPositiveX(),
-        Sector.onAxisWithPositiveY(),
-        Sector.onAxisWithNegativeX(),
-        Sector.onAxisWithNegativeY(),
-        Sector.topRight(),
-        Sector.topLeft(),
-        Sector.bottomLeft(),
-        Sector.bottomRight()
-    };
+    private final Sector[] orderedSectors;
 
     private final List<Sector> expectedSectors;
 
     public LineFollowsExpectedPath(List<Sector> expectedSectors) {
+        this(expectedSectors, new Sector[]{
+                Sector.origin,
+                Sector.onAxisWithPositiveX,
+                Sector.onAxisWithPositiveY,
+                Sector.onAxisWithNegativeX,
+                Sector.onAxisWithNegativeY,
+                Sector.topRight,
+                Sector.topLeft,
+                Sector.bottomLeft,
+                Sector.bottomRight
+        });
+    }
+
+    public LineFollowsExpectedPath(List<Sector> expectedSectors, Sector[] orderedSectors) {
         this.expectedSectors = expectedSectors;
+        this.orderedSectors = orderedSectors;
     }
 
     public boolean match(Line line) {
@@ -35,7 +40,7 @@ public class LineFollowsExpectedPath {
         return expectedSectors.equals(actualSectors);
     }
 
-    static List<Sector> convertLineToSectorList(Line line) {
+    List<Sector> convertLineToSectorList(Line line) {
         List<Sector> output = new ArrayList<>();
 
         Point lastPoint = null;
@@ -54,7 +59,7 @@ public class LineFollowsExpectedPath {
         return output;
     }
 
-    private static void addSector(List<Sector> output, Sector sector) {
+    private void addSector(List<Sector> output, Sector sector) {
         if (sector == null) {
             return;
         }
@@ -63,14 +68,14 @@ public class LineFollowsExpectedPath {
         }
     }
 
-    private static Sector classifyPoint(Point point) {
+    private Sector classifyPoint(Point point) {
         for (Sector sector : orderedSectors) {
             if (sector.contains(point)) return sector;
         }
         return null;
     }
 
-    private static void classifyLineSegment(List<Sector> output, Segment lineSegment) {
+    private void classifyLineSegment(List<Sector> output, Segment lineSegment) {
         // Calculate when we enter and leave the line segment
         IntersectionParams[] intersectionParams = Arrays.stream(orderedSectors)
                 .map(sector -> sector.intersectionParams(lineSegment))

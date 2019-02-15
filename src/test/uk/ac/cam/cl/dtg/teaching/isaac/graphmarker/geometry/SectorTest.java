@@ -34,7 +34,7 @@ public class SectorTest {
 
     @Test
     public void topRightWorksOnPoint() {
-        Sector topRight = Sector.topRight();
+        Sector topRight = Sector.topRight;
 
         assertTrue(topRight.contains(x1y1));
         assertFalse(topRight.contains(x_1y1));
@@ -44,49 +44,49 @@ public class SectorTest {
 
     @Test
     public void topRightWorksOnLineFullyInside() {
-        Sector topRight = Sector.topRight();
+        Sector topRight = Sector.topRight;
 
         assertInside(topRight.intersects(lineOf(x1y1, new Point(2, 1))));
     }
 
     @Test
     public void topRightWorksOnLineFromOrigin() {
-        Sector topRight = Sector.topRight();
+        Sector topRight = Sector.topRight;
 
         assertIntersects(topRight.intersects(lineOf(x1y1, x0y0)));
     }
 
     @Test
     public void topRightWorksOnLineFromBottomLeft() {
-        Sector topRight = Sector.topRight();
+        Sector topRight = Sector.topRight;
 
         assertIntersects(topRight.intersects(lineOf(x1y1, x_1y_1)));
     }
 
     @Test
     public void topRightWorksOnLineFromTopLeftToBottomRight() {
-        Sector topRight = Sector.topRight();
+        Sector topRight = Sector.topRight;
 
         assertIntersects(topRight.intersects(lineOf(x_1y1, new Point(2, -1))));
     }
 
     @Test
     public void topLeftWorks() {
-        Sector topLeft = Sector.topLeft();
+        Sector topLeft = Sector.topLeft;
 
         assertIntersects(topLeft.intersects(lineOf(x_1y1, x_1y_1)));
     }
 
     @Test
     public void bottomLeftWorks() {
-        Sector bottomLeft = Sector.bottomLeft();
+        Sector bottomLeft = Sector.bottomLeft;
 
         assertInside(bottomLeft.intersects(lineOf(x_1y_1, new Point(-2, -1))));
     }
 
     @Test
     public void bottomRightWorks() {
-        Sector bottomRight = Sector.bottomRight();
+        Sector bottomRight = Sector.bottomRight;
 
         assertIntersects(bottomRight.intersects(lineOf(x_1y_1, new Point(2, 1))));
     }
@@ -94,7 +94,7 @@ public class SectorTest {
 
     @Test
     public void positiveXaxisWorks() {
-        Sector axis = Sector.onAxisWithPositiveY();
+        Sector axis = Sector.onAxisWithPositiveY;
         assertInside(axis.intersects(lineOf(new Point(0, 0.0001), x0y1)));
 
         assertIntersects(axis.intersects(lineOf(x_1y1, x1y1)));
@@ -107,10 +107,10 @@ public class SectorTest {
     @Test
     public void axesHaveCorrectPointHandling() {
         Sector[] axes = new Sector[] {
-                Sector.onAxisWithPositiveY(),
-                Sector.onAxisWithNegativeX(),
-                Sector.onAxisWithNegativeY(),
-                Sector.onAxisWithPositiveX()
+                Sector.onAxisWithPositiveY,
+                Sector.onAxisWithNegativeX,
+                Sector.onAxisWithNegativeY,
+                Sector.onAxisWithPositiveX
         };
 
         Point[] outsidePoints = new Point[] {
@@ -142,7 +142,7 @@ public class SectorTest {
 
     @Test
     public void testOrigin() {
-        Sector origin = Sector.origin();
+        Sector origin = Sector.origin;
 
         assertTrue(origin.contains(new Point(0.005, -0.005)));
         assertFalse(origin.contains(new Point(-0.1, 0)));
@@ -159,10 +159,10 @@ public class SectorTest {
     @Test
     public void quadrantsHaveCorrectPointHandling() {
         Sector[] quadrants = new Sector[] {
-                Sector.topRight(),
-                Sector.topLeft(),
-                Sector.bottomLeft(),
-                Sector.bottomRight()
+                Sector.topRight,
+                Sector.topLeft,
+                Sector.bottomLeft,
+                Sector.bottomRight
         };
 
         Point[] outsidePoints = new Point[] {
