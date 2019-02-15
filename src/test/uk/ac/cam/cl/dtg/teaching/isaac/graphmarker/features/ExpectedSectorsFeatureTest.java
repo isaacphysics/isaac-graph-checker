@@ -12,9 +12,9 @@ import static org.junit.Assert.*;
 import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.Sector.*;
 import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.TestHelpers.lineOf;
 
-public class LineFollowsExpectedPathTest {
+public class ExpectedSectorsFeatureTest {
 
-    private static LineFollowsExpectedPath feature = new LineFollowsExpectedPath(Collections.emptyList());
+    private static ExpectedSectorsFeature feature = new ExpectedSectorsFeature(Collections.emptyList());
 
     @Test
     public void basicLineHasCorrectSectorList() {
@@ -28,7 +28,7 @@ public class LineFollowsExpectedPathTest {
 
     @Test
     public void xSquaredMinusTwoHasCorrectSectorList() {
-        LineFollowsExpectedPath testFeature = new LineFollowsExpectedPath(Arrays.asList(
+        ExpectedSectorsFeature testFeature = new ExpectedSectorsFeature(Arrays.asList(
                 topLeft, onAxisWithNegativeX, bottomLeft, onAxisWithNegativeY, bottomRight, onAxisWithPositiveX, topRight));
 
         assertTrue(testFeature.match(lineOf(x -> x*x - 2, -5, 5)));
@@ -37,7 +37,7 @@ public class LineFollowsExpectedPathTest {
 
     @Test
     public void xCubedPlusSquaredMinusTwoHasCorrectSectorList() {
-        LineFollowsExpectedPath testFeature = new LineFollowsExpectedPath(Arrays.asList(
+        ExpectedSectorsFeature testFeature = new ExpectedSectorsFeature(Arrays.asList(
                 bottomLeft, onAxisWithNegativeX, topLeft, onAxisWithPositiveY, topRight, onAxisWithPositiveX, bottomRight, onAxisWithPositiveX, topRight));
 
         assertTrue(testFeature.match(lineOf(x -> x*x*x - 3*x*x + 2, -10, 10)));
@@ -46,7 +46,7 @@ public class LineFollowsExpectedPathTest {
 
     @Test
     public void cosXFromMinus2PiTo2Pi() {
-        LineFollowsExpectedPath testFeature = new LineFollowsExpectedPath(Arrays.asList(
+        ExpectedSectorsFeature testFeature = new ExpectedSectorsFeature(Arrays.asList(
                 topLeft, onAxisWithNegativeX, bottomLeft, onAxisWithNegativeX, topLeft, onAxisWithPositiveY, topRight, onAxisWithPositiveX, bottomRight, onAxisWithPositiveX, topRight));
 
         assertTrue(testFeature.match(lineOf(x -> Math.cos(x), -2 * Math.PI, 2 * Math.PI)));
@@ -55,7 +55,7 @@ public class LineFollowsExpectedPathTest {
 
     @Test
     public void sinXFromMinus2PiTo2Pi() {
-        LineFollowsExpectedPath testFeature = new LineFollowsExpectedPath(Arrays.asList(
+        ExpectedSectorsFeature testFeature = new ExpectedSectorsFeature(Arrays.asList(
                 onAxisWithNegativeX, topLeft, onAxisWithNegativeX, bottomLeft, origin, topRight, onAxisWithPositiveX, bottomRight, onAxisWithPositiveX));
 
         assertTrue(testFeature.match(lineOf(x -> Math.sin(x), -2 * Math.PI, 2 * Math.PI)));
@@ -64,7 +64,7 @@ public class LineFollowsExpectedPathTest {
 
     @Test
     public void matchExpectedSectorList() {
-        LineFollowsExpectedPath feature = new LineFollowsExpectedPath(Arrays.asList(Sector.origin, Sector.topRight));
+        ExpectedSectorsFeature feature = new ExpectedSectorsFeature(Arrays.asList(Sector.origin, Sector.topRight));
 
         assertTrue(feature.match(lineOf(x -> x, 0, 10)));
     }
@@ -72,7 +72,7 @@ public class LineFollowsExpectedPathTest {
     @Test
     public void customSectionListMatches() {
         Sector[] sectors = {Sector.topLeft, Sector.bottomRight};
-        LineFollowsExpectedPath feature = new LineFollowsExpectedPath(Arrays.asList(sectors), sectors);
+        ExpectedSectorsFeature feature = new ExpectedSectorsFeature(Arrays.asList(sectors), sectors);
 
         assertTrue(feature.match(lineOf(x -> 2 - x, -5, 5)));
     }

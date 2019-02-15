@@ -10,13 +10,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class LineFollowsExpectedPath {
+public class ExpectedSectorsFeature {
 
     private final Sector[] orderedSectors;
 
     private final List<Sector> expectedSectors;
 
-    public LineFollowsExpectedPath(List<Sector> expectedSectors) {
+    public ExpectedSectorsFeature(List<Sector> expectedSectors) {
         this(expectedSectors, new Sector[]{
                 Sector.origin,
                 Sector.onAxisWithPositiveX,
@@ -30,7 +30,7 @@ public class LineFollowsExpectedPath {
         });
     }
 
-    public LineFollowsExpectedPath(List<Sector> expectedSectors, Sector[] orderedSectors) {
+    public ExpectedSectorsFeature(List<Sector> expectedSectors, Sector[] orderedSectors) {
         this.expectedSectors = expectedSectors;
         this.orderedSectors = orderedSectors;
     }
