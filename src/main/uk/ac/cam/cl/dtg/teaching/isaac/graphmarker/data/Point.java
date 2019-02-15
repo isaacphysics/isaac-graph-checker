@@ -36,6 +36,10 @@ public class Point {
         return Objects.hash(x, y);
     }
 
+    public Point add(Point p) {
+        return new Point(x + p.x, y + p.y);
+    }
+
     public Point minus(Point p) {
         return new Point(x - p.x, y - p.y);
     }

@@ -5,6 +5,7 @@ import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -41,7 +42,7 @@ public class Sector {
                 allInside = false;
             }
             if (lastPoint != null) {
-                anyIntersections |= intersects(new Segment(lastPoint, point));
+                anyIntersections |= intersects(Segment.closed(lastPoint, point));
             }
             lastPoint = point;
         }
@@ -54,115 +55,59 @@ public class Sector {
         return false;
     }*/
 
+    private static Sector quadrant(Point origin, Point axis1, Point axis2) {
+        return new Sector(Arrays.asList(
+            Segment.openOneEnd(origin, axis1, axis2),
+            Segment.openOneEnd(origin, axis2, axis1)
+        ));
+    }
+
+    private static Sector centeredQuadrant(Point axis1, Point axis2) {
+        Point origin = new Point(0, 0);
+        return quadrant(origin, axis1, axis2);
+    }
+
+    private static Sector axialQuadrant(boolean xPositive, boolean yPositive) {
+        return centeredQuadrant(new Point(xPositive ? 1 : -1, 0), new Point(0, yPositive ? 1 : -1));
+    }
+
     static Sector topRight() {
-        return builder()
-                .setLeft(0)
-                .setBottom(0)
-                .build();
+        return centeredQuadrant(new Point(0, 1), new Point(1, 0));
     }
 
     static Sector topLeft() {
-        return builder()
-                .setRight(0)
-                .setBottom(0)
-                .build();
+        return axialQuadrant(false, true);
     }
 
     static Sector bottomLeft() {
-        return builder()
-                .setRight(0)
-                .setTop(0)
-                .build();
+        return axialQuadrant(false, false);
     }
 
     static Sector bottomRight() {
-        return builder()
-                .setLeft(0)
-                .setTop(0)
-                .build();
+        return axialQuadrant(true, true);
     }
 
-    static Sector positiveXaxis() {
-        return builder()
-                .setLeft(-SLOP)
-                .setRight(SLOP)
-                .setBottom(0)
-                .build();
+    private static Sector sloppyAxis(Point left, Point right, Point axis) {
+        return new Sector(Arrays.asList(
+                Segment.closed(left, right),
+                Segment.openOneEnd(left, axis, Side.RIGHT),
+                Segment.openOneEnd(right, axis, Side.LEFT)
+        ));
     }
 
-    static Sector negativeXaxis() {
-        return builder()
-                .setLeft(-SLOP)
-                .setRight(SLOP)
-                .setTop(0)
-                .build();
+    static Sector onAxisWithPositiveY() {
+        return sloppyAxis(new Point(-SLOP, 0), new Point(SLOP, 0), new Point(0, 1));
     }
 
-    static Sector positiveYaxis() {
-        return builder()
-                .setBottom(-SLOP)
-                .setTop(SLOP)
-                .setLeft(0)
-                .build();
+    static Sector onAxisWithNegativeY() {
+        return sloppyAxis(new Point(SLOP, 0), new Point(-SLOP, 0), new Point(0, -1));
     }
 
-    static Sector negativeYaxis() {
-        return builder()
-                .setBottom(-SLOP)
-                .setTop(SLOP)
-                .setRight(0)
-                .build();
+    static Sector onAxisWithPositiveX() {
+        return sloppyAxis(new Point(0, SLOP), new Point(0, -SLOP), new Point(1, 0));
     }
 
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static class Builder {
-        double xMin = -FAR_AWAY;
-        double xMax = FAR_AWAY;
-        double yMin = -FAR_AWAY;
-        double yMax = FAR_AWAY;
-
-        private Builder() {
-        }
-
-        public Builder setLeft(double x) {
-            xMin = x;
-            return this;
-        }
-
-        public Builder setRight(double x) {
-            xMax = x;
-            return this;
-        }
-
-        public Builder setTop(double y) {
-            yMax = y;
-            return this;
-        }
-
-        public Builder setBottom(double y) {
-            yMin = y;
-            return this;
-        }
-
-        public Sector build() {
-            List<Segment> segments = new ArrayList<>();
-            if (xMin != -FAR_AWAY) {
-                segments.add(new Segment(new Point(xMin, yMax), new Point(xMin, yMin)));
-            }
-            if (xMax != FAR_AWAY) {
-                segments.add(new Segment(new Point(xMax, yMin), new Point(xMax, yMax)));
-            }
-            if (yMin != -FAR_AWAY) {
-                segments.add(new Segment(new Point(xMin, yMin), new Point(xMax, yMin)));
-            }
-            if (yMax != FAR_AWAY) {
-                segments.add(new Segment(new Point(xMax, yMax), new Point(xMin, yMax)));
-            }
-            return new Sector(segments);
-        }
+    static Sector onAxisWithNegativeX() {
+        return sloppyAxis(new Point(0, -SLOP), new Point(0, SLOP), new Point(-1, 0));
     }
 }

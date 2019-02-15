@@ -100,7 +100,7 @@ public class SectorTest {
 
     @Test
     public void positiveXaxisWorks() {
-        Sector axis = Sector.positiveXaxis();
+        Sector axis = Sector.onAxisWithPositiveY();
         assertInside(axis.intersects(lineOf(new Point(0, 0.0001), x0y1)));
 
         assertIntersects(axis.intersects(lineOf(x_1y1, x1y1)));
@@ -111,24 +111,38 @@ public class SectorTest {
     }
 
     @Test
-    public void positiveXaxisDoesntContainPointsOutside() {
-        Sector axis = Sector.positiveXaxis();
+    public void axesHaveCorrectPointHandling() {
+        Sector[] axes = new Sector[] {
+                Sector.onAxisWithPositiveY(),
+                Sector.onAxisWithNegativeX(),
+                Sector.onAxisWithNegativeY(),
+                Sector.onAxisWithPositiveX()
+        };
 
-        assertFalse(axis.contains(x_1y_1));
-        assertFalse(axis.contains(x0y_1));
-        assertFalse(axis.contains(new Point(0, -0.0001)));
-        assertFalse(axis.contains(x0y0));
-    }
+        Point[] outsidePoints = new Point[] {
+                x_1y_1,
+                x0y_1,
+                new Point(0, -0.0001),
+                x0y0
+        };
 
-    @Test
-    public void negativeXaxis() {
-    }
+        Point[] insidePoints = new Point[] {
+                x0y1,
+                new Point(-0.005, 0.0001),
+                new Point(+0.005, 0.0001),
+                new Point(0, 1e10),
+        };
 
-    @Test
-    public void positiveYaxis() {
-    }
-
-    @Test
-    public void negativeYaxis() {
+        for (Sector axis : axes) {
+            for (Point p : outsidePoints) {
+                assertFalse(axis.contains(p));
+            }
+            for (Point p : insidePoints) {
+                assertTrue(axis.contains(p));
+            }
+            // Rotate points by 90 degrees
+            outsidePoints = Arrays.stream(outsidePoints).map(p -> new Point(-p.getY(), p.getX())).toArray(Point[]::new);
+            insidePoints = Arrays.stream(insidePoints).map(p -> new Point(-p.getY(), p.getX())).toArray(Point[]::new);
+        }
     }
 }
