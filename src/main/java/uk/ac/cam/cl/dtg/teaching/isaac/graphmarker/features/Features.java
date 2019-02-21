@@ -1,7 +1,6 @@
-package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker;
+package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.features;
 
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
-import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.features.ExpectedSectorsFeature;
 
 import java.util.Arrays;
 import java.util.List;

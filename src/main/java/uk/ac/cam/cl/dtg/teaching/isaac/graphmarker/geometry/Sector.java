@@ -128,7 +128,18 @@ public class Sector {
 
     public static Sector byName(String s) {
         try {
-            return (Sector) Sector.class.getDeclaredField(s).get(null);
+            switch(s) {
+                case "+Xaxis":
+                    return onAxisWithPositiveX;
+                case "-Xaxis":
+                    return onAxisWithNegativeX;
+                case "+Yaxis":
+                    return onAxisWithPositiveY;
+                case "-Yaxis":
+                    return onAxisWithNegativeY;
+                default:
+                    return (Sector) Sector.class.getDeclaredField(s).get(null);
+            }
         } catch (IllegalAccessException|NoSuchFieldException e) {
             throw new IllegalArgumentException(s + " is not a valid sector");
         }

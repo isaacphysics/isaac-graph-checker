@@ -1,12 +1,14 @@
 package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.features;
 
 import com.google.common.base.Joiner;
-import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.Feature;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.IntersectionParams;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.Sector;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.Segment;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,6 +18,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ExpectedSectorsFeature implements Feature<ExpectedSectorsFeature.Data> {
+
+    private static final Logger log = LoggerFactory.getLogger(ExpectedSectorsFeature.class);
 
     @Override
     public String TAG() { return "through"; }
@@ -48,6 +52,7 @@ public class ExpectedSectorsFeature implements Feature<ExpectedSectorsFeature.Da
 
         private boolean match(Line line) {
             List<Sector> actualSectors = convertLineToSectorList(line);
+            log.error("User line passed through sectors: " + actualSectors);
             return expectedSectors.equals(actualSectors);
         }
 

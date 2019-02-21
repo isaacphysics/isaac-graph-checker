@@ -2,6 +2,7 @@ package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker;
 
 import org.junit.Test;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
+import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.features.Features;
 
 import java.util.function.Predicate;
 
