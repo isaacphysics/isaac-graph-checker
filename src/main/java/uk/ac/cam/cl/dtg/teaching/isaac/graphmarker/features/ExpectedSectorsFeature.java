@@ -1,6 +1,8 @@
 package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.features;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Streams;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.IntersectionParams;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
@@ -14,7 +16,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class ExpectedSectorsFeature implements Feature<ExpectedSectorsFeature.Data> {
@@ -51,13 +56,45 @@ public class ExpectedSectorsFeature implements Feature<ExpectedSectorsFeature.Da
         }
 
         private boolean match(Line line) {
-            List<Sector> actualSectors = convertLineToSectorList(line);
+            List<Set<Sector>> actualSectors = convertLineToSectorSetList(line);
             log.error("User line passed through sectors: " + actualSectors);
-            return expectedSectors.equals(actualSectors);
+            return match(expectedSectors, 0, actualSectors, 0);
+        }
+
+        private boolean match(List<Sector> expected, int i, List<Set<Sector>> actual, int j) {
+            boolean expectedFinished = i == expected.size();
+            boolean actualFinished = j == actual.size();
+            if (expectedFinished) {
+                return actualFinished;
+            }
+            if (actualFinished) return false;
+
+            return (actual.get(j).contains(expected.get(i)) && (
+                    match(expected, i, actual, j + 1)
+                ||  match(expected, i + 1, actual, j)
+                ||  match(expected, i + 1, actual, j + 1)))
+            || (actual.get(j).isEmpty() && match(expected, i, actual, j + 1));
+
         }
 
         List<Sector> convertLineToSectorList(Line line) {
-            List<Sector> output = new ArrayList<>();
+            List<Set<Sector>> output = convertLineToSectorSetList(line);
+
+            return output.stream()
+                .map(set -> orderedSectors.stream().filter(s -> set.contains(s)).findFirst().orElse(null))
+                .reduce(new ArrayList<Sector>(), (list, sector) -> {
+                    if (sector != null && (list.isEmpty() || !list.get(list.size() - 1).equals(sector))) {
+                        list.add(sector);
+                    }
+                    return list;
+                }, (a, b) -> {
+                    a.addAll(b);
+                    return a;
+                } );
+        }
+
+        List<Set<Sector>> convertLineToSectorSetList(Line line) {
+            List<Set<Sector>> output = new ArrayList<>();
 
             Point lastPoint = null;
             for (Point point : line) {
@@ -65,7 +102,7 @@ public class ExpectedSectorsFeature implements Feature<ExpectedSectorsFeature.Da
                     classifyLineSegment(output, Segment.closed(lastPoint, point));
                 }
 
-                Sector pointSector = classifyPoint(point);
+                Set<Sector> pointSector = classifyPoint(point);
 
                 addSector(output, pointSector);
 
@@ -75,7 +112,7 @@ public class ExpectedSectorsFeature implements Feature<ExpectedSectorsFeature.Da
             return output;
         }
 
-        private void addSector(List<Sector> output, Sector sector) {
+        private void addSector(List<Set<Sector>> output, Set<Sector> sector) {
             if (sector == null) {
                 return;
             }
@@ -84,20 +121,18 @@ public class ExpectedSectorsFeature implements Feature<ExpectedSectorsFeature.Da
             }
         }
 
-        private Sector classifyPoint(Point point) {
-            for (Sector sector : orderedSectors) {
-                if (sector.contains(point)) return sector;
-            }
-            return null;
+        private Set<Sector> classifyPoint(Point point) {
+            return orderedSectors.stream()
+                .filter(sector -> sector.contains(point))
+                .collect(Collectors.toSet());
         }
 
-        private void classifyLineSegment(List<Sector> output, Segment lineSegment) {
+        private void classifyLineSegment(List<Set<Sector>> output, Segment lineSegment) {
             // Calculate when we enter and leave the line segment
             IntersectionParams[] intersectionParams = orderedSectors.stream()
                     .map(sector -> sector.intersectionParams(lineSegment))
                     .toArray(IntersectionParams[]::new);
 
-            // Then for each region, pick the earliest sector on the list that we are in (skyline!)
             Boolean[] inside = orderedSectors.stream()
                     .map(sector -> sector.contains(lineSegment.getStart()))
                     .toArray(Boolean[]::new);
@@ -108,21 +143,18 @@ public class ExpectedSectorsFeature implements Feature<ExpectedSectorsFeature.Da
 
                 inside[index] = intersection.isInside();
 
-                int lowest = lowestSetBit(inside);
+                // Record all of the sectors we are currently in
+                Set<Sector> internalSectors = Streams.zip(
+                    orderedSectors.stream(),
+                    Arrays.stream(inside),
+                    (sector, in) -> in ? sector : null)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
 
-                if (lowest != -1) {
-                    addSector(output, orderedSectors.get(lowest));
-                }
+                addSector(output, internalSectors);
 
                 index = lowestIndex(intersectionParams);
             }
-        }
-
-        private int lowestSetBit(Boolean[] bits) {
-            for (int i = 0; i < bits.length; i++) {
-                if (bits[i]) return i;
-            }
-            return -1;
         }
 
         private int lowestIndex(IntersectionParams[] intersectionParams) {

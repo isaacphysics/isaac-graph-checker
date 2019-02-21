@@ -50,7 +50,12 @@ public class MarkerController {
 
     public MarkerController() throws IOException {
         questionData = ImmutableMap.of(
-            "48cfddd0-8e66-4e2a-b462-fc27aeb97cee", getSolution("through:bottomLeft,-Xaxis,topLeft,+Yaxis,topRight")
+            "48cfddd0-8e66-4e2a-b462-fc27aeb97cee",
+                getSolution("through:bottomLeft,-Xaxis,topLeft,+Yaxis,topRight"),
+            "5b032e4c-e432-455f-925f-8efb8b33c18e",
+                getSolution("through:topLeft, +Yaxis, topRight"),
+            "96ee3e16-6fa0-46b5-b9d9-f02d0ba4f077",
+                getSolution("through:bottomLeft,-Yaxis,bottomRight,+Xaxis,topRight,+Xaxis,bottomRight,+Xaxis,topRight")
         );
     }
 
@@ -60,8 +65,12 @@ public class MarkerController {
     @Produces(MediaType.APPLICATION_JSON)
     public IsaacAnswerResponse getMarks(@PathParam("question") String questionId,
                                         IsaacAnswer answer) throws Exception {
-        GraphSolutions question = questionData.get(questionId);
         if ("graphChoice".equals(answer.getType())) {
+            GraphSolutions question = questionData.get(questionId);
+
+            if (question == null) {
+                throw new Exception("Unknown question " + questionId);
+            }
             GraphAnswer graphAnswer = om.readValue(answer.getValue(), GraphAnswer.class);
             return marker.mark(question, graphAnswer);
         }

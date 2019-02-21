@@ -100,4 +100,14 @@ public class ExpectedSectorsFeatureTest {
                 .collect(Collectors.toList()));
     }
 
+    @Test
+    public void twoXminusThreeCanPassNearOrigin() {
+        // Due to the scaling of everything to -1 to 1, a correct answer can be arbitrarily close to the origin
+
+        Predicate<Line> testFeature = feature.matcher(feature.deserialize(
+            "bottomLeft, -Xaxis, topLeft, +Yaxis, topRight"));
+
+        assertTrue(testFeature.test(lineOf(x -> 2 * x + 0.03, -0.1, 0.1)));
+    }
+
 }
