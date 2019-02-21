@@ -155,11 +155,11 @@ public class ExpectedSectorsFeature implements Feature<ExpectedSectorsFeature.Da
         return new Data(expectedSectors);
     }
 
-    public ExpectedSectorsFeature() {
+    ExpectedSectorsFeature() {
         this.orderedSectors = defaultOrderedSectors;
     }
 
-    public ExpectedSectorsFeature(List<Sector> orderedSectors) {
+    ExpectedSectorsFeature(List<Sector> orderedSectors) {
         this.orderedSectors = orderedSectors;
     }
 

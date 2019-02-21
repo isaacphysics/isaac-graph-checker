@@ -14,6 +14,7 @@ public class AnswerToLine implements Function<GraphAnswer, Line> {
 
     @Override
     public Line apply(GraphAnswer graphAnswer) {
+        // TODO: Handle more than one curve
         Curve curve = graphAnswer.getCurves().get(0);
 
         List<Point> points = curve.getPts().stream()
