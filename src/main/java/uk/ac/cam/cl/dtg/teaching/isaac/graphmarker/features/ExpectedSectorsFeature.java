@@ -62,18 +62,27 @@ public class ExpectedSectorsFeature implements Feature<ExpectedSectorsFeature.Da
         }
 
         private boolean match(List<Sector> expected, int i, List<Set<Sector>> actual, int j) {
-            boolean expectedFinished = i == expected.size();
-            boolean actualFinished = j == actual.size();
+            boolean expectedFinished = i >= expected.size();
+            boolean actualFinished = j >= actual.size();
             if (expectedFinished) {
                 return actualFinished;
             }
             if (actualFinished) return false;
 
-            return (actual.get(j).contains(expected.get(i)) && (
-                    match(expected, i, actual, j + 1)
-                ||  match(expected, i + 1, actual, j)
-                ||  match(expected, i + 1, actual, j + 1)))
-            || (actual.get(j).isEmpty() && match(expected, i, actual, j + 1));
+            if (actual.get(j).contains(expected.get(i))) {
+                if (match(expected, i, actual, j + 1)) return true;
+
+                // If we're consuming i, then we must consume all j's until the next doesn't contain expected[i]
+                // Otherwise, you can get non-real oscillations around axes as the line crosses the axis
+                int next = j + 1;
+                while (next < actual.size() && actual.get(next).contains(expected.get(i))) next++;
+                if (match(expected, i + 1, actual, next - 1)) return true;
+                if (match(expected, i + 1, actual, next)) return true;
+            }
+            if (actual.get(j).isEmpty()) {
+                if (match(expected, i, actual, j + 1)) return true;
+            }
+            return false;
 
         }
 

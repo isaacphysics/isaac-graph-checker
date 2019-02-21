@@ -110,4 +110,15 @@ public class ExpectedSectorsFeatureTest {
         assertTrue(testFeature.test(lineOf(x -> 2 * x + 0.03, -0.1, 0.1)));
     }
 
+    @Test
+    public void crossingTheAxisShouldBeIrreversible() {
+        Predicate<Line> testFeature = feature.matcher(feature.deserialize(
+            "bottomRight,+Xaxis,topRight,+Xaxis,bottomRight,+Xaxis,topRight"));
+
+        assertTrue(testFeature.test(lineOf(x -> (x - 1) * (x - 3) * (x - 4), 0.5, 10)));
+
+        // Shift graph up so the crossing back into the bottomRight doesn't happen properly
+        assertFalse(testFeature.test(lineOf(x -> (x - 1) * (x - 3) * (x - 4) + 0.63, 0.5, 10)));
+    }
+
 }
