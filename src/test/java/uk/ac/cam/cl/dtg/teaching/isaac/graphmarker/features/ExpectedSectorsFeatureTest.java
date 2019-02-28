@@ -121,6 +121,12 @@ public class ExpectedSectorsFeatureTest {
 
         // Shift graph up so the crossing back into the bottomRight doesn't happen properly
         assertFalse(testFeature.test(lineOf(x -> (x - 1) * (x - 3) * (x - 4) + 0.63, 0.5, 10)));
+
+        double minimaX = (8 + Math.sqrt(7)) / 3;
+        double minimaY = (minimaX - 1) * (minimaX - 3) * (minimaX - 4);
+
+        // But only just going over the axis should still be allowed
+        assertTrue(testFeature.test(lineOf(x -> (x - 1) * (x - 3) * (x - 4) - minimaY - (AXIS_SLOP / 4), 0.5, 10)));
     }
 
 }

@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  */
 public class Sector {
 
-    private static final double AXIS_SLOP = 0.01;
+    public static final double AXIS_SLOP = 0.01;
     private static final double ORIGIN_SLOP = AXIS_SLOP * 2;
     private static final Point UP = new Point(0, 1);
     private static final Point DOWN = new Point(0, -1);

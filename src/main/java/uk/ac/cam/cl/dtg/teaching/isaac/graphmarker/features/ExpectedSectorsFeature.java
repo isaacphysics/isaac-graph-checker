@@ -1,7 +1,10 @@
 package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.features;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
+import jdk.nashorn.internal.ir.annotations.Immutable;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.IntersectionParams;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
@@ -14,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -67,18 +71,15 @@ public class ExpectedSectorsFeature implements Feature<ExpectedSectorsFeature.Da
             }
             if (actualFinished) return false;
 
+            if (actual.get(j).isEmpty()) {
+                return match(expected, i, actual, j + 1);
+            }
+
             if (actual.get(j).contains(expected.get(i))) {
                 if (match(expected, i, actual, j + 1)) return true;
 
-                // If we're consuming i, then we must consume all j's until the next doesn't contain expected[i]
-                // Otherwise, you can get non-real oscillations around axes as the line crosses the axis
-                int next = j + 1;
-                while (next < actual.size() && actual.get(next).contains(expected.get(i))) next++;
-                if (match(expected, i + 1, actual, next - 1)) return true;
-                if (match(expected, i + 1, actual, next)) return true;
-            }
-            if (actual.get(j).isEmpty()) {
-                if (match(expected, i, actual, j + 1)) return true;
+                if (match(expected, i + 1, actual, j)) return true;
+                if (match(expected, i + 1, actual, j + 1)) return true;
             }
             return false;
 
@@ -119,12 +120,25 @@ public class ExpectedSectorsFeature implements Feature<ExpectedSectorsFeature.Da
             return output;
         }
 
-        private void addSector(List<Set<Sector>> output, Set<Sector> sector) {
-            if (sector == null) {
+        private List<Set<Sector>> invalidSectorSets = ImmutableList.of(
+            ImmutableSet.of(Sector.topRight, Sector.bottomRight),
+            ImmutableSet.of(Sector.topLeft, Sector.bottomLeft),
+            ImmutableSet.of(Sector.topRight, Sector.topLeft),
+            ImmutableSet.of(Sector.bottomRight, Sector.bottomLeft),
+            ImmutableSet.of(Sector.onAxisWithPositiveX, Sector.onAxisWithNegativeX),
+            ImmutableSet.of(Sector.onAxisWithPositiveY, Sector.onAxisWithNegativeY)
+        );
+
+        private void addSector(List<Set<Sector>> output, Set<Sector> sectors) {
+            if (sectors == null) {
                 return;
             }
-            if (output.size() == 0 || !output.get(output.size() - 1).equals(sector)) {
-                output.add(sector);
+            // If you are in an area that contains both sides of an axis say, remove both sides
+            invalidSectorSets.stream()
+                .filter(sectors::containsAll)
+                .forEach(sectors::removeAll);
+            if (output.size() == 0 || !output.get(output.size() - 1).equals(sectors)) {
+                output.add(sectors);
             }
         }
 
