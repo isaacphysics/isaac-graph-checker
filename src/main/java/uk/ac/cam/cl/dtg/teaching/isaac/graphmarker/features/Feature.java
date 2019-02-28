@@ -7,6 +7,7 @@ import java.util.function.Predicate;
 public interface Feature<F extends Feature.FeatureData> {
     interface FeatureData {
         String serialize();
+        boolean match(Line line);
     }
 
     String TAG();
@@ -15,5 +16,7 @@ public interface Feature<F extends Feature.FeatureData> {
 
     F generate(Line expectedLine);
 
-    Predicate<Line> matcher(F data);
+    default Predicate<Line> matcher(F data) {
+        return line -> data.match(line);
+    }
 }

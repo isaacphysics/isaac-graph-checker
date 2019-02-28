@@ -1,7 +1,6 @@
 package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.features;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.IntersectionParams;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
@@ -18,8 +17,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class ExpectedSectorsFeature implements Feature<ExpectedSectorsFeature.Data> {
@@ -55,7 +52,8 @@ public class ExpectedSectorsFeature implements Feature<ExpectedSectorsFeature.Da
             return Joiner.on(",").join(this.expectedSectors);
         }
 
-        private boolean match(Line line) {
+        @Override
+        public boolean match(Line line) {
             List<Set<Sector>> actualSectors = convertLineToSectorSetList(line);
             log.error("User line passed through sectors: " + actualSectors);
             return match(expectedSectors, 0, actualSectors, 0);
@@ -207,10 +205,5 @@ public class ExpectedSectorsFeature implements Feature<ExpectedSectorsFeature.Da
     @Override
     public Data generate(Line expectedLine) {
         return new Data(new Data(Collections.emptyList()).convertLineToSectorList(expectedLine));
-    }
-
-    @Override
-    public Predicate<Line> matcher(Data data) {
-        return line -> data.match(line);
     }
 }

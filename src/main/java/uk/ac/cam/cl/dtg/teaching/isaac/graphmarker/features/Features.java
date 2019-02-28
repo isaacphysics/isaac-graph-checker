@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class Features {
-    private static List<Feature> featureList = Arrays.asList(new ExpectedSectorsFeature());
+    private static List<Feature> featureList = Arrays.asList(new ExpectedSectorsFeature(), new SlopeFeature());
 
     public static Predicate<Line> matcher(String feature) {
         String[] features = feature.split("\n");
