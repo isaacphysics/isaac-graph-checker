@@ -4,7 +4,6 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
-import org.slf4j.MarkerFactory;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.IntersectionParams;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
@@ -132,11 +131,13 @@ public class ExpectedSectorsFeature implements Feature<ExpectedSectorsFeature.Da
             if (sectors == null) {
                 return;
             }
+
             // If you are in an area that contains both sides of an axis say, remove both sides.
-            invalidSectorSets.stream()
+            List<Set<Sector>> sectorsToRemove = invalidSectorSets.stream()
                 .filter(sectors::containsAll)
-                .sorted() // This is here to cause all the filtering to be done before removal.
-                .forEach(sectors::removeAll);
+                .collect(Collectors.toList());
+            sectorsToRemove.forEach(sectors::removeAll);
+
             if (output.size() == 0 || !output.get(output.size() - 1).equals(sectors)) {
                 output.add(sectors);
             }
