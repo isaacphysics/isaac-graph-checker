@@ -6,6 +6,7 @@ import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -17,6 +18,9 @@ public class Sector {
 
     public static final double AXIS_SLOP = 0.01;
     private static final double ORIGIN_SLOP = AXIS_SLOP * 2;
+
+    private static final Point originPoint = new Point(0, 0);
+
     private static final Point UP = new Point(0, 1);
     private static final Point DOWN = new Point(0, -1);
     private static final Point RIGHT = new Point(1, 0);
@@ -73,9 +77,13 @@ public class Sector {
                 .collect(Collectors.toList()));
     }
 
-    /*public boolean whollyContains(Line line) {
-        return false;
-    }*/
+    public Line clip(Line line) {
+        Line result = line;
+        for (Segment segment : this.segments) {
+            result = segment.clip(result);
+        }
+        return result;
+    }
 
     private static Sector quadrant(String name, Point origin, Point axis1, Point axis2) {
         return new Sector(name, Arrays.asList(
@@ -85,8 +93,7 @@ public class Sector {
     }
 
     private static Sector centeredQuadrant(String name, Point axis1, Point axis2) {
-        Point origin = new Point(0, 0);
-        return quadrant(name, origin, axis1, axis2);
+        return quadrant(name, originPoint, axis1, axis2);
     }
 
     public static Sector topRight = centeredQuadrant("topRight", RIGHT, UP);
@@ -125,6 +132,17 @@ public class Sector {
             Segment.closed(originPoints[2], originPoints[3]),
             Segment.closed(originPoints[3], originPoints[0])
     ));
+
+    private static Sector centeredHalf(String name, Point axis) {
+        return new Sector(name, Collections.singletonList(
+            Segment.openBothEnds(originPoint, axis, Side.LEFT)
+        ));
+    }
+
+    public static Sector left = centeredHalf("left", UP);
+    public static Sector right = centeredHalf("right", DOWN);
+    public static Sector top = centeredHalf("top", RIGHT);
+    public static Sector bottom = centeredHalf("bottom", LEFT);
 
     public static Sector byName(String s) {
         try {

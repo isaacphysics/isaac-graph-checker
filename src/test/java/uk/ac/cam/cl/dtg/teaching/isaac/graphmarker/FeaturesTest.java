@@ -18,4 +18,13 @@ public class FeaturesTest {
         assertTrue(testFeature.test(lineOf(x -> Math.sin(x), -2 * Math.PI, 2 * Math.PI)));
         assertFalse(testFeature.test(lineOf(x -> Math.cos(x), -2 * Math.PI, 2 * Math.PI)));
     }
+
+    @Test
+    public void testCombinedFeaturesWorks() {
+        Predicate<Line> testFeature = Features.matcher("through:  topLeft, +Yaxis, topRight\r\nsymmetry:even");
+
+        assertTrue(testFeature.test(lineOf(x -> x * x + 3, -10, 10)));
+        assertFalse(testFeature.test(lineOf(x -> x > 0 ? x + 3 : x * x + 3, -10, 10)));
+    }
+
 }

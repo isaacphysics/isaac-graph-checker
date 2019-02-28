@@ -1,11 +1,12 @@
 package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry;
 
 import org.junit.Test;
+import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
 
 import static org.junit.Assert.*;
-import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Intersection.INSIDE;
-import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Intersection.OUTSIDE;
+import static org.hamcrest.Matchers.*;
+import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.TestHelpers.lineOf;
 
 public class SegmentTest {
 
@@ -107,5 +108,43 @@ public class SegmentTest {
         assertTrue(above.inside(a));
         assertTrue(above.inside(b));
         assertTrue(above.intersects(up));
+    }
+
+    @Test
+    public void atParameter() {
+        Segment segment = Segment.closed(new Point(1, 0), new Point(0, 1));
+
+        Point p = segment.atParameter(0.25);
+
+        assertThat(p.getX(), closeTo(0.75, 0.001));
+        assertThat(p.getY(), closeTo(0.25, 0.001));
+    }
+
+    @Test
+    public void clip() {
+        Segment segment = Segment.closed(new Point(-1, -1), new Point(1, 1));
+
+        Segment clipSegment = Segment.openBothEnds(new Point(0, 0), new Point(0, 1), Side.LEFT);
+
+        Segment clippedSegment = clipSegment.clip(segment);
+
+        assertThat(clippedSegment.getStart().getX(), closeTo(-1, 0.001));
+        assertThat(clippedSegment.getStart().getY(), closeTo(-1, 0.001));
+
+        assertThat(clippedSegment.getEnd().getX(), closeTo(0, 0.001));
+        assertThat(clippedSegment.getEnd().getY(), closeTo(0, 0.001));
+    }
+
+    @Test
+    public void clipLine() {
+        Line expectedLine = lineOf(new Point(-1, -1), new Point(0, 0), new Point(2, 0), new Point(3, -1));
+        Line line = lineOf(new Point(-1, -1), new Point(1, 1), new Point(3, -1));
+
+        Segment clipSegment = Segment.openBothEnds(new Point(0, 0), new Point(-1, 0), Side.LEFT);
+
+        Line clippedLine = clipSegment.clip(line);
+
+        assertEquals(4, clippedLine.getPoints().size());
+        assertEquals(expectedLine, clippedLine);
     }
 }

@@ -6,7 +6,6 @@ import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.Sector;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;

@@ -1,7 +1,11 @@
 package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry;
 
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.IntersectionParams;
+import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.Side.LEFT;
 import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.Side.RIGHT;
@@ -123,6 +127,53 @@ public class Segment {
         return new IntersectionParams.IntersectionParam(u, inside);
     }
 
+    public Line clip(Line line) {
+        List<Point> points = new ArrayList<>();
+
+        Point lastPoint = null;
+        for (Point point : line) {
+            if (lastPoint != null) {
+                Segment lineSegment = Segment.closed(lastPoint, point);
+                Segment clippedSegment = this.clip(lineSegment);
+                if (clippedSegment != null) {
+                    if (points.isEmpty() || !points.get(points.size() - 1).equals(clippedSegment.start)) {
+                        points.add(clippedSegment.start);
+                    }
+                    points.add(clippedSegment.end);
+                }
+            }
+            lastPoint = point;
+        }
+        return new Line(points);
+    }
+
+    Segment clip(Segment segment) {
+         IntersectionParams.IntersectionParam intersectionParam = intersectionParam(segment);
+         if (intersectionParam == null) {
+             if (inside(segment.start)) {
+                 return segment;
+             } else {
+                 return null;
+             }
+         }
+
+         Point p = segment.atParameter(intersectionParam.getT());
+
+         if (intersectionParam.isInside()) {
+             // End is inside, so clip start point
+             return Segment.closed(p, segment.end);
+         } else {
+             return Segment.closed(segment.start, p);
+         }
+    }
+
+    Point atParameter(double t) {
+         return new Point(
+             start.getX() * (1 - t) + end.getX() * t,
+             start.getY() * (1 - t) + end.getY() * t
+         );
+    }
+
     public static Segment closed(Point start, Point end) {
         return new Segment(start, end);
     }
@@ -141,5 +192,9 @@ public class Segment {
 
     public Point getStart() {
         return start;
+    }
+
+    public Point getEnd() {
+        return end;
     }
 }
