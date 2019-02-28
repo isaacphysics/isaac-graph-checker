@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
+import org.slf4j.MarkerFactory;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.IntersectionParams;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
@@ -57,7 +58,7 @@ public class ExpectedSectorsFeature implements Feature<ExpectedSectorsFeature.Da
         @Override
         public boolean match(Line line) {
             List<Set<Sector>> actualSectors = convertLineToSectorSetList(line);
-            log.error("User line passed through sectors: " + actualSectors);
+            log.debug("User line passed through sectors: " + actualSectors);
             return match(expectedSectors, 0, actualSectors, 0);
         }
 
