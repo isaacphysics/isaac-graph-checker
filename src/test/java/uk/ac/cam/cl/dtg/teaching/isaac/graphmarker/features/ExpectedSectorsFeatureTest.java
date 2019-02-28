@@ -84,9 +84,9 @@ public class ExpectedSectorsFeatureTest {
 
     @Test
     public void generateMatchesItself() {
-        ExpectedSectorsFeature.Data data = feature.generate((lineOf(x -> Math.cos(x), -2 * Math.PI, 2 * Math.PI)));
+        String data = feature.generate((lineOf(x -> Math.cos(x), -2 * Math.PI, 2 * Math.PI)));
 
-        Predicate<Line> testFeature = feature.matcher(data);
+        Predicate<Line> testFeature = feature.matcher(feature.deserialize(data));
 
         assertTrue(testFeature.test(wobbly(lineOf(x -> Math.cos(x), -2 * Math.PI, 2 * Math.PI))));
     }

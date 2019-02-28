@@ -147,4 +147,26 @@ public class SegmentTest {
         assertEquals(4, clippedLine.getPoints().size());
         assertEquals(expectedLine, clippedLine);
     }
+
+    @Test
+    public void clipOutsideReturnsEmptyLine() {
+        Line line = lineOf(new Point(-1, -1), new Point(1, 1), new Point(3, -1));
+
+        Segment clipSegment = Segment.openBothEnds(new Point(0, 2), new Point(1, 0), Side.LEFT);
+
+        Line clippedLine = clipSegment.clip(line);
+
+        assertEquals(0, clippedLine.getPoints().size());
+    }
+
+    @Test
+    public void clipOnEdgeReturnsSinglePoint() {
+        Line line = lineOf(new Point(-1, -1), new Point(1, 1), new Point(3, -1));
+
+        Segment clipSegment = Segment.openBothEnds(new Point(0, 1), new Point(1, 0), Side.LEFT);
+
+        Line clippedLine = clipSegment.clip(line);
+
+        assertEquals(1, clippedLine.getPoints().size());
+    }
 }

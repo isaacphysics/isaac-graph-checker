@@ -14,6 +14,7 @@ import java.util.Map;
 import static org.hamcrest.Matchers.closeTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.TestHelpers.lineOf;
 
 public class SymmetryFeatureTest {
@@ -54,4 +55,17 @@ public class SymmetryFeatureTest {
         functions.forEach((item) -> assertEquals(item.left + " should be " + item.right, item.right, symmetryFeature.getSymmetryOfLine(item.middle)));
     }
 
+    @Test
+    public void curveOnlyOnRightOfYaxisHasNoSymmetry() {
+        assertEquals(SymmetryFeature.SymmetryType.NONE, symmetryFeature.getSymmetryOfLine(lineOf(x -> x*x + 2 * x + 3, 0, 10)));
+        assertEquals(SymmetryFeature.SymmetryType.NONE, symmetryFeature.getSymmetryOfLine(lineOf(x -> x, 0, 10)));
+    }
+
+    @Test
+    public void simpleSymmetryTestWorks() {
+        String data = symmetryFeature.generate(lineOf(x -> x, -10, 10));
+
+        assertTrue(symmetryFeature.matcher(symmetryFeature.deserialize(data))
+            .test(lineOf(x -> x * 1.5, -10, 10)));
+    }
 }

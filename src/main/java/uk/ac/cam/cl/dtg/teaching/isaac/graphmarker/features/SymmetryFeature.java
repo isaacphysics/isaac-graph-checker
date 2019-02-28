@@ -42,8 +42,8 @@ public class SymmetryFeature implements Feature<SymmetryFeature.Data> {
     }
 
     @Override
-    public Data generate(Line expectedLine) {
-        return new Data(getSymmetryOfLine(expectedLine));
+    public String generate(Line expectedLine) {
+        return new Data(getSymmetryOfLine(expectedLine)).serialize();
     }
 
     SymmetryType getSymmetryOfLine(Line line) {
@@ -51,7 +51,7 @@ public class SymmetryFeature implements Feature<SymmetryFeature.Data> {
         Line left = Sector.left.clip(line);
         Line right = Sector.right.clip(line);
 
-        if (left.getPoints().size() == 0 || right.getPoints().size() == 0) {
+        if (left.getPoints().size() <= 1 || right.getPoints().size() <= 1) {
             return SymmetryType.NONE;
         }
 

@@ -84,19 +84,18 @@ public class ExpectedSectorsFeature implements Feature<ExpectedSectorsFeature.Da
         }
 
         List<Sector> convertLineToSectorList(Line line) {
-            List<Set<Sector>> output = convertLineToSectorSetList(line);
+            List<Set<Sector>> sectors = convertLineToSectorSetList(line);
 
-            return output.stream()
-                .map(set -> orderedSectors.stream().filter(s -> set.contains(s)).findFirst().orElse(null))
-                .reduce(new ArrayList<Sector>(), (list, sector) -> {
-                    if (sector != null && (list.isEmpty() || !list.get(list.size() - 1).equals(sector))) {
-                        list.add(sector);
+            List<Sector> output = new ArrayList<>();
+            sectors.stream()
+                .map(set -> orderedSectors.stream().filter(set::contains).findFirst().orElse(null))
+                .forEach(sector -> {
+                    if (output.isEmpty() || !output.get(output.size() - 1).equals(sector)) {
+                        output.add(sector);
                     }
-                    return list;
-                }, (a, b) -> {
-                    a.addAll(b);
-                    return a;
-                } );
+                });
+
+            return output;
         }
 
         List<Set<Sector>> convertLineToSectorSetList(Line line) {
@@ -128,9 +127,7 @@ public class ExpectedSectorsFeature implements Feature<ExpectedSectorsFeature.Da
         );
 
         private void addSector(List<Set<Sector>> output, Set<Sector> sectors) {
-            if (sectors == null) {
-                return;
-            }
+            Objects.requireNonNull(sectors);
 
             // If you are in an area that contains both sides of an axis say, remove both sides.
             List<Set<Sector>> sectorsToRemove = invalidSectorSets.stream()
@@ -218,7 +215,7 @@ public class ExpectedSectorsFeature implements Feature<ExpectedSectorsFeature.Da
     }
 
     @Override
-    public Data generate(Line expectedLine) {
-        return new Data(new Data(Collections.emptyList()).convertLineToSectorList(expectedLine));
+    public String generate(Line expectedLine) {
+        return new Data(new Data(Collections.emptyList()).convertLineToSectorList(expectedLine)).serialize();
     }
 }

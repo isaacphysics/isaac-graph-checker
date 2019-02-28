@@ -139,7 +139,9 @@ public class Segment {
                     if (points.isEmpty() || !points.get(points.size() - 1).equals(clippedSegment.start)) {
                         points.add(clippedSegment.start);
                     }
-                    points.add(clippedSegment.end);
+                    if (points.isEmpty() || !points.get(points.size() - 1).equals(clippedSegment.end)) {
+                        points.add(clippedSegment.end);
+                    }
                 }
             }
             lastPoint = point;

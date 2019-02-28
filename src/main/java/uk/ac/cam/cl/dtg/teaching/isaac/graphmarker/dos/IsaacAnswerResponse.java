@@ -21,4 +21,12 @@ public class IsaacAnswerResponse {
     public ResponseExplanation getExplanation() {
         return explanation;
     }
+
+    @Override
+    public String toString() {
+        return "IsaacAnswerResponse{" +
+            "correct=" + correct +
+            ", explanation=" + explanation +
+            '}';
+    }
 }

@@ -42,8 +42,8 @@ public class SlopeFeature implements Feature<SlopeFeature.Data> {
     }
 
     @Override
-    public Data generate(Line expectedLine) {
-        return new Data(lineToSlope(expectedLine));
+    public String generate(Line expectedLine) {
+        return new Data(lineToSlope(expectedLine)).serialize();
     }
 
     double lineToSlope(Line line) {

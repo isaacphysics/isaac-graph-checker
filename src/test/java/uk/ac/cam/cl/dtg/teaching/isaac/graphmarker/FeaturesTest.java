@@ -27,4 +27,9 @@ public class FeaturesTest {
         assertFalse(testFeature.test(lineOf(x -> x > 0 ? x + 3 : x * x + 3, -10, 10)));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testMissingFeatureThrows() {
+        Features.matcher("foo#!!!1!!: bar?");
+    }
+
 }

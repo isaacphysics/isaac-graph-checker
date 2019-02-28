@@ -3,6 +3,7 @@ package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry;
 import org.junit.Test;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Intersection;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
+import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.features.ExpectedSectorsFeature;
 
 import java.util.Arrays;
 
@@ -107,10 +108,10 @@ public class SectorTest {
     @Test
     public void axesHaveCorrectPointHandling() {
         Sector[] axes = new Sector[] {
-                Sector.onAxisWithPositiveY,
-                Sector.onAxisWithNegativeX,
-                Sector.onAxisWithNegativeY,
-                Sector.onAxisWithPositiveX
+                Sector.byName("+Yaxis"),
+                Sector.byName("-Xaxis"),
+                Sector.byName("-Yaxis"),
+                Sector.byName("+Xaxis")
         };
 
         Point[] outsidePoints = new Point[] {
@@ -190,5 +191,10 @@ public class SectorTest {
             outsidePoints = Arrays.stream(outsidePoints).map(p -> new Point(-p.getY(), p.getX())).toArray(Point[]::new);
             insidePoints = Arrays.stream(insidePoints).map(p -> new Point(-p.getY(), p.getX())).toArray(Point[]::new);
         }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void unknownSectorNameThrowsAnError() {
+        Sector.byName("foo!+~~");
     }
 }

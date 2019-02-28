@@ -15,7 +15,7 @@ public interface Feature<F extends Feature.FeatureData> {
 
     F deserialize(String featureData);
 
-    F generate(Line expectedLine);
+    String generate(Line expectedLine);
 
     default Predicate<Line> matcher(F data) {
         return line -> data.match(line);
