@@ -63,7 +63,9 @@ public class MarkerController {
                     "line: 1; through:  bottomLeft",
                     "line: 1; slope: start=flat, end=down",
                     "line: 2; through: topRight",
-                    "line: 2; slope: start=down, end=flat"))
+                    "line: 2; slope: start=down, end=flat"),
+            "afaaf16b-2415-4662-98bf-306c55cc72d0",
+                getSolution("through: topLeft, +Yaxis, topRight", "slope: start=flat, end=up")
         );
     }
 

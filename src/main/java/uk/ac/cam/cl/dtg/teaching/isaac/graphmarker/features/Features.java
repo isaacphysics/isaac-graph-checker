@@ -60,7 +60,7 @@ public class Features {
                 }
             }
             if (!success) {
-                log.info("Failed predicates: " + String.join("; ", failedPredicates));
+                log.info("Failed predicates: " + String.join("\r\n\t\t", failedPredicates));
             }
             return success;
         };

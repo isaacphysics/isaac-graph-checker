@@ -1,10 +1,13 @@
 package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.features;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -12,7 +15,9 @@ import static java.util.Collections.EMPTY_LIST;
 
 public class SlopeFeature implements LineFeature<SlopeFeature.Data> {
 
-    private static final double SLOPE_THRESHOLD = 8;
+    private static final Logger log = LoggerFactory.getLogger(SlopeFeature.class);
+
+    private static final double SLOPE_THRESHOLD = 4;
 
     enum Position {
         START,
@@ -88,16 +93,23 @@ public class SlopeFeature implements LineFeature<SlopeFeature.Data> {
         double sumY = line.stream().mapToDouble(Point::getY).sum();
         double sumX2 = line.stream().mapToDouble(p -> p.getX() * p.getX()).sum();
         double sumXY = line.stream().mapToDouble(p -> p.getX() * p.getY()).sum();
-        double slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+        double coefficient = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
 
         // From our perspective, UP/DOWN is about the change in Y over this period.
         // So look at change in Y to get the sign of the slope, not the change in Y over X.
         Point size = line.getSize();
-        slope = Math.abs(slope);
+        coefficient = Math.abs(coefficient);
         if (size.getY() < 0) {
-            slope = -slope;
+            coefficient = -coefficient;
         }
 
+        Slope slope = coefficientToSlope(coefficient);
+
+        log.debug("Line with coefficient " + coefficient + " has slope " + slope);
+        return slope;
+    }
+
+    private Slope coefficientToSlope(double slope) {
         if (slope > SLOPE_THRESHOLD) {
             return Slope.UP;
         }
@@ -117,10 +129,11 @@ public class SlopeFeature implements LineFeature<SlopeFeature.Data> {
         Line lineToMeasure = line;
         switch (position) {
             case START:
-                lineToMeasure = new Line(line.getPoints().subList(0, 10), EMPTY_LIST);
+                lineToMeasure = new Line(line.getPoints().subList(0, 5), Collections.emptyList());
                 break;
             case END:
-                lineToMeasure = new Line(line.getPoints().subList(90, 100), EMPTY_LIST);
+                int size = line.getPoints().size();
+                lineToMeasure = new Line(line.getPoints().subList(size - 5, size), Collections.emptyList());
                 break;
         }
         return lineToMeasure;

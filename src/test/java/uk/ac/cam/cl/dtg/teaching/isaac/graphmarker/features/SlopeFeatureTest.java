@@ -32,7 +32,7 @@ public class SlopeFeatureTest {
 
     @Test
     public void simpleSlopeTestWorks() {
-        String data = slopeFeature.generate(lineOf(x -> 1 / x, 0.001, 10));
+        String data = slopeFeature.generate(lineOf(x -> 1 / x, 0.01, 10));
 
         assertTrue(slopeFeature.matcher(slopeFeature.deserialize(data))
             .test(lineOf(x -> 0.5 / x, 0.001, 10)));
@@ -84,7 +84,7 @@ public class SlopeFeatureTest {
 
     @Test
     public void inverseOfXgeneratesTwoSlopes() {
-        String featureData = slopeFeature.generate(lineOf(x -> 1 / x, 0.001, 15));
+        String featureData = slopeFeature.generate(lineOf(x -> 1 / x, 0.01, 10));
 
         assertEquals(2, StringUtils.countMatches(featureData, '='));
     }
