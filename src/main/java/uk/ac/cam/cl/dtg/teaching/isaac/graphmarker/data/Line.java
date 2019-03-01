@@ -10,14 +10,21 @@ import java.util.stream.Stream;
  * Represents a series of Points. When drawn, connect with cubic Bezier curves, but in here, assume straight segments.
  */
 public class Line implements Iterable<Point> {
-    private List<Point> points;
+    private final List<Point> points;
 
-    public Line(List<Point> points) {
+    private final List<PointOfInterest> pointsOfInterest;
+
+    public Line(List<Point> points, List<PointOfInterest> pointsOfInterest) {
         this.points = points;
+        this.pointsOfInterest = pointsOfInterest;
     }
 
     public List<Point> getPoints() {
         return points;
+    }
+
+    public List<PointOfInterest> getPointsOfInterest() {
+        return pointsOfInterest;
     }
 
     @Override

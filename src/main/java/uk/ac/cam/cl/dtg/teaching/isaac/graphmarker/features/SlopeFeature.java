@@ -1,15 +1,14 @@
 package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.features;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static java.util.Collections.EMPTY_LIST;
 
 public class SlopeFeature implements LineFeature<SlopeFeature.Data> {
 
@@ -118,10 +117,10 @@ public class SlopeFeature implements LineFeature<SlopeFeature.Data> {
         Line lineToMeasure = line;
         switch (position) {
             case START:
-                lineToMeasure = new Line(line.getPoints().subList(0, 10));
+                lineToMeasure = new Line(line.getPoints().subList(0, 10), EMPTY_LIST);
                 break;
             case END:
-                lineToMeasure = new Line(line.getPoints().subList(90, 100));
+                lineToMeasure = new Line(line.getPoints().subList(90, 100), EMPTY_LIST);
                 break;
         }
         return lineToMeasure;

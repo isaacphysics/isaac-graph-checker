@@ -28,18 +28,6 @@ public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeatur
     @Override
     public String TAG() { return "through"; }
 
-    private static final List<Sector> defaultOrderedSectors = Arrays.asList(
-            Sector.origin,
-            Sector.onAxisWithPositiveX,
-            Sector.onAxisWithPositiveY,
-            Sector.onAxisWithNegativeX,
-            Sector.onAxisWithNegativeY,
-            Sector.topRight,
-            Sector.topLeft,
-            Sector.bottomLeft,
-            Sector.bottomRight
-    );
-
     private final List<Sector> orderedSectors;
 
     protected class Data implements LineFeature.FeatureData {
@@ -141,9 +129,7 @@ public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeatur
         }
 
         private Set<Sector> classifyPoint(Point point) {
-            return orderedSectors.stream()
-                .filter(sector -> sector.contains(point))
-                .collect(Collectors.toSet());
+            return Sector.classify(point, orderedSectors);
         }
 
         private void classifyLineSegment(List<Set<Sector>> output, Segment lineSegment) {
@@ -207,7 +193,7 @@ public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeatur
     }
 
     ExpectedSectorsFeature() {
-        this.orderedSectors = defaultOrderedSectors;
+        this.orderedSectors = Sector.defaultOrderedSectors;
     }
 
     ExpectedSectorsFeature(List<Sector> orderedSectors) {

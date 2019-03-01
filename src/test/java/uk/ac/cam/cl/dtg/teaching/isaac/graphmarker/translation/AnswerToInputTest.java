@@ -43,8 +43,8 @@ public class AnswerToInputTest {
             null,
             null,
             null,
-            null,
-            null,
+            Collections.emptyList(),
+            Collections.emptyList(),
             0
         );
     }

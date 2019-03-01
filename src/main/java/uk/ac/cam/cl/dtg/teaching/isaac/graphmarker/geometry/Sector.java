@@ -4,11 +4,13 @@ import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Intersection;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.IntersectionParams;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
+import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.PointOfInterest;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -161,5 +163,31 @@ public class Sector {
         } catch (IllegalAccessException|NoSuchFieldException e) {
             throw new IllegalArgumentException(s + " is not a valid sector");
         }
+    }
+
+    public static final List<Sector> defaultOrderedSectors = Arrays.asList(
+        origin,
+        onAxisWithPositiveX,
+        onAxisWithPositiveY,
+        onAxisWithNegativeX,
+        onAxisWithNegativeY,
+        topRight,
+        topLeft,
+        bottomLeft,
+        bottomRight
+    );
+
+    public static Set<Sector> classify(Point point, List<Sector> orderedSectors) {
+        return orderedSectors.stream()
+            .filter(sector -> sector.contains(point))
+            .collect(Collectors.toSet());
+    }
+
+    public static Sector classify(Point point) {
+        Set<Sector> possibleSectors = classify(point, defaultOrderedSectors);
+        return defaultOrderedSectors.stream()
+            .filter(possibleSectors::contains)
+            .findFirst()
+            .get();
     }
 }

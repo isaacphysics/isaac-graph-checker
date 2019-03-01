@@ -40,10 +40,9 @@ public class MarkerController {
             new ResponseExplanation("markdown", new String[]{}, "content",
                 "Your answer was correct!"))));
 
-        return new GraphSolutions(Arrays.stream(answers)
-            .map(answer -> new GraphSolutionItem(answer, success))
-            .collect(Collectors.toList()),
-            failed);
+        return new GraphSolutions(Collections.singletonList(
+            new GraphSolutionItem(String.join("\r\n", answers), success)
+        ), failed);
     }
 
     private final Map<String, GraphSolutions> questionData;
@@ -53,12 +52,14 @@ public class MarkerController {
             "48cfddd0-8e66-4e2a-b462-fc27aeb97cee",
                 getSolution("through:bottomLeft,-Xaxis,topLeft,+Yaxis,topRight"),
             "5b032e4c-e432-455f-925f-8efb8b33c18e",
-                getSolution("through:topLeft, +Yaxis, topRight"),
+                getSolution("through:topLeft, +Yaxis, topRight", "points: minima in topRight"),
             "96ee3e16-6fa0-46b5-b9d9-f02d0ba4f077",
-                getSolution("through:bottomLeft,-Yaxis,bottomRight,+Xaxis,topRight,+Xaxis,bottomRight,+Xaxis,topRight"),
+                getSolution(
+                    "through:bottomLeft,-Yaxis,bottomRight,+Xaxis,topRight,+Xaxis,bottomRight,+Xaxis,topRight",
+                    "points:maxima in topRight, minima in bottomRight"
+                ),
             "f5e5d9ea-8bc9-4adc-8073-a599b0eb3d58",
-                getSolution(String.join("\r\n",
-                    "curves:2",
+                getSolution("curves:2",
                     "line: 1; through:  bottomLeft",
                     "line: 1; slope: start=flat, end=down",
                     "line: 2; through: topRight",

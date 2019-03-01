@@ -3,9 +3,11 @@ package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.IntersectionParams;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
+import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.PointOfInterest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.Side.LEFT;
 import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.Side.RIGHT;
@@ -129,7 +131,6 @@ public class Segment {
 
     public Line clip(Line line) {
         List<Point> points = new ArrayList<>();
-
         Point lastPoint = null;
         for (Point point : line) {
             if (lastPoint != null) {
@@ -146,7 +147,13 @@ public class Segment {
             }
             lastPoint = point;
         }
-        return new Line(points);
+
+        // CHECKME: Once clipped, these might not be maxima/minima any more
+        List<PointOfInterest> pointsOfInterest = line.getPointsOfInterest().stream()
+            .filter(this::inside)
+            .collect(Collectors.toList());
+
+        return new Line(points, pointsOfInterest);
     }
 
     Segment clip(Segment segment) {

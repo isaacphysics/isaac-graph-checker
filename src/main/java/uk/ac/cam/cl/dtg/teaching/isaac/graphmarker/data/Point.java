@@ -1,6 +1,11 @@
 package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data;
 
+import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.Sector;
+
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Represents a single point.
@@ -52,4 +57,5 @@ public class Point {
     public Point times(double m) {
         return new Point(x * m, y * m);
     }
+
 }

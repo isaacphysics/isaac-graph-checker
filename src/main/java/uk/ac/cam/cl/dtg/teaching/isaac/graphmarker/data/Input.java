@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class Input {
-    private List<Line> lines;
+    private final List<Line> lines;
 
     public Input(List<Line> lines) {
         this.lines = lines;

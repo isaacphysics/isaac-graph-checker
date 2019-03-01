@@ -92,7 +92,7 @@ public class ExpectedSectorsFeatureTest {
     }
 
     private Line wobbly(Line points) {
-        return new Line(points.stream()
+        return lineOf(points.stream()
                 .map(p -> new Point(
                         p.getX() + Math.random() * 0.02 - 0.01,
                         p.getY() + Math.random() * 0.02 - 0.01))

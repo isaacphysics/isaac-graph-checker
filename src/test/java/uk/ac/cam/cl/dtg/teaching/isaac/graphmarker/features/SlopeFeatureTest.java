@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 import static org.junit.Assert.*;
-import static org.hamcrest.Matchers.*;
 import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.TestHelpers.lineOf;
 
 public class SlopeFeatureTest {
@@ -21,11 +20,11 @@ public class SlopeFeatureTest {
     @Test
     public void slopeCalculatorIsCorrect() {
         Map<Line, SlopeFeature.Slope> expectations = ImmutableMap.of(
-            new Line(Arrays.asList(new Point(0, 0), new Point(10, 100))), SlopeFeature.Slope.UP,
-            new Line(Arrays.asList(new Point(10, 0), new Point(15, -50))), SlopeFeature.Slope.DOWN,
-            new Line(Arrays.asList(new Point(0, 0), new Point(100, -5))), SlopeFeature.Slope.FLAT,
-            new Line(Arrays.asList(new Point(0, 0), new Point(-100, -5))), SlopeFeature.Slope.FLAT,
-            new Line(Arrays.asList(new Point(0, 0), new Point(100, 100))), SlopeFeature.Slope.OTHER
+            lineOf(new Point(0, 0), new Point(10, 100)), SlopeFeature.Slope.UP,
+            lineOf(new Point(10, 0), new Point(15, -50)), SlopeFeature.Slope.DOWN,
+            lineOf(new Point(0, 0), new Point(100, -5)), SlopeFeature.Slope.FLAT,
+            lineOf(new Point(0, 0), new Point(-100, -5)), SlopeFeature.Slope.FLAT,
+            lineOf(new Point(0, 0), new Point(100, 100)), SlopeFeature.Slope.OTHER
         );
 
         expectations.forEach((line, slope) -> assertEquals(slope, slopeFeature.lineToSlope(line)));
@@ -63,12 +62,17 @@ public class SlopeFeatureTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void mustProvideTwoArguments() {
-        slopeFeature.deserialize("one,two,three");
+        slopeFeature.deserialize("one=two=three");
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void mustUseCorrectNames() {
-        slopeFeature.deserialize("middle, flat");
+    public void mustUseCorrectRegionNames() {
+        slopeFeature.deserialize("middle=flat");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void mustUseCorrectSlopeNames() {
+        slopeFeature.deserialize("all=wibbly");
     }
 
     @Test

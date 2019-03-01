@@ -21,7 +21,8 @@ public class Features {
     private static List<LineFeature> lineFeatures = ImmutableList.of(
         new ExpectedSectorsFeature(),
         new SlopeFeature(),
-        new SymmetryFeature()
+        new SymmetryFeature(),
+        new PointsFeature()
     );
 
     private static final CurvesCountFeature curvesCountFeature = new CurvesCountFeature();

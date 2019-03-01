@@ -66,8 +66,8 @@ public class MarkerTest {
             null,
             null,
             null,
-            null,
-            null,
+            Collections.emptyList(),
+            Collections.emptyList(),
             0
         );
     }
