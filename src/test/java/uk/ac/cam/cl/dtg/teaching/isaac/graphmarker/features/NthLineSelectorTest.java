@@ -9,20 +9,20 @@ public class NthLineSelectorTest {
     private NthLineSelector nthLineSelector = new NthLineSelector();
 
     @Test
-    public void testParse() {
-        NthLineSelector success = nthLineSelector.parse("1; foo");
+    public void testDeserialize() {
+        NthLineSelector.Instance success = nthLineSelector.deserialize("1; foo");
 
         assertEquals("foo", success.item());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testParseFailureWithLine0() {
-        NthLineSelector failNumber = nthLineSelector.parse("0; foo");
+        nthLineSelector.deserialize("0; foo");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testParseFailureWithNonNumberedLine() {
-        NthLineSelector failNumber = nthLineSelector.parse("a; foo");
+        nthLineSelector.deserialize("a; foo");
     }
 
 }

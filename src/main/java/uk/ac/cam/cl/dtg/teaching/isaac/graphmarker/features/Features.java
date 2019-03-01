@@ -73,15 +73,18 @@ public class Features {
                 return ImmutablePair.of(feature.matcher(feature.deserialize(item)), true);
             }
         }
-        LineSelector selector = LineSelector.any(item);
+        LineSelector.Instance selector = null;
         boolean selectorFound = false;
         for (LineSelector selectors : lineSelectors) {
             if (item.startsWith(selectors.TAG() + ":")) {
                 item = item.substring(selectors.TAG().length() + 1);
-                selector = selectors.parse(item);
+                selector = selectors.deserialize(item);
                 selectorFound = true;
                 break;
             }
+        }
+        if (selector == null) {
+            selector = new AnyLineSelector().deserialize(item);
         }
         item = selector.item();
         for (LineFeature feature : lineFeatures) {
