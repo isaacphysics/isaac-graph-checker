@@ -14,9 +14,9 @@ public class PointsFeatureTest {
 
     @Test
     public void simpleSlopeTestWorks() {
-        String data = PointsFeature.manager.generate(lineOf(x -> x * x, -10, 10));
+        String data = PointsFeature.manager.generate(lineOf(x -> x * x, -5, 5));
 
-        Line line = lineOf(x -> Math.abs(x), -10, 10);
+        Line line = lineOf(x -> Math.abs(x), -5, 5);
         
         assertTrue(PointsFeature.manager.deserialize(data).match(line));
     }

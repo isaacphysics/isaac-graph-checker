@@ -35,16 +35,18 @@ public class SymmetryFeatureTest {
     @Test
     public void checkFunctionSymmetry() {
         List<ImmutableTriple<String, Line, SymmetryFeature.SymmetryType>> functions = ImmutableList.<ImmutableTriple<String, Line, SymmetryFeature.SymmetryType>>builder()
+            .add(ImmutableTriple.of("1+sin(x)", lineOf(x -> 1 + Math.sin(x), -Math.PI * 0.75, Math.PI * 0.75), SymmetryFeature.SymmetryType.ANTISYMMETRIC))
+            .add(ImmutableTriple.of("1+x^3-x", lineOf(x -> 1 + x*x*x - x, -5, 5), SymmetryFeature.SymmetryType.ANTISYMMETRIC))
             .add(ImmutableTriple.of("10", lineOf(x -> 10.0, -10, 10), SymmetryFeature.SymmetryType.EVEN))
             .add(ImmutableTriple.of("x", lineOf(x -> x, -10, 10), SymmetryFeature.SymmetryType.ODD))
             .add(ImmutableTriple.of("|x|", lineOf(x -> Math.abs(x), -10, 10), SymmetryFeature.SymmetryType.EVEN))
             .add(ImmutableTriple.of("-|x|", lineOf(x -> -Math.abs(x), -10, 10), SymmetryFeature.SymmetryType.EVEN))
             .add(ImmutableTriple.of("x+1", lineOf(x -> x + 1, -10, 10), SymmetryFeature.SymmetryType.NONE))
             .add(ImmutableTriple.of("1+|x|", lineOf(x -> 1 + Math.abs(x), -10, 10), SymmetryFeature.SymmetryType.EVEN))
-            .add(ImmutableTriple.of("sin(x)", lineOf(x -> Math.sin(x), -10, 10), SymmetryFeature.SymmetryType.ODD))
+            .add(ImmutableTriple.of("sin(x)", lineOf(x -> Math.sin(x), - Math.PI / 2, Math.PI / 2), SymmetryFeature.SymmetryType.ODD))
             .add(ImmutableTriple.of("cos(x)", lineOf(x -> Math.cos(x), -10, 10), SymmetryFeature.SymmetryType.EVEN))
-            .add(ImmutableTriple.of("1+sin(x)", lineOf(x -> 1 + Math.sin(x), -10, 10), SymmetryFeature.SymmetryType.NONE))
             .add(ImmutableTriple.of("1+cos(x)", lineOf(x -> 1 + Math.cos(x), -10, 10), SymmetryFeature.SymmetryType.EVEN))
+            .add(ImmutableTriple.of("(x-2)(x-2)", lineOf(x -> (x-2)*(x-2), -8, 12), SymmetryFeature.SymmetryType.SYMMETRIC))
             .build();
 
         functions.forEach((item) -> assertEquals(item.left + " should be " + item.right, item.right, SymmetryFeature.manager.getSymmetryOfLine(item.middle)));
@@ -60,7 +62,17 @@ public class SymmetryFeatureTest {
     public void simpleSymmetryTestWorks() {
         String data = SymmetryFeature.manager.generate(lineOf(x -> x, -10, 10));
 
-        assertTrue(((Predicate<Line>) line -> SymmetryFeature.manager.deserialize(data).match(line))
-            .test(lineOf(x -> x * 1.5, -10, 10)));
+        Line line = lineOf(x -> x * 1.5, -10, 10);
+        assertTrue(SymmetryFeature.manager.deserialize(data).match(line));
+    }
+
+    @Test
+    public void symmetricSymmetryIsDetectedCorrectly() {
+        assertEquals(SymmetryFeature.SymmetryType.SYMMETRIC, SymmetryFeature.manager.getSymmetryOfLine(lineOf(x -> x*x + 2 * x + 3, -11, 9)));
+    }
+
+    @Test
+    public void antiSymmetryIsDetectedCorrectly() {
+        assertEquals(SymmetryFeature.SymmetryType.ANTISYMMETRIC, SymmetryFeature.manager.getSymmetryOfLine(lineOf(x -> (x - 0.1) * (x - 0.3) * (x - 0.4), -0.24, 0.76)));
     }
 }

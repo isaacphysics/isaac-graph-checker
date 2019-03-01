@@ -16,4 +16,9 @@ public class PointOfInterest extends Point {
     public PointType getPointType() {
         return pointType;
     }
+
+    public PointOfInterest minus(Point p) {
+        return new PointOfInterest(super.minus(p), this.pointType);
+    }
+
 }

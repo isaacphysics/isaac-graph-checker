@@ -4,12 +4,10 @@ import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Intersection;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.IntersectionParams;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
-import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.PointOfInterest;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -124,16 +122,22 @@ public class Sector {
 
     public static Sector onAxisWithNegativeX = sloppyAxis("onAxisWithNegativeX", DOWN, UP, LEFT);
 
-    private static final Point[] originPoints = new Point[] {
-            new Point(ORIGIN_SLOP, ORIGIN_SLOP), new Point(-ORIGIN_SLOP, ORIGIN_SLOP),
-            new Point(-ORIGIN_SLOP, -ORIGIN_SLOP), new Point(ORIGIN_SLOP, -ORIGIN_SLOP)};
+    private static Sector square(String name, double size) {
+        Point[] originPoints = new Point[] {
+            new Point(size, size), new Point(-size, size),
+            new Point(-size, -size), new Point(size, -size)};
 
-    public static Sector origin = new Sector("origin", Arrays.asList(
+        return new Sector(name, Arrays.asList(
             Segment.closed(originPoints[0], originPoints[1]),
             Segment.closed(originPoints[1], originPoints[2]),
             Segment.closed(originPoints[2], originPoints[3]),
             Segment.closed(originPoints[3], originPoints[0])
-    ));
+        ));
+    }
+
+    public static Sector origin = square("origin", ORIGIN_SLOP);
+
+    public static Sector relaxedOrigin = square("relaxedOrigin", 0.1);
 
     private static Sector centeredHalf(String name, Point axis) {
         return new Sector(name, Collections.singletonList(

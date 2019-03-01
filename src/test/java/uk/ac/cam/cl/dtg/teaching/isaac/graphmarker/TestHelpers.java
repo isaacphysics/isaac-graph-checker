@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -19,16 +21,28 @@ public class TestHelpers {
     public static Line lineOf(List<Point> points) {
         List<PointOfInterest> pointsOfInterest = new ArrayList<>();
 
+        Supplier<PointType> lastPointType = () -> pointsOfInterest.isEmpty() ? null
+            : pointsOfInterest.get(pointsOfInterest.size() - 1).getPointType();
+
         if (points.size() > 2) {
-            Point p1 = points.get(0);
-            Point p2 = points.get(1);
-            for (int i = 2; i < points.size() - 1; i++) {
-                Point p3 = points.get(i);
-                if (p1.getY() > p2.getY() && p3.getY() > p2.getY()) {
-                    pointsOfInterest.add(new PointOfInterest(p2, PointType.MINIMA));
+            for (int i = 1; i < points.size() - 2; i++) {
+                Point p1 = points.get(i - 1);
+                Point p2 = points.get(i);
+                Point p3 = points.get(i + 1);
+                Point p4 = points.get(i + 2);
+                if (p1.getY() > p2.getY() && PointType.MINIMA != lastPointType.get()) {
+                    if (p3.getY() > p2.getY()) {
+                        pointsOfInterest.add(new PointOfInterest(p2, PointType.MINIMA));
+                    } else if (p2.getY() == p3.getY() && p4.getY() > p2.getY()) {
+                        pointsOfInterest.add(new PointOfInterest(p2.add(p3).times(0.5), PointType.MINIMA));
+                    }
                 }
-                if (p1.getY() < p2.getY() && p3.getY() < p2.getY()) {
-                    pointsOfInterest.add(new PointOfInterest(p2, PointType.MINIMA));
+                if (p1.getY() < p2.getY() && PointType.MAXIMA != lastPointType.get()) {
+                    if (p3.getY() < p2.getY()) {
+                        pointsOfInterest.add(new PointOfInterest(p2, PointType.MAXIMA));
+                    } else if (p2.getY() == p3.getY() && p4.getY() < p2.getY()) {
+                        pointsOfInterest.add(new PointOfInterest(p2.add(p3).times(0.5), PointType.MAXIMA));
+                    }
                 }
             }
         }
@@ -40,7 +54,7 @@ public class TestHelpers {
     }
 
     public static Line lineOf(Function<Double, Double> f, double minX, double maxX) {
-        int points = 100;
+        int points = 101; // Make it easier to hit symmetric points
         double diff = (maxX - minX) / (points - 1);
         return lineOf(IntStream.range(0, points)
             .mapToDouble(i -> minX + diff * i)
