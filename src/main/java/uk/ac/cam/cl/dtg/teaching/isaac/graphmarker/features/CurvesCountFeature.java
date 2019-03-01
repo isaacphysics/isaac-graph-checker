@@ -2,18 +2,23 @@ package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.features;
 
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Input;
 
-public class CurvesCountFeature implements InputFeature<CurvesCountFeature.Data> {
+public class CurvesCountFeature implements InputFeature<CurvesCountFeature.Instance> {
+
+    public static final CurvesCountFeature manager = new CurvesCountFeature();
+
+    private CurvesCountFeature() {
+    }
 
     @Override
     public String TAG() {
         return "curves";
     }
 
-    public class Data implements InputFeature.FeatureData {
+    public class Instance implements InputFeature.InstanceInterface {
 
         private int count;
 
-        private Data(int count) {
+        private Instance(int count) {
             this.count = count;
         }
 
@@ -29,9 +34,9 @@ public class CurvesCountFeature implements InputFeature<CurvesCountFeature.Data>
     }
 
     @Override
-    public Data deserialize(String featureData) {
+    public Instance deserialize(String featureData) {
         try {
-            return new Data(Integer.valueOf(featureData.trim()));
+            return new Instance(Integer.valueOf(featureData.trim()));
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Not a number: " + featureData, e);
         }
@@ -39,6 +44,6 @@ public class CurvesCountFeature implements InputFeature<CurvesCountFeature.Data>
 
     @Override
     public String generate(Input expectedInput) {
-        return new Data(expectedInput.getLines().size()).serialize();
+        return new Instance(expectedInput.getLines().size()).serialize();
     }
 }

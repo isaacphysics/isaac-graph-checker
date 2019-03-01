@@ -2,22 +2,16 @@ package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.features;
 
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 
-import java.util.function.Predicate;
+public interface LineFeature<FeatureInstance extends LineFeature.Instance> {
 
-public interface LineFeature<F extends LineFeature.FeatureData> {
-
-    interface FeatureData {
+    interface Instance {
         String serialize();
         boolean match(Line line);
     }
 
     String TAG();
 
-    F deserialize(String featureData);
+    FeatureInstance deserialize(String featureData);
 
     String generate(Line expectedLine);
-
-    default Predicate<Line> matcher(F data) {
-        return line -> data.match(line);
-    }
 }

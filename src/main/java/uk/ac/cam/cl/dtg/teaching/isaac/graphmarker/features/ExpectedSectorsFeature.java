@@ -15,13 +15,14 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeature.Data> {
+public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeature.Instance> {
+
+    public static final ExpectedSectorsFeature manager = new ExpectedSectorsFeature();
 
     private static final Logger log = LoggerFactory.getLogger(ExpectedSectorsFeature.class);
 
@@ -30,10 +31,10 @@ public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeatur
 
     private final List<Sector> orderedSectors;
 
-    protected class Data implements LineFeature.FeatureData {
+    protected class Instance implements LineFeature.Instance {
         private final List<Sector> expectedSectors;
 
-        Data(List<Sector> expectedSectors) {
+        Instance(List<Sector> expectedSectors) {
             this.expectedSectors = expectedSectors;
         }
 
@@ -70,112 +71,6 @@ public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeatur
             return false;
 
         }
-
-        List<Sector> convertLineToSectorList(Line line) {
-            List<Set<Sector>> sectors = convertLineToSectorSetList(line);
-
-            List<Sector> output = new ArrayList<>();
-            sectors.stream()
-                .map(set -> orderedSectors.stream().filter(set::contains).findFirst().orElse(null))
-                .forEach(sector -> {
-                    if (output.isEmpty() || !output.get(output.size() - 1).equals(sector)) {
-                        output.add(sector);
-                    }
-                });
-
-            return output;
-        }
-
-        List<Set<Sector>> convertLineToSectorSetList(Line line) {
-            List<Set<Sector>> output = new ArrayList<>();
-
-            Point lastPoint = null;
-            for (Point point : line) {
-                if (lastPoint != null) {
-                    classifyLineSegment(output, Segment.closed(lastPoint, point));
-                }
-
-                Set<Sector> pointSector = classifyPoint(point);
-
-                addSector(output, pointSector);
-
-                lastPoint = point;
-            }
-
-            return output;
-        }
-
-        private List<Set<Sector>> invalidSectorSets = ImmutableList.of(
-            ImmutableSet.of(Sector.topRight, Sector.bottomRight),
-            ImmutableSet.of(Sector.topLeft, Sector.bottomLeft),
-            ImmutableSet.of(Sector.topRight, Sector.topLeft),
-            ImmutableSet.of(Sector.bottomRight, Sector.bottomLeft),
-            ImmutableSet.of(Sector.onAxisWithPositiveX, Sector.onAxisWithNegativeX),
-            ImmutableSet.of(Sector.onAxisWithPositiveY, Sector.onAxisWithNegativeY)
-        );
-
-        private void addSector(List<Set<Sector>> output, Set<Sector> sectors) {
-            Objects.requireNonNull(sectors);
-
-            // If you are in an area that contains both sides of an axis say, remove both sides.
-            List<Set<Sector>> sectorsToRemove = invalidSectorSets.stream()
-                .filter(sectors::containsAll)
-                .collect(Collectors.toList());
-            sectorsToRemove.forEach(sectors::removeAll);
-
-            if (output.size() == 0 || !output.get(output.size() - 1).equals(sectors)) {
-                output.add(sectors);
-            }
-        }
-
-        private Set<Sector> classifyPoint(Point point) {
-            return Sector.classify(point, orderedSectors);
-        }
-
-        private void classifyLineSegment(List<Set<Sector>> output, Segment lineSegment) {
-            // Calculate when we enter and leave the line segment
-            IntersectionParams[] intersectionParams = orderedSectors.stream()
-                    .map(sector -> sector.intersectionParams(lineSegment))
-                    .toArray(IntersectionParams[]::new);
-
-            Boolean[] inside = orderedSectors.stream()
-                    .map(sector -> sector.contains(lineSegment.getStart()))
-                    .toArray(Boolean[]::new);
-
-            int index = lowestIndex(intersectionParams);
-            while (index != -1) {
-                IntersectionParams.IntersectionParam intersection = intersectionParams[index].remove(0);
-
-                inside[index] = intersection.isInside();
-
-                // Record all of the sectors we are currently in
-                Set<Sector> internalSectors = Streams.zip(
-                    orderedSectors.stream(),
-                    Arrays.stream(inside),
-                    (sector, in) -> in ? sector : null)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toSet());
-
-                addSector(output, internalSectors);
-
-                index = lowestIndex(intersectionParams);
-            }
-        }
-
-        private int lowestIndex(IntersectionParams[] intersectionParams) {
-            int index = -1;
-            double minParam = Double.MAX_VALUE;
-            for (int i = 0; i < intersectionParams.length; i++) {
-                if (intersectionParams[i].size() > 0) {
-                    double param = intersectionParams[i].get(0).getT();
-                    if (param < minParam) {
-                        index = i;
-                        minParam = param;
-                    }
-                }
-            }
-            return index;
-        }
     }
 
     private List<Sector> deserializeSectors(String sectors) {
@@ -187,12 +82,12 @@ public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeatur
     }
 
     @Override
-    public Data deserialize(String featureData) {
+    public Instance deserialize(String featureData) {
         List<Sector> expectedSectors = deserializeSectors(featureData);
-        return new Data(expectedSectors);
+        return new Instance(expectedSectors);
     }
 
-    ExpectedSectorsFeature() {
+    private ExpectedSectorsFeature() {
         this.orderedSectors = Sector.defaultOrderedSectors;
     }
 
@@ -202,6 +97,112 @@ public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeatur
 
     @Override
     public String generate(Line expectedLine) {
-        return new Data(new Data(Collections.emptyList()).convertLineToSectorList(expectedLine)).serialize();
+        return new Instance(convertLineToSectorList(expectedLine)).serialize();
+    }
+
+    List<Sector> convertLineToSectorList(Line line) {
+        List<Set<Sector>> sectors = convertLineToSectorSetList(line);
+
+        List<Sector> output = new ArrayList<>();
+        sectors.stream()
+            .map(set -> orderedSectors.stream().filter(set::contains).findFirst().orElse(null))
+            .forEach(sector -> {
+                if (output.isEmpty() || !output.get(output.size() - 1).equals(sector)) {
+                    output.add(sector);
+                }
+            });
+
+        return output;
+    }
+
+    List<Set<Sector>> convertLineToSectorSetList(Line line) {
+        List<Set<Sector>> output = new ArrayList<>();
+
+        Point lastPoint = null;
+        for (Point point : line) {
+            if (lastPoint != null) {
+                classifyLineSegment(output, Segment.closed(lastPoint, point));
+            }
+
+            Set<Sector> pointSector = classifyPoint(point);
+
+            addSector(output, pointSector);
+
+            lastPoint = point;
+        }
+
+        return output;
+    }
+
+    private List<Set<Sector>> invalidSectorSets = ImmutableList.of(
+        ImmutableSet.of(Sector.topRight, Sector.bottomRight),
+        ImmutableSet.of(Sector.topLeft, Sector.bottomLeft),
+        ImmutableSet.of(Sector.topRight, Sector.topLeft),
+        ImmutableSet.of(Sector.bottomRight, Sector.bottomLeft),
+        ImmutableSet.of(Sector.onAxisWithPositiveX, Sector.onAxisWithNegativeX),
+        ImmutableSet.of(Sector.onAxisWithPositiveY, Sector.onAxisWithNegativeY)
+    );
+
+    private void addSector(List<Set<Sector>> output, Set<Sector> sectors) {
+        Objects.requireNonNull(sectors);
+
+        // If you are in an area that contains both sides of an axis say, remove both sides.
+        List<Set<Sector>> sectorsToRemove = invalidSectorSets.stream()
+            .filter(sectors::containsAll)
+            .collect(Collectors.toList());
+        sectorsToRemove.forEach(sectors::removeAll);
+
+        if (output.size() == 0 || !output.get(output.size() - 1).equals(sectors)) {
+            output.add(sectors);
+        }
+    }
+
+    private Set<Sector> classifyPoint(Point point) {
+        return Sector.classify(point, orderedSectors);
+    }
+
+    private void classifyLineSegment(List<Set<Sector>> output, Segment lineSegment) {
+        // Calculate when we enter and leave the line segment
+        IntersectionParams[] intersectionParams = orderedSectors.stream()
+            .map(sector -> sector.intersectionParams(lineSegment))
+            .toArray(IntersectionParams[]::new);
+
+        Boolean[] inside = orderedSectors.stream()
+            .map(sector -> sector.contains(lineSegment.getStart()))
+            .toArray(Boolean[]::new);
+
+        int index = lowestIndex(intersectionParams);
+        while (index != -1) {
+            IntersectionParams.IntersectionParam intersection = intersectionParams[index].remove(0);
+
+            inside[index] = intersection.isInside();
+
+            // Record all of the sectors we are currently in
+            Set<Sector> internalSectors = Streams.zip(
+                orderedSectors.stream(),
+                Arrays.stream(inside),
+                (sector, in) -> in ? sector : null)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+            addSector(output, internalSectors);
+
+            index = lowestIndex(intersectionParams);
+        }
+    }
+
+    private int lowestIndex(IntersectionParams[] intersectionParams) {
+        int index = -1;
+        double minParam = Double.MAX_VALUE;
+        for (int i = 0; i < intersectionParams.length; i++) {
+            if (intersectionParams[i].size() > 0) {
+                double param = intersectionParams[i].get(0).getT();
+                if (param < minParam) {
+                    index = i;
+                    minParam = param;
+                }
+            }
+        }
+        return index;
     }
 }

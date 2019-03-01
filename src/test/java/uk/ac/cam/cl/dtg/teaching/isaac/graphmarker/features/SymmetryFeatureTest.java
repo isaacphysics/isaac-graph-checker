@@ -6,6 +6,7 @@ import org.junit.Test;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 import static org.hamcrest.Matchers.closeTo;
 import static org.junit.Assert.assertEquals;
@@ -15,22 +16,20 @@ import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.TestHelpers.lineOf;
 
 public class SymmetryFeatureTest {
 
-    private SymmetryFeature symmetryFeature = new SymmetryFeature();
-
     @Test
     public void noSymmetryIsDetectedCorrectly() {
-        assertEquals(SymmetryFeature.SymmetryType.NONE, symmetryFeature.getSymmetryOfLine(lineOf(x -> x*x + 2*x + 3, -10, 10)));
+        assertEquals(SymmetryFeature.SymmetryType.NONE, SymmetryFeature.manager.getSymmetryOfLine(lineOf(x -> x*x + 2*x + 3, -10, 10)));
     }
 
 
     @Test
     public void evenSymmetryIsDetectedCorrectly() {
-        assertEquals(SymmetryFeature.SymmetryType.EVEN, symmetryFeature.getSymmetryOfLine(lineOf(x -> x*x, -10, 10)));
+        assertEquals(SymmetryFeature.SymmetryType.EVEN, SymmetryFeature.manager.getSymmetryOfLine(lineOf(x -> x*x, -10, 10)));
     }
 
     @Test
     public void oddSymmetryIsDetectedCorrectly() {
-        assertEquals(SymmetryFeature.SymmetryType.ODD, symmetryFeature.getSymmetryOfLine(lineOf(x -> 2*x, -10, 10)));
+        assertEquals(SymmetryFeature.SymmetryType.ODD, SymmetryFeature.manager.getSymmetryOfLine(lineOf(x -> 2*x, -10, 10)));
     }
 
     @Test
@@ -48,20 +47,20 @@ public class SymmetryFeatureTest {
             .add(ImmutableTriple.of("1+cos(x)", lineOf(x -> 1 + Math.cos(x), -10, 10), SymmetryFeature.SymmetryType.EVEN))
             .build();
 
-        functions.forEach((item) -> assertEquals(item.left + " should be " + item.right, item.right, symmetryFeature.getSymmetryOfLine(item.middle)));
+        functions.forEach((item) -> assertEquals(item.left + " should be " + item.right, item.right, SymmetryFeature.manager.getSymmetryOfLine(item.middle)));
     }
 
     @Test
     public void curveOnlyOnRightOfYaxisHasNoSymmetry() {
-        assertEquals(SymmetryFeature.SymmetryType.NONE, symmetryFeature.getSymmetryOfLine(lineOf(x -> x*x + 2 * x + 3, 0, 10)));
-        assertEquals(SymmetryFeature.SymmetryType.NONE, symmetryFeature.getSymmetryOfLine(lineOf(x -> x, 0, 10)));
+        assertEquals(SymmetryFeature.SymmetryType.NONE, SymmetryFeature.manager.getSymmetryOfLine(lineOf(x -> x*x + 2 * x + 3, 0, 10)));
+        assertEquals(SymmetryFeature.SymmetryType.NONE, SymmetryFeature.manager.getSymmetryOfLine(lineOf(x -> x, 0, 10)));
     }
 
     @Test
     public void simpleSymmetryTestWorks() {
-        String data = symmetryFeature.generate(lineOf(x -> x, -10, 10));
+        String data = SymmetryFeature.manager.generate(lineOf(x -> x, -10, 10));
 
-        assertTrue(symmetryFeature.matcher(symmetryFeature.deserialize(data))
+        assertTrue(((Predicate<Line>) line -> SymmetryFeature.manager.deserialize(data).match(line))
             .test(lineOf(x -> x * 1.5, -10, 10)));
     }
 }

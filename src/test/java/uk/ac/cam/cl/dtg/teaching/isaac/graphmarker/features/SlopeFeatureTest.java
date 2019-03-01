@@ -6,7 +6,6 @@ import org.junit.Test;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -14,8 +13,6 @@ import static org.junit.Assert.*;
 import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.TestHelpers.lineOf;
 
 public class SlopeFeatureTest {
-
-    private SlopeFeature slopeFeature = new SlopeFeature();
 
     @Test
     public void slopeCalculatorIsCorrect() {
@@ -27,22 +24,22 @@ public class SlopeFeatureTest {
             lineOf(new Point(0, 0), new Point(100, 100)), SlopeFeature.Slope.OTHER
         );
 
-        expectations.forEach((line, slope) -> assertEquals(slope, slopeFeature.lineToSlope(line)));
+        expectations.forEach((line, slope) -> assertEquals(slope, SlopeFeature.manager.lineToSlope(line)));
     }
 
     @Test
     public void simpleSlopeTestWorks() {
-        String data = slopeFeature.generate(lineOf(x -> 1 / x, 0.01, 10));
+        String data = SlopeFeature.manager.generate(lineOf(x -> 1 / x, 0.01, 10));
 
-        assertTrue(slopeFeature.matcher(slopeFeature.deserialize(data))
+        assertTrue(((Predicate<Line>) line -> SlopeFeature.manager.deserialize(data).match(line))
             .test(lineOf(x -> 0.5 / x, 0.001, 10)));
     }
 
 
     @Test
     public void inverseOfXworks() {
-        Predicate<Line> startMatcher = slopeFeature.matcher(slopeFeature.deserialize("start=down"));
-        Predicate<Line> endMatcher = slopeFeature.matcher(slopeFeature.deserialize("end = flat"));
+        Predicate<Line> startMatcher = line -> SlopeFeature.manager.deserialize("start=down").match(line);
+        Predicate<Line> endMatcher = line -> SlopeFeature.manager.deserialize("end = flat").match(line);
 
         assertTrue(startMatcher.test(lineOf(x -> 1 / x, 0.001, 15)));
         assertTrue(endMatcher.test(lineOf(x -> 1 / x, 0.001, 15)));
@@ -53,7 +50,7 @@ public class SlopeFeatureTest {
 
     @Test
     public void inverseOfXworksAsOneMatcher() {
-        Predicate<Line> matcher = slopeFeature.matcher(slopeFeature.deserialize("start=down, end = flat"));
+        Predicate<Line> matcher = line -> SlopeFeature.manager.deserialize("start=down, end = flat").match(line);
 
         assertTrue(matcher.test(lineOf(x -> 1 / x, 0.001, 15)));
 
@@ -62,29 +59,29 @@ public class SlopeFeatureTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void mustProvideTwoArguments() {
-        slopeFeature.deserialize("one=two=three");
+        SlopeFeature.manager.deserialize("one=two=three");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void mustUseCorrectRegionNames() {
-        slopeFeature.deserialize("middle=flat");
+        SlopeFeature.manager.deserialize("middle=flat");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void mustUseCorrectSlopeNames() {
-        slopeFeature.deserialize("all=wibbly");
+        SlopeFeature.manager.deserialize("all=wibbly");
     }
 
     @Test
     public void slopeUpOrDownIsntOverSensitiveToX() {
-        Predicate<Line> matcher = slopeFeature.matcher(slopeFeature.deserialize("all=down"));
+        Predicate<Line> matcher = line -> SlopeFeature.manager.deserialize("all=down").match(line);
 
         assertTrue(matcher.test(lineOf(new Point(0, 0), new Point(-1, -100))));
     }
 
     @Test
     public void inverseOfXgeneratesTwoSlopes() {
-        String featureData = slopeFeature.generate(lineOf(x -> 1 / x, 0.01, 10));
+        String featureData = SlopeFeature.manager.generate(lineOf(x -> 1 / x, 0.01, 10));
 
         assertEquals(2, StringUtils.countMatches(featureData, '='));
     }

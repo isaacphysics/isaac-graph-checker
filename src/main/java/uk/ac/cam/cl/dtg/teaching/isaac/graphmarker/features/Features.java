@@ -19,19 +19,18 @@ public class Features {
     private static final Logger log = LoggerFactory.getLogger(Features.class);
 
     private static List<LineFeature> lineFeatures = ImmutableList.of(
-        new ExpectedSectorsFeature(),
-        new SlopeFeature(),
-        new SymmetryFeature(),
-        new PointsFeature()
+        ExpectedSectorsFeature.manager,
+        SlopeFeature.manager,
+        SymmetryFeature.manager,
+        PointsFeature.manager
     );
 
-    private static final CurvesCountFeature curvesCountFeature = new CurvesCountFeature();
     private static List<InputFeature> inputFeatures = ImmutableList.of(
-        curvesCountFeature
+        CurvesCountFeature.manager
     );
 
     private static List<LineSelector> lineSelectors = ImmutableList.of(
-        new NthLineSelector()
+        NthLineSelector.manager
     );
 
     public static Predicate<Input> matcher(String feature) {
@@ -45,7 +44,7 @@ public class Features {
         ).collect(Collectors.toList());
 
         if (matchersAndInfo.stream().noneMatch(pair -> pair.right)) {
-            matchers.add(ImmutablePair.of(curvesCountFeature.matcher(curvesCountFeature.deserialize("1")),
+            matchers.add(ImmutablePair.of(CurvesCountFeature.manager.deserialize("1")::match,
                 "curves: 1 (implicit)"));
         }
 
@@ -70,7 +69,7 @@ public class Features {
         for (InputFeature feature : inputFeatures) {
             if (item.startsWith(feature.TAG() + ":")) {
                 item = item.substring(feature.TAG().length() + 1);
-                return ImmutablePair.of(feature.matcher(feature.deserialize(item)), true);
+                return ImmutablePair.of(feature.deserialize(item)::match, true);
             }
         }
         LineSelector.Instance selector = null;
@@ -86,11 +85,11 @@ public class Features {
         if (selector == null) {
             selector = new AnyLineSelector().deserialize(item);
         }
-        item = selector.item();
+        String subItem = selector.item();
         for (LineFeature feature : lineFeatures) {
-            if (item.startsWith(feature.TAG() + ":")) {
-                item = item.substring(feature.TAG().length() + 1);
-                Predicate<Line> linePredicate = feature.matcher(feature.deserialize(item));
+            if (subItem.startsWith(feature.TAG() + ":")) {
+                String finalSubItem = subItem.substring(feature.TAG().length() + 1);
+                Predicate<Line> linePredicate = line -> feature.deserialize(finalSubItem).match(line);
                 return ImmutablePair.of(selector.matcher(linePredicate), selectorFound);
             }
         }

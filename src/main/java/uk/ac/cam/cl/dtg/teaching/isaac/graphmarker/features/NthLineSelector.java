@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
 
 public class NthLineSelector implements LineSelector<NthLineSelector.Instance> {
 
+    public static final NthLineSelector manager = new NthLineSelector();
+
     @Override
     public String TAG() {
         return "line";
@@ -43,5 +45,8 @@ public class NthLineSelector implements LineSelector<NthLineSelector.Instance> {
             throw new IllegalArgumentException("Not an NthLineSelector: " + item);
         }
         return new Instance(Integer.valueOf(matcher.group(1)), matcher.group(2));
+    }
+
+    private NthLineSelector() {
     }
 }

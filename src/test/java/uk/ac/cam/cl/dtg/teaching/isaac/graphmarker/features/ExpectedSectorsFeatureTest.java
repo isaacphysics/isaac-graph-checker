@@ -16,12 +16,9 @@ import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.TestHelpers.lineOf;
 
 public class ExpectedSectorsFeatureTest {
 
-    private static ExpectedSectorsFeature feature = new ExpectedSectorsFeature();
-    private static ExpectedSectorsFeature.Data featureData = feature.deserialize("");
-
     @Test
     public void basicLineHasCorrectSectorList() {
-        List<Sector> sectorList =  featureData.convertLineToSectorList(lineOf(
+        List<Sector> sectorList =  ExpectedSectorsFeature.manager.convertLineToSectorList(lineOf(
                 new Point(-1, 1),
                 new Point(2, -1)
         ));
@@ -31,8 +28,8 @@ public class ExpectedSectorsFeatureTest {
 
     @Test
     public void xSquaredMinusTwoHasCorrectSectorList() {
-        Predicate<Line> testFeature = feature.matcher(feature.deserialize(
-                "topLeft, onAxisWithNegativeX, bottomLeft, onAxisWithNegativeY, bottomRight, onAxisWithPositiveX, topRight"));
+        Predicate<Line> testFeature = line -> ExpectedSectorsFeature.manager.deserialize(
+            "topLeft, onAxisWithNegativeX, bottomLeft, onAxisWithNegativeY, bottomRight, onAxisWithPositiveX, topRight").match(line);
 
         assertTrue(testFeature.test(lineOf(x -> x*x - 2, -5, 5)));
         assertFalse(testFeature.test(lineOf(x -> x*x + 2, -5, 5)));
@@ -40,8 +37,8 @@ public class ExpectedSectorsFeatureTest {
 
     @Test
     public void xCubedPlusSquaredMinusTwoHasCorrectSectorList() {
-        Predicate<Line> testFeature = feature.matcher(feature.deserialize(
-                "bottomLeft, onAxisWithNegativeX, topLeft, onAxisWithPositiveY, topRight, onAxisWithPositiveX, bottomRight, onAxisWithPositiveX, topRight"));
+        Predicate<Line> testFeature = line -> ExpectedSectorsFeature.manager.deserialize(
+            "bottomLeft, onAxisWithNegativeX, topLeft, onAxisWithPositiveY, topRight, onAxisWithPositiveX, bottomRight, onAxisWithPositiveX, topRight").match(line);
 
         assertTrue(testFeature.test(lineOf(x -> x*x*x - 3*x*x + 2, -10, 10)));
         assertFalse(testFeature.test(lineOf(x -> x*x - 3*x*x + 2, -10, 10)));
@@ -49,8 +46,8 @@ public class ExpectedSectorsFeatureTest {
 
     @Test
     public void cosXFromMinus2PiTo2Pi() {
-        Predicate<Line> testFeature = feature.matcher(feature.deserialize(
-                "topLeft, onAxisWithNegativeX, bottomLeft, onAxisWithNegativeX, topLeft, onAxisWithPositiveY, topRight, onAxisWithPositiveX, bottomRight, onAxisWithPositiveX, topRight"));
+        Predicate<Line> testFeature = line -> ExpectedSectorsFeature.manager.deserialize(
+            "topLeft, onAxisWithNegativeX, bottomLeft, onAxisWithNegativeX, topLeft, onAxisWithPositiveY, topRight, onAxisWithPositiveX, bottomRight, onAxisWithPositiveX, topRight").match(line);
 
         assertTrue(testFeature.test(lineOf(x -> Math.cos(x), -2 * Math.PI, 2 * Math.PI)));
         assertFalse(testFeature.test(lineOf(x -> Math.cos(x + Math.PI / 2), -2 * Math.PI, 2 * Math.PI)));
@@ -58,8 +55,8 @@ public class ExpectedSectorsFeatureTest {
 
     @Test
     public void sinXFromMinus2PiTo2Pi() {
-        Predicate<Line> testFeature = feature.matcher(feature.deserialize(
-                "onAxisWithNegativeX, topLeft, onAxisWithNegativeX, bottomLeft, origin, topRight, onAxisWithPositiveX, bottomRight, onAxisWithPositiveX"));
+        Predicate<Line> testFeature = line -> ExpectedSectorsFeature.manager.deserialize(
+            "onAxisWithNegativeX, topLeft, onAxisWithNegativeX, bottomLeft, origin, topRight, onAxisWithPositiveX, bottomRight, onAxisWithPositiveX").match(line);
 
         assertTrue(testFeature.test(lineOf(x -> Math.sin(x), -2 * Math.PI, 2 * Math.PI)));
         assertFalse(testFeature.test(lineOf(x -> Math.cos(x), -2 * Math.PI, 2 * Math.PI)));
@@ -67,7 +64,7 @@ public class ExpectedSectorsFeatureTest {
 
     @Test
     public void matchCorrectlyWhenStartingAtOrigin() {
-        Predicate<Line> testFeature = feature.matcher(feature.deserialize("origin, topRight"));
+        Predicate<Line> testFeature = line -> ExpectedSectorsFeature.manager.deserialize("origin, topRight").match(line);
 
         assertTrue(testFeature.test(lineOf(x -> x, 0, 10)));
     }
@@ -77,16 +74,16 @@ public class ExpectedSectorsFeatureTest {
         Sector[] sectors = {Sector.topLeft, Sector.bottomRight};
         ExpectedSectorsFeature feature = new ExpectedSectorsFeature(Arrays.asList(sectors));
 
-        Predicate<Line> testFeature = feature.matcher(feature.deserialize("topLeft, bottomRight"));
+        Predicate<Line> testFeature = line -> feature.deserialize("topLeft, bottomRight").match(line);
 
         assertTrue(testFeature.test(lineOf(x -> 2 - x, -5, 5)));
     }
 
     @Test
     public void generateMatchesItself() {
-        String data = feature.generate((lineOf(x -> Math.cos(x), -2 * Math.PI, 2 * Math.PI)));
+        String data = ExpectedSectorsFeature.manager.generate((lineOf(x -> Math.cos(x), -2 * Math.PI, 2 * Math.PI)));
 
-        Predicate<Line> testFeature = feature.matcher(feature.deserialize(data));
+        Predicate<Line> testFeature = line -> ExpectedSectorsFeature.manager.deserialize(data).match(line);
 
         assertTrue(testFeature.test(wobbly(lineOf(x -> Math.cos(x), -2 * Math.PI, 2 * Math.PI))));
     }
@@ -105,16 +102,16 @@ public class ExpectedSectorsFeatureTest {
 
         // TODO: How arbitrarily close to the origin can we go?
 
-        Predicate<Line> testFeature = feature.matcher(feature.deserialize(
-            "bottomLeft, -Xaxis, topLeft, +Yaxis, topRight"));
+        Predicate<Line> testFeature = line -> ExpectedSectorsFeature.manager.deserialize(
+            "bottomLeft, -Xaxis, topLeft, +Yaxis, topRight").match(line);
 
         assertTrue(testFeature.test(lineOf(x -> 2 * x + 0.03, -0.1, 0.1)));
     }
 
     @Test
     public void crossingTheAxisShouldBeIrreversible() {
-        Predicate<Line> testFeature = feature.matcher(feature.deserialize(
-            "bottomRight,+Xaxis,topRight,+Xaxis,bottomRight,+Xaxis,topRight"));
+        Predicate<Line> testFeature = line -> ExpectedSectorsFeature.manager.deserialize(
+            "bottomRight,+Xaxis,topRight,+Xaxis,bottomRight,+Xaxis,topRight").match(line);
 
         assertTrue(testFeature.test(lineOf(x -> (x - 1) * (x - 3) * (x - 4), 0.5, 10)));
 

@@ -11,9 +11,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static java.util.Collections.EMPTY_LIST;
+public class SlopeFeature implements LineFeature<SlopeFeature.Instance> {
 
-public class SlopeFeature implements LineFeature<SlopeFeature.Data> {
+    public static final SlopeFeature manager = new SlopeFeature();
 
     private static final Logger log = LoggerFactory.getLogger(SlopeFeature.class);
 
@@ -35,11 +35,11 @@ public class SlopeFeature implements LineFeature<SlopeFeature.Data> {
     @Override
     public String TAG() { return "slope"; }
 
-    protected class Data implements LineFeature.FeatureData {
+    protected class Instance implements LineFeature.Instance {
 
         private final Map<Position, Slope> expectedSlopes;
 
-        Data(Map<Position, Slope> expectedSlopes) {
+        Instance(Map<Position, Slope> expectedSlopes) {
             this.expectedSlopes = expectedSlopes;
         }
 
@@ -63,9 +63,9 @@ public class SlopeFeature implements LineFeature<SlopeFeature.Data> {
     }
 
     @Override
-    public Data deserialize(String featureData) {
+    public Instance deserialize(String featureData) {
         String[] items = featureData.split("\\s*,\\s*");
-        return new Data(Arrays.stream(items)
+        return new Instance(Arrays.stream(items)
             .map(item -> {
                 String[] parts = item.split("=");
                 if (parts.length != 2) {
@@ -80,11 +80,14 @@ public class SlopeFeature implements LineFeature<SlopeFeature.Data> {
 
     @Override
     public String generate(Line expectedLine) {
-        return new Data(Arrays.stream(Position.values())
+        return new Instance(Arrays.stream(Position.values())
             .map(position -> ImmutablePair.of(position, lineToSlope(lineAtPosition(expectedLine, position))))
             .filter(pair -> pair.getRight() != Slope.OTHER)
             .collect(Collectors.toMap(ImmutablePair::getLeft, ImmutablePair::getRight))
         ).serialize();
+    }
+
+    private SlopeFeature() {
     }
 
     Slope lineToSlope(Line line) {

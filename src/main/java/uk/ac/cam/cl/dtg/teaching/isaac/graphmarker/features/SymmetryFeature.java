@@ -4,7 +4,9 @@ import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.Sector;
 
-public class SymmetryFeature implements LineFeature<SymmetryFeature.Data> {
+public class SymmetryFeature implements LineFeature<SymmetryFeature.Instance> {
+
+    public static final SymmetryFeature manager = new SymmetryFeature();
 
     @Override
     public String TAG() {
@@ -17,11 +19,11 @@ public class SymmetryFeature implements LineFeature<SymmetryFeature.Data> {
         EVEN,
     }
 
-    public class Data implements LineFeature.FeatureData {
+    public class Instance implements LineFeature.Instance {
 
         private SymmetryType symmetryType;
 
-        private Data(SymmetryType symmetryType) {
+        private Instance(SymmetryType symmetryType) {
             this.symmetryType = symmetryType;
         }
 
@@ -37,13 +39,16 @@ public class SymmetryFeature implements LineFeature<SymmetryFeature.Data> {
     }
 
     @Override
-    public Data deserialize(String featureData) {
-        return new Data(SymmetryType.valueOf(featureData.toUpperCase()));
+    public Instance deserialize(String featureData) {
+        return new Instance(SymmetryType.valueOf(featureData.toUpperCase()));
     }
 
     @Override
     public String generate(Line expectedLine) {
-        return new Data(getSymmetryOfLine(expectedLine)).serialize();
+        return new Instance(getSymmetryOfLine(expectedLine)).serialize();
+    }
+
+    private SymmetryFeature() {
     }
 
     SymmetryType getSymmetryOfLine(Line line) {
