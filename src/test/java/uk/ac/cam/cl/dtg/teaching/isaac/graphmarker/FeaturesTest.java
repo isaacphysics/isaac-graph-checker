@@ -76,4 +76,20 @@ public class FeaturesTest {
         assertTrue(testFeature.test(inputOf(lineOf(x -> x, -1, 1), lineOf(x -> -x, -1, 1))));
     }
 
+    @Test
+    public void testInverseX() {
+        Predicate<Input> testFeature = Features.matcher(String.join("\r\n",
+            "curves:2",
+            "line: 1; through:  bottomLeft",
+            "line: 1; slope: start=flat",
+            "line: 1; slope: end=down",
+            "line: 2; through: topRight",
+            "line: 2; slope: start = down",
+            "line: 2; slope: end= flat"));
+
+        assertTrue(testFeature.test(inputOf(
+            lineOf(x -> 1 / x, -10, -0.01),
+            lineOf(x -> 1 / x, 0.01, 10)
+        )));
+    }
 }

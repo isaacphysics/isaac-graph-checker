@@ -48,7 +48,7 @@ public class MarkerController {
 
     private final Map<String, GraphSolutions> questionData;
 
-    public MarkerController() throws IOException {
+    public MarkerController() {
         questionData = ImmutableMap.of(
             "48cfddd0-8e66-4e2a-b462-fc27aeb97cee",
                 getSolution("through:bottomLeft,-Xaxis,topLeft,+Yaxis,topRight"),
@@ -57,7 +57,12 @@ public class MarkerController {
             "96ee3e16-6fa0-46b5-b9d9-f02d0ba4f077",
                 getSolution("through:bottomLeft,-Yaxis,bottomRight,+Xaxis,topRight,+Xaxis,bottomRight,+Xaxis,topRight"),
             "f5e5d9ea-8bc9-4adc-8073-a599b0eb3d58",
-                getSolution("line: 1; through: bottomLeft\r\nline: 2; through: topRight")
+                getSolution(String.join("\r\n",
+                    "curves:2",
+                    "line: 1; through:  bottomLeft",
+                    "line: 1; slope: start=flat, end=down",
+                    "line: 2; through: topRight",
+                    "line: 2; slope: start=down, end=flat"))
         );
     }
 
