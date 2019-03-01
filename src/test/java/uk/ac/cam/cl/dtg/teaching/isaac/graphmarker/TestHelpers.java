@@ -1,9 +1,11 @@
-package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry;
+package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker;
 
+import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -21,5 +23,13 @@ public class TestHelpers {
             .mapToObj(x -> new Point(x, f.apply(x)))
             .collect(Collectors.toList())
         );
+    }
+
+    public static Input inputOf(Function<Double, Double> f, double minX, double maxX) {
+        return new Input(Collections.singletonList(lineOf(f, minX, maxX)));
+    }
+
+    public static Input inputOf(Line... lines) {
+        return new Input(Arrays.asList(lines));
     }
 }

@@ -1,22 +1,28 @@
 package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.translation;
 
+import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.dos.Curve;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.dos.GraphAnswer;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class AnswerToLine implements Function<GraphAnswer, Line> {
+public class AnswerToInput implements Function<GraphAnswer, Input> {
 
     @Override
-    public Line apply(GraphAnswer graphAnswer) {
-        // TODO: Handle more than one curve
-        Curve curve = graphAnswer.getCurves().get(0);
+    public Input apply(GraphAnswer graphAnswer) {
+        return new Input(graphAnswer.getCurves().stream()
+            .map(this::curveToLine)
+            .sorted(Comparator.comparingDouble(a -> a.getPoints().stream().findFirst().map(Point::getX).orElse(0.0)))
+            .collect(Collectors.toList()));
+    }
 
+    private Line curveToLine(Curve curve) {
         List<Point> points = curve.getPts().stream()
             .map(pt -> new Point(pt.getX(), pt.getY()))
             .collect(Collectors.toList());

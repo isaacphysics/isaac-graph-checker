@@ -1,21 +1,17 @@
 package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.features;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.junit.Test;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
-import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import static org.hamcrest.Matchers.closeTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.TestHelpers.lineOf;
+import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.TestHelpers.lineOf;
 
 public class SymmetryFeatureTest {
 

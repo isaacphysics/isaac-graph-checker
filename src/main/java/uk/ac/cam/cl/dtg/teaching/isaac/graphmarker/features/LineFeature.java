@@ -4,7 +4,7 @@ import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 
 import java.util.function.Predicate;
 
-public interface Feature<F extends Feature.FeatureData> {
+public interface LineFeature<F extends LineFeature.FeatureData> {
 
     interface FeatureData {
         String serialize();

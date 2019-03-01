@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.Sector.*;
-import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.TestHelpers.lineOf;
+import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.TestHelpers.lineOf;
 
 public class ExpectedSectorsFeatureTest {
 

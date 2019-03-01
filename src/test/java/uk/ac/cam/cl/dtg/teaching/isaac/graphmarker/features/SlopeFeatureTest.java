@@ -8,7 +8,7 @@ import java.util.Arrays;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.*;
-import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.TestHelpers.lineOf;
+import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.TestHelpers.lineOf;
 
 public class SlopeFeatureTest {
 

@@ -4,14 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 
-public class SlopeFeature implements Feature<SlopeFeature.Data> {
+public class SlopeFeature implements LineFeature<SlopeFeature.Data> {
 
     private static final Logger log = LoggerFactory.getLogger(SlopeFeature.class);
 
     @Override
     public String TAG() { return "slope"; }
 
-    protected class Data implements Feature.FeatureData {
+    protected class Data implements LineFeature.FeatureData {
 
         private final double expectedSlope;
 

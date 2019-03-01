@@ -4,7 +4,7 @@ import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.Sector;
 
-public class SymmetryFeature implements Feature<SymmetryFeature.Data> {
+public class SymmetryFeature implements LineFeature<SymmetryFeature.Data> {
 
     @Override
     public String TAG() {
@@ -17,7 +17,7 @@ public class SymmetryFeature implements Feature<SymmetryFeature.Data> {
         EVEN,
     }
 
-    public class Data implements Feature.FeatureData {
+    public class Data implements LineFeature.FeatureData {
 
         private SymmetryType symmetryType;
 

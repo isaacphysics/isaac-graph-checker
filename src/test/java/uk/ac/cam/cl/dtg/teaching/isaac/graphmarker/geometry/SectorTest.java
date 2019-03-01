@@ -3,12 +3,11 @@ package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry;
 import org.junit.Test;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Intersection;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
-import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.features.ExpectedSectorsFeature;
 
 import java.util.Arrays;
 
 import static org.junit.Assert.*;
-import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.TestHelpers.*;
+import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.TestHelpers.*;
 
 public class SectorTest {
 

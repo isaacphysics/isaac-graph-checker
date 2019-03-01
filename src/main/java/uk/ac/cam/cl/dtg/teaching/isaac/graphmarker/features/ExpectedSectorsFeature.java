@@ -21,7 +21,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ExpectedSectorsFeature implements Feature<ExpectedSectorsFeature.Data> {
+public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeature.Data> {
 
     private static final Logger log = LoggerFactory.getLogger(ExpectedSectorsFeature.class);
 
@@ -42,7 +42,7 @@ public class ExpectedSectorsFeature implements Feature<ExpectedSectorsFeature.Da
 
     private final List<Sector> orderedSectors;
 
-    protected class Data implements Feature.FeatureData {
+    protected class Data implements LineFeature.FeatureData {
         private final List<Sector> expectedSectors;
 
         Data(List<Sector> expectedSectors) {
