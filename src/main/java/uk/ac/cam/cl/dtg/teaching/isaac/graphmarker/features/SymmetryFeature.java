@@ -108,6 +108,7 @@ public class SymmetryFeature implements LineFeature<SymmetryFeature.Instance> {
         return standardSymmetryType;
     }
 
+    // TODO: Check maxima and minima match up in order to check shape
     private SymmetryType getStandardSymmetryType(Line line) {
         // Split line at x = 0
         Line left = Sector.left.clip(line);
