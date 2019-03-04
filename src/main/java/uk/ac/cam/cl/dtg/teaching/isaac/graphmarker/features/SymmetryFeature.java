@@ -105,6 +105,7 @@ public class SymmetryFeature implements LineFeature<SymmetryFeature.Instance> {
                 return newSymmetryType.convertToNonAxialSymmetry();
             }
         }
+        // TODO: Add else clause here: find centre of all points and use that as the center
         return standardSymmetryType;
     }
 
