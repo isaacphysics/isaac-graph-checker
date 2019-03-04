@@ -87,5 +87,18 @@ public class SlopeFeatureTest {
         assertEquals(2, StringUtils.countMatches(featureData.get(0), '='));
     }
 
+    @Test
+    public void straightDownSlopeGeneratesCorrectly() {
+        String featureData = SlopeFeature.manager.generate(lineOf(
+            new Point(1, 0),
+            new Point(1, -1),
+            new Point(1.001, -2),
+            new Point(1, -3),
+            new Point(1, -4),
+            new Point(1.001, -5)
+        )).get(0);
+
+        assertTrue(featureData.contains("down"));
+    }
 
 }

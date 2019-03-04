@@ -111,7 +111,7 @@ public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeatur
         return output;
     }
 
-    List<Set<Sector>> convertLineToSectorSetList(Line line) {
+    private List<Set<Sector>> convertLineToSectorSetList(Line line) {
         List<Set<Sector>> output = new ArrayList<>();
 
         Point lastPoint = null;
