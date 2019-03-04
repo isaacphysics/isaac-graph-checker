@@ -7,6 +7,7 @@ import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.PointType;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.Sector;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,13 +27,6 @@ public class PointsFeature implements LineFeature<PointsFeature.Instance> {
         }
 
         @Override
-        public String serialize() {
-            return expectedPoints.stream()
-                .map(entry -> entry.getLeft() + " in " + entry.getRight())
-                .collect(Collectors.joining(", "));
-        }
-
-        @Override
         public boolean match(Line line) {
             if (expectedPoints.size() != line.getPointsOfInterest().size()) return false;
 
@@ -48,7 +42,7 @@ public class PointsFeature implements LineFeature<PointsFeature.Instance> {
         String[] items = featureData.split("\\s*,\\s*");
         return new Instance(Arrays.stream(items)
             .map(item -> {
-                String[] parts = item.split(" in ");
+                String[] parts = item.split(" (in|on|at) ");
                 if (parts.length != 2) {
                     throw new IllegalArgumentException("Incorrect number of point parts in: " + item);
                 }
@@ -60,11 +54,18 @@ public class PointsFeature implements LineFeature<PointsFeature.Instance> {
     }
 
     @Override
-    public String generate(Line expectedLine) {
-        return new Instance(expectedLine.getPointsOfInterest().stream()
+    public List<String> generate(Line expectedLine) {
+        return Collections.singletonList(
+            expectedLine.getPointsOfInterest().stream()
             .map(point -> ImmutablePair.of(point.getPointType(), Sector.classify(point)))
-            .collect(Collectors.toList())
-        ).serialize();
+            .map(entry -> {
+                Sector sector = entry.getRight();
+                String sectorName = sector.toString();
+                String preposition = sector == Sector.origin ? "at" : sectorName.matches("[-+].*") ? "on" : "in";
+                return entry.getLeft().humanName() + " " + preposition + " " + sectorName;
+            })
+            .collect(Collectors.joining(", "))
+        );
     }
 
     private PointsFeature() {

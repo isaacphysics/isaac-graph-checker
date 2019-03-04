@@ -23,7 +23,7 @@ public class ExpectedSectorsFeatureTest {
                 new Point(2, -1)
         ));
 
-        assertEquals("[topLeft, onAxisWithPositiveY, topRight, onAxisWithPositiveX, bottomRight]", sectorList.toString());
+        assertEquals("[topLeft, +Yaxis, topRight, +Xaxis, bottomRight]", sectorList.toString());
     }
 
     @Test
@@ -81,9 +81,9 @@ public class ExpectedSectorsFeatureTest {
 
     @Test
     public void generateMatchesItself() {
-        String data = ExpectedSectorsFeature.manager.generate((lineOf(x -> Math.cos(x), -2 * Math.PI, 2 * Math.PI)));
+        List<String> data = ExpectedSectorsFeature.manager.generate((lineOf(x -> Math.cos(x), -2 * Math.PI, 2 * Math.PI)));
 
-        Predicate<Line> testFeature = line -> ExpectedSectorsFeature.manager.deserialize(data).match(line);
+        Predicate<Line> testFeature = line -> ExpectedSectorsFeature.manager.deserialize(data.get(0)).match(line);
 
         assertTrue(testFeature.test(wobbly(lineOf(x -> Math.cos(x), -2 * Math.PI, 2 * Math.PI))));
     }

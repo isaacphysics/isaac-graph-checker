@@ -1,10 +1,12 @@
 package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.features;
 
+import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.HumanNamedEnum;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.PointOfInterest;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.Sector;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,7 +19,7 @@ public class SymmetryFeature implements LineFeature<SymmetryFeature.Instance> {
         return "symmetry";
     }
 
-    enum SymmetryType {
+    enum SymmetryType implements HumanNamedEnum {
         NONE,
         ODD,
         EVEN,
@@ -44,11 +46,6 @@ public class SymmetryFeature implements LineFeature<SymmetryFeature.Instance> {
         }
 
         @Override
-        public String serialize() {
-            return symmetryType.name();
-        }
-
-        @Override
         public boolean match(Line line) {
             return getSymmetryOfLine(line) == symmetryType;
         }
@@ -60,8 +57,13 @@ public class SymmetryFeature implements LineFeature<SymmetryFeature.Instance> {
     }
 
     @Override
-    public String generate(Line expectedLine) {
-        return new Instance(getSymmetryOfLine(expectedLine)).serialize();
+    public List<String> generate(Line expectedLine) {
+        SymmetryType symmetryOfLine = getSymmetryOfLine(expectedLine);
+        if (symmetryOfLine != SymmetryType.NONE) {
+            return Collections.singletonList(symmetryOfLine.humanName());
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     private SymmetryFeature() {

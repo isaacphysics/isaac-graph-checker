@@ -3,7 +3,9 @@ package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.features;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,6 +47,16 @@ public class NthLineSelector implements LineSelector<NthLineSelector.Instance> {
             throw new IllegalArgumentException("Not an NthLineSelector: " + item);
         }
         return new Instance(Integer.valueOf(matcher.group(1)), matcher.group(2));
+    }
+
+    @Override
+    public Map<String, Line> generate(Input input) {
+        List<Line> lines = input.getLines();
+        Map<String, Line> map = new HashMap<>();
+        for (int i = 0; i < lines.size(); i++) {
+            map.put((i + 1) + "; ", lines.get(i));
+        }
+        return map;
     }
 
     private NthLineSelector() {

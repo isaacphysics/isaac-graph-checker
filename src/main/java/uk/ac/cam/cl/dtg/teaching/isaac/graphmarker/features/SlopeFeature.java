@@ -3,11 +3,13 @@ package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.features;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.HumanNamedEnum;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -19,17 +21,17 @@ public class SlopeFeature implements LineFeature<SlopeFeature.Instance> {
 
     private static final double SLOPE_THRESHOLD = 4;
 
-    enum Position {
+    enum Position implements HumanNamedEnum {
         START,
         END,
         ALL
     }
 
-    enum Slope {
+    enum Slope implements HumanNamedEnum {
         FLAT, // Nearly horizontal
         UP, // Nearly vertical going upwards
         DOWN, // Nearly vertical going downwards
-        OTHER, // Any other slope
+        OTHER // Any other slope
     }
 
     @Override
@@ -41,13 +43,6 @@ public class SlopeFeature implements LineFeature<SlopeFeature.Instance> {
 
         Instance(Map<Position, Slope> expectedSlopes) {
             this.expectedSlopes = expectedSlopes;
-        }
-
-        @Override
-        public String serialize() {
-            return expectedSlopes.entrySet().stream()
-                .map(entry -> entry.getKey() + "=" + entry.getValue())
-                .collect(Collectors.joining(", "));
         }
 
         @Override
@@ -79,12 +74,12 @@ public class SlopeFeature implements LineFeature<SlopeFeature.Instance> {
     }
 
     @Override
-    public String generate(Line expectedLine) {
-        return new Instance(Arrays.stream(Position.values())
-            .map(position -> ImmutablePair.of(position, lineToSlope(lineAtPosition(expectedLine, position))))
-            .filter(pair -> pair.getRight() != Slope.OTHER)
-            .collect(Collectors.toMap(ImmutablePair::getLeft, ImmutablePair::getRight))
-        ).serialize();
+    public List<String> generate(Line expectedLine) {
+        return Collections.singletonList(Arrays.stream(Position.values())
+        .map(position -> ImmutablePair.of(position, lineToSlope(lineAtPosition(expectedLine, position))))
+        .filter(pair -> pair.getRight() != Slope.OTHER)
+        .map(pair -> pair.getLeft().humanName() + "=" + pair.getRight().humanName())
+        .collect(Collectors.joining(", ")));
     }
 
     private SlopeFeature() {

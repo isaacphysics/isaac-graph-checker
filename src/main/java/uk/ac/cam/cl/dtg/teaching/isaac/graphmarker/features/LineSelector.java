@@ -3,6 +3,7 @@ package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.features;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 
+import java.util.Map;
 import java.util.function.Predicate;
 
 public interface LineSelector<I extends LineSelector.Instance> {
@@ -24,4 +25,6 @@ public interface LineSelector<I extends LineSelector.Instance> {
     String TAG();
 
     I deserialize(String instanceData);
+
+    Map<String, Line> generate(Input input);
 }

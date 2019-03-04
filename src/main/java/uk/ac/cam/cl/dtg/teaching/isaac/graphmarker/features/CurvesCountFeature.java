@@ -2,6 +2,9 @@ package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.features;
 
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Input;
 
+import java.util.Collections;
+import java.util.List;
+
 public class CurvesCountFeature implements InputFeature<CurvesCountFeature.Instance> {
 
     public static final CurvesCountFeature manager = new CurvesCountFeature();
@@ -14,17 +17,12 @@ public class CurvesCountFeature implements InputFeature<CurvesCountFeature.Insta
         return "curves";
     }
 
-    public class Instance implements InputFeature.InstanceInterface {
+    public class Instance implements InputFeature.Instance {
 
         private int count;
 
         private Instance(int count) {
             this.count = count;
-        }
-
-        @Override
-        public String serialize() {
-            return Integer.toString(count);
         }
 
         @Override
@@ -43,7 +41,10 @@ public class CurvesCountFeature implements InputFeature<CurvesCountFeature.Insta
     }
 
     @Override
-    public String generate(Input expectedInput) {
-        return new Instance(expectedInput.getLines().size()).serialize();
+    public List<String> generate(Input expectedInput) {
+        if (expectedInput.getLines().size() < 2) {
+            return Collections.emptyList();
+        }
+        return Collections.singletonList(Integer.toString(expectedInput.getLines().size()));
     }
 }

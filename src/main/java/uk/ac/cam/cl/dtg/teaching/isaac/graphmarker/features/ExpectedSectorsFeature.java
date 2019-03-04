@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -36,11 +37,6 @@ public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeatur
 
         Instance(List<Sector> expectedSectors) {
             this.expectedSectors = expectedSectors;
-        }
-
-        @Override
-        public String serialize() {
-            return Joiner.on(",").join(this.expectedSectors);
         }
 
         @Override
@@ -96,8 +92,8 @@ public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeatur
     }
 
     @Override
-    public String generate(Line expectedLine) {
-        return new Instance(convertLineToSectorList(expectedLine)).serialize();
+    public List<String> generate(Line expectedLine) {
+        return Collections.singletonList(Joiner.on(", ").join(convertLineToSectorList(expectedLine)));
     }
 
     List<Sector> convertLineToSectorList(Line line) {

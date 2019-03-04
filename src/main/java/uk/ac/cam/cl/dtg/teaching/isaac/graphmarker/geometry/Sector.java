@@ -114,13 +114,13 @@ public class Sector {
         ));
     }
 
-    public static Sector onAxisWithPositiveY = sloppyAxis("onAxisWithPositiveY", LEFT, RIGHT, UP);
+    public static Sector onAxisWithPositiveY = sloppyAxis("+Yaxis", LEFT, RIGHT, UP);
 
-    public static Sector onAxisWithNegativeY = sloppyAxis("onAxisWithNegativeY", RIGHT, LEFT, DOWN);
+    public static Sector onAxisWithNegativeY = sloppyAxis("-Yaxis", RIGHT, LEFT, DOWN);
 
-    public static Sector onAxisWithPositiveX = sloppyAxis("onAxisWithPositiveX", UP, DOWN, RIGHT);
+    public static Sector onAxisWithPositiveX = sloppyAxis("+Xaxis", UP, DOWN, RIGHT);
 
-    public static Sector onAxisWithNegativeX = sloppyAxis("onAxisWithNegativeX", DOWN, UP, LEFT);
+    public static Sector onAxisWithNegativeX = sloppyAxis("-Xaxis", DOWN, UP, LEFT);
 
     private static Sector square(String name, double size) {
         Point[] originPoints = new Point[] {

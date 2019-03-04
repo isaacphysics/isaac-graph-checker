@@ -76,12 +76,20 @@ public class MarkerController {
     public IsaacAnswerResponse getMarks(@PathParam("question") String questionId,
                                         IsaacAnswer answer) throws Exception {
         if ("graphChoice".equals(answer.getType())) {
+            GraphAnswer graphAnswer = om.readValue(answer.getValue(), GraphAnswer.class);
+
+            if (questionId.equals("generate")) {
+                String spec = marker.generate(graphAnswer);
+                return new IsaacAnswerResponse(true, new ResponseExplanation(
+                    "markdown", new String[]{}, "content", Collections.singletonList(
+                    new ResponseExplanation("markdown", new String[]{}, "content",
+                        spec.replaceAll("\r\n", "<br>")))));
+            }
             GraphSolutions question = questionData.get(questionId);
 
             if (question == null) {
                 throw new Exception("Unknown question " + questionId);
             }
-            GraphAnswer graphAnswer = om.readValue(answer.getValue(), GraphAnswer.class);
             return marker.mark(question, graphAnswer);
         }
         throw new Exception("Unknown answer type " + answer.getType());

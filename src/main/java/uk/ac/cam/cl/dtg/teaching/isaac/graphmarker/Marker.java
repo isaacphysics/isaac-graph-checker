@@ -21,4 +21,10 @@ public class Marker {
             .map(solution -> solution.getResponse())
             .orElse(question.getUnmatchedResponse());
     }
+
+    public String generate(GraphAnswer graphAnswer) {
+        Input input = answerToInput.apply(graphAnswer);
+
+        return Features.generate(input);
+    }
 }

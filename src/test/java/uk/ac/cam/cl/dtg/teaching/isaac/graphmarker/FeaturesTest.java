@@ -92,4 +92,17 @@ public class FeaturesTest {
             lineOf(x -> 1 / x, 0.01, 10)
         )));
     }
+
+    @Test
+    public void testGenerate() {
+        String features = Features.generate(inputOf(
+            lineOf(x -> 1 / x, -10, -0.01),
+            lineOf(x -> 1 / x, 0.01, 10)
+        ));
+        assertTrue(features.contains("line: 1;"));
+        assertTrue(features.contains("line: 2;"));
+        assertTrue(features.contains("start=flat"));
+        assertTrue(features.contains("bottomLeft"));
+        assertTrue(features.contains("topRight"));
+    }
 }

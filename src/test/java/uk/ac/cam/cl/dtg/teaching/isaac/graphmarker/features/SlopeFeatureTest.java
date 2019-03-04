@@ -6,6 +6,7 @@ import org.junit.Test;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -29,9 +30,9 @@ public class SlopeFeatureTest {
 
     @Test
     public void simpleSlopeTestWorks() {
-        String data = SlopeFeature.manager.generate(lineOf(x -> 1 / x, 0.01, 10));
+        List<String> data = SlopeFeature.manager.generate(lineOf(x -> 1 / x, 0.01, 10));
 
-        assertTrue(((Predicate<Line>) line -> SlopeFeature.manager.deserialize(data).match(line))
+        assertTrue(((Predicate<Line>) line -> SlopeFeature.manager.deserialize(data.get(0)).match(line))
             .test(lineOf(x -> 0.5 / x, 0.001, 10)));
     }
 
@@ -81,9 +82,9 @@ public class SlopeFeatureTest {
 
     @Test
     public void inverseOfXgeneratesTwoSlopes() {
-        String featureData = SlopeFeature.manager.generate(lineOf(x -> 1 / x, 0.01, 10));
+        List<String> featureData = SlopeFeature.manager.generate(lineOf(x -> 1 / x, 0.01, 10));
 
-        assertEquals(2, StringUtils.countMatches(featureData, '='));
+        assertEquals(2, StringUtils.countMatches(featureData.get(0), '='));
     }
 
 

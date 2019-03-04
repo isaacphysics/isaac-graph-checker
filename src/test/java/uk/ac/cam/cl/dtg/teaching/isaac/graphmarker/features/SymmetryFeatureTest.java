@@ -60,10 +60,10 @@ public class SymmetryFeatureTest {
 
     @Test
     public void simpleSymmetryTestWorks() {
-        String data = SymmetryFeature.manager.generate(lineOf(x -> x, -10, 10));
+        List<String> data = SymmetryFeature.manager.generate(lineOf(x -> x, -10, 10));
 
         Line line = lineOf(x -> x * 1.5, -10, 10);
-        assertTrue(SymmetryFeature.manager.deserialize(data).match(line));
+        assertTrue(SymmetryFeature.manager.deserialize(data.get(0)).match(line));
     }
 
     @Test
@@ -74,5 +74,12 @@ public class SymmetryFeatureTest {
     @Test
     public void antiSymmetryIsDetectedCorrectly() {
         assertEquals(SymmetryFeature.SymmetryType.ANTISYMMETRIC, SymmetryFeature.manager.getSymmetryOfLine(lineOf(x -> (x - 0.1) * (x - 0.3) * (x - 0.4), -0.24, 0.76)));
+    }
+
+    @Test
+    public void noneSymmetryGeneratesNoFeature() {
+        List<String> data = SymmetryFeature.manager.generate(lineOf(x -> x < 0 ? 0 : x, -10, 10));
+
+        assertEquals(0, data.size());
     }
 }

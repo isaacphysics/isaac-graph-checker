@@ -10,7 +10,10 @@ import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -18,18 +21,18 @@ public class Features {
 
     private static final Logger log = LoggerFactory.getLogger(Features.class);
 
-    private static List<LineFeature> lineFeatures = ImmutableList.of(
+    private static List<LineFeature<?>> lineFeatures = ImmutableList.of(
         ExpectedSectorsFeature.manager,
         SlopeFeature.manager,
         SymmetryFeature.manager,
         PointsFeature.manager
     );
 
-    private static List<InputFeature> inputFeatures = ImmutableList.of(
+    private static List<InputFeature<?>> inputFeatures = ImmutableList.of(
         CurvesCountFeature.manager
     );
 
-    private static List<LineSelector> lineSelectors = ImmutableList.of(
+    private static List<LineSelector<?>> lineSelectors = ImmutableList.of(
         NthLineSelector.manager
     );
 
@@ -83,7 +86,7 @@ public class Features {
             }
         }
         if (selector == null) {
-            selector = new AnyLineSelector().deserialize(item);
+            selector = AnyLineSelector.manager.deserialize(item);
         }
         String subItem = selector.item();
         for (LineFeature feature : lineFeatures) {
@@ -94,5 +97,40 @@ public class Features {
             }
         }
         throw new IllegalArgumentException("Unknown item: " + item);
+    }
+
+    public static String generate(Input input) {
+        List<String> features = new ArrayList<>();
+
+        // Run through input, trying all input features
+        for (InputFeature<?> feature : inputFeatures) {
+            Collection<String> foundFeatures = feature.generate(input);
+            foundFeatures.stream()
+                .map(f -> feature.TAG() + ": "+ f)
+                .forEach(features::add);
+        }
+
+        Collection<LineSelector<?>> lineSelectorsToUse = input.getLines().size() == 1
+            ? Collections.singletonList(AnyLineSelector.manager)
+            : lineSelectors;
+
+        // Run through input, applying all relevant line selectors
+        for (LineSelector<?> selector : lineSelectorsToUse) {
+            Map<String, Line> selectedLines = selector.generate(input);
+
+            selectedLines.forEach((lineSelectionSpec, line) -> {
+                String fullLineSelectionSpec = selector == AnyLineSelector.manager ? ""
+                    : selector.TAG() + ": " + lineSelectionSpec;
+
+                for (LineFeature<?> lineFeature : lineFeatures) {
+                    lineFeature.generate(line).stream()
+                        .filter(feature -> !feature.isEmpty())
+                        .map(feature -> fullLineSelectionSpec + lineFeature.TAG() + ": " + feature)
+                        .forEach(features::add);
+                }
+            });
+        }
+
+        return String.join("\r\n", features);
     }
 }

@@ -2,10 +2,11 @@ package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.features;
 
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 
+import java.util.List;
+
 public interface LineFeature<FeatureInstance extends LineFeature.Instance> {
 
     interface Instance {
-        String serialize();
         boolean match(Line line);
     }
 
@@ -13,5 +14,5 @@ public interface LineFeature<FeatureInstance extends LineFeature.Instance> {
 
     FeatureInstance deserialize(String featureData);
 
-    String generate(Line expectedLine);
+    List<String> generate(Line expectedLine);
 }

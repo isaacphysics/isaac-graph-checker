@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
+import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.PointType;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.dos.Curve;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.dos.GraphAnswer;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.dos.GraphSolutionItem;
@@ -13,6 +14,8 @@ import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.dos.ResponseExplanation;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -66,8 +69,14 @@ public class MarkerTest {
             null,
             null,
             null,
-            Collections.emptyList(),
-            Collections.emptyList(),
+            line.getPointsOfInterest().stream()
+                .filter(p -> p.getPointType() == PointType.MAXIMA)
+                .map(this::toPoint)
+                .collect(Collectors.toList()),
+            line.getPointsOfInterest().stream()
+                .filter(p -> p.getPointType() == PointType.MINIMA)
+                .map(this::toPoint)
+                .collect(Collectors.toList()),
             0
         );
     }
@@ -98,5 +107,19 @@ public class MarkerTest {
         ), Collections.emptyList());
 
         assertEquals(successResponse, marker.mark(solution, correctAnswer));
+    }
+
+    @Test
+    public void generateBasicExample() {
+        GraphAnswer correctAnswer = new GraphAnswer(1000, 1000, ImmutableList.of(
+            getCurveFromLine(lineOf(x -> (x - 1) * (x - 3) * (x - 4), -1.1, 6.4))
+        ), Collections.emptyList());
+
+        Set<String> features = new HashSet<>(Arrays.asList(marker.generate(correctAnswer).split("\r\n")));
+        assertTrue(features.contains("points: maxima in topRight, minima in bottomRight"));
+        assertTrue(features.contains("symmetry: antisymmetric"));
+        assertTrue(features.contains("through: bottomLeft, -Yaxis, bottomRight, +Xaxis, topRight, +Xaxis, bottomRight, +Xaxis, topRight"));
+        // TODO: fix slope detector and add the following:
+        // assertTrue(features.contains("slope: start=up, end=up"));
     }
 }

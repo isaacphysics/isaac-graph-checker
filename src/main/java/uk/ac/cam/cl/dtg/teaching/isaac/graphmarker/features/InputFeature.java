@@ -2,10 +2,11 @@ package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.features;
 
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Input;
 
-public interface InputFeature<FeatureInstance extends InputFeature.InstanceInterface> {
+import java.util.List;
 
-    interface InstanceInterface {
-        String serialize();
+public interface InputFeature<FeatureInstance extends InputFeature.Instance> {
+
+    interface Instance {
         boolean match(Input input);
     }
 
@@ -13,5 +14,5 @@ public interface InputFeature<FeatureInstance extends InputFeature.InstanceInter
 
     FeatureInstance deserialize(String featureData);
 
-    String generate(Input expectedInput);
+    List<String> generate(Input expectedInput);
 }
