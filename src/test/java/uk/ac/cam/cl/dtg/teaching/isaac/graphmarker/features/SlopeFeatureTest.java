@@ -75,7 +75,7 @@ public class SlopeFeatureTest {
 
     @Test
     public void slopeUpOrDownIsntOverSensitiveToX() {
-        Predicate<Line> matcher = line -> SlopeFeature.manager.deserialize("all=down").match(line);
+        Predicate<Line> matcher = line -> SlopeFeature.manager.deserialize("start=down, end=down").match(line);
 
         assertTrue(matcher.test(lineOf(new Point(0, 0), new Point(-1, -100))));
     }
@@ -88,17 +88,28 @@ public class SlopeFeatureTest {
     }
 
     @Test
-    public void straightDownSlopeGeneratesCorrectly() {
+    public void almostStraightDownSlopeGeneratesCorrectly() {
         String featureData = SlopeFeature.manager.generate(lineOf(
             new Point(1, 0),
             new Point(1, -1),
             new Point(1.001, -2),
             new Point(1, -3),
-            new Point(1, -4),
-            new Point(1.001, -5)
+            new Point(1.001, -4)
         )).get(0);
 
         assertTrue(featureData.contains("down"));
     }
 
+    @Test
+    public void straightDownSlopeGeneratesCorrectly() {
+        String featureData = SlopeFeature.manager.generate(lineOf(
+            new Point(1, 0),
+            new Point(1, -1),
+            new Point(1, -2),
+            new Point(1, -3),
+            new Point(1, -4)
+        )).get(0);
+
+        assertTrue(featureData.contains("down"));
+    }
 }
