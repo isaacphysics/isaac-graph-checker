@@ -50,33 +50,4 @@ public class Line implements Iterable<Point> {
         return Objects.hash(points);
     }
 
-    public Point getSize() {
-        if (points.isEmpty()) return new Point(0, 0);
-
-        double minX = Double.MAX_VALUE;
-        double minY = Double.MAX_VALUE;
-        double maxX = -Double.MAX_VALUE;
-        double maxY = -Double.MAX_VALUE;
-
-        for (Point p : points) {
-            if (p.getX() < minX) minX = p.getX();
-            if (p.getX() > maxX) maxX = p.getX();
-            if (p.getY() < minY) minY = p.getY();
-            if (p.getY() > maxY) maxY = p.getY();
-        }
-
-        double centreX = (maxX + minX) / 2;
-        double centreY = (maxY + minY) / 2;
-
-        double diffX = maxX - minX;
-        double diffY = maxY - minY;
-
-        double startX = points.get(0).getX();
-        double startY = points.get(0).getY();
-
-        double x = startX < centreX ? diffX : -diffX;
-        double y = startY < centreY ? diffY : -diffY;
-
-        return new Point(x, y);
-    }
 }

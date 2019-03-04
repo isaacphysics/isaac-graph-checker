@@ -169,8 +169,13 @@ public class Segment {
          Point p = segment.atParameter(intersectionParam.getT());
 
          if (intersectionParam.isInside()) {
-             // End is inside, so clip start point
-             return Segment.closed(p, segment.end);
+             if (inside(segment.start)) {
+                 // Start is inside too, so don't clip
+                 return segment;
+             } else {
+                 // End is inside, so clip start point
+                 return Segment.closed(p, segment.end);
+             }
          } else {
              return Segment.closed(segment.start, p);
          }

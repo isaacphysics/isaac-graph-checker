@@ -25,22 +25,25 @@ public class TestHelpers {
             : pointsOfInterest.get(pointsOfInterest.size() - 1).getPointType();
 
         if (points.size() > 2) {
-            for (int i = 1; i < points.size() - 2; i++) {
+            for (int i = 1; i < points.size() - 1; i++) {
                 Point p1 = points.get(i - 1);
                 Point p2 = points.get(i);
                 Point p3 = points.get(i + 1);
-                Point p4 = points.get(i + 2);
+                Point p4 = null;
+                if (i + 2 < points.size()) {
+                    p4 = points.get(i + 2);
+                }
                 if (p1.getY() > p2.getY() && PointType.MINIMA != lastPointType.get()) {
                     if (p3.getY() > p2.getY()) {
                         pointsOfInterest.add(new PointOfInterest(p2, PointType.MINIMA));
-                    } else if (p2.getY() == p3.getY() && p4.getY() > p2.getY()) {
+                    } else if (p2.getY() == p3.getY() && p4 != null && p4.getY() > p2.getY()) {
                         pointsOfInterest.add(new PointOfInterest(p2.add(p3).times(0.5), PointType.MINIMA));
                     }
                 }
                 if (p1.getY() < p2.getY() && PointType.MAXIMA != lastPointType.get()) {
                     if (p3.getY() < p2.getY()) {
                         pointsOfInterest.add(new PointOfInterest(p2, PointType.MAXIMA));
-                    } else if (p2.getY() == p3.getY() && p4.getY() < p2.getY()) {
+                    } else if (p2.getY() == p3.getY() && p4 != null && p4.getY() < p2.getY()) {
                         pointsOfInterest.add(new PointOfInterest(p2.add(p3).times(0.5), PointType.MAXIMA));
                     }
                 }
@@ -51,6 +54,17 @@ public class TestHelpers {
 
     public static Line lineOf(Point... points) {
         return lineOf(Arrays.asList(points));
+    }
+
+    public static Line lineOf(double... coords) {
+        if (coords.length % 2 != 0) {
+            throw new IllegalArgumentException("Odd number of values for coordinates");
+        }
+        Point[] points = new Point[coords.length / 2];
+        for (int i = 0; i < points.length; i++) {
+            points[i] = new Point(coords[i * 2], coords[i * 2 + 1]);
+        }
+        return lineOf(points);
     }
 
     public static Line lineOf(Function<Double, Double> f, double minX, double maxX) {

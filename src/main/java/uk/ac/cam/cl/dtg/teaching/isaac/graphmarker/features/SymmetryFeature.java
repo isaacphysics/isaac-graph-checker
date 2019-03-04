@@ -4,6 +4,7 @@ import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.HumanNamedEnum;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.PointOfInterest;
+import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.Lines;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.Sector;
 
 import java.util.Collections;
@@ -117,27 +118,63 @@ public class SymmetryFeature implements LineFeature<SymmetryFeature.Instance> {
         Line left = Sector.left.clip(line);
         Line right = Sector.right.clip(line);
 
-        if (left.getPoints().size() <= 1 || right.getPoints().size() <= 1) {
+        List<Line> lefts = Lines.splitOnPointsOfInterest(left);
+        List<Line> rights = Lines.splitOnPointsOfInterest(right);
+
+        if (lefts.size() != rights.size()) {
             return SymmetryType.NONE;
         }
 
-        Point leftSize = left.getSize();
-        Point rightSize = right.getSize();
+        Collections.reverse(lefts);
+
+        SymmetryType symmetryType = null;
+        boolean innerMost = true;
+        for (int i = 0; i < lefts.size(); i++) {
+            SymmetryType nextSymmetryType = getSectionSymmetry(lefts.get(i), rights.get(i), innerMost);
+            if (nextSymmetryType == null) continue;
+            if (innerMost) {
+                symmetryType = nextSymmetryType;
+                innerMost = false;
+            }
+            if (symmetryType != nextSymmetryType) return SymmetryType.NONE;
+        }
+
+        if (symmetryType == null) {
+            return SymmetryType.NONE;
+        }
+
+        return symmetryType;
+    }
+
+    private SymmetryType getSectionSymmetry(Line left, Line right, boolean innerMost) {
+        Point leftSize = Lines.getSize(left);
+        Point rightSize = Lines.getSize(right);
+
+        if (leftSize.getX() == 0 && leftSize.getY() == 0 && rightSize.getX() == 0 && rightSize.getY() == 0) {
+            return null;
+        }
 
         double xDifference = (rightSize.getX() - leftSize.getX()) / rightSize.getX();
         double yDifferenceOdd = (rightSize.getY() - leftSize.getY()) / rightSize.getY();
         double yDifferenceEven = (rightSize.getY() + leftSize.getY()) / rightSize.getY();
 
-        if(Math.abs(xDifference) < 0.2) {
-            if (Math.abs(rightSize.getY()) < 0.01 && Math.abs((leftSize.getY())) < 0.01) {
+        if(Math.abs(xDifference) < 0.4) {
+            if (rightSize.getY() == 0 && leftSize.getY() == 0) {
                 return SymmetryType.EVEN;
             }
-            if (Math.abs(yDifferenceOdd) < 0.2
-                && Sector.relaxedOrigin.contains(left.getPoints().get(left.getPoints().size() - 1))
-                && Sector.relaxedOrigin.contains(right.getPoints().get(0))) {
-                return SymmetryType.ODD;
+            if (Math.abs(yDifferenceOdd) < 0.4) {
+                if (innerMost) {
+                    if (Sector.relaxedOrigin.contains(left.getPoints().get(left.getPoints().size() - 1))
+                        && Sector.relaxedOrigin.contains(right.getPoints().get(0))) {
+                        return SymmetryType.ODD;
+                    } else {
+                        return SymmetryType.NONE;
+                    }
+                } else {
+                    return SymmetryType.ODD;
+                }
             }
-            if (Math.abs(yDifferenceEven) < 0.2) {
+            if (Math.abs(yDifferenceEven) < 0.4) {
                 return SymmetryType.EVEN;
             }
         }

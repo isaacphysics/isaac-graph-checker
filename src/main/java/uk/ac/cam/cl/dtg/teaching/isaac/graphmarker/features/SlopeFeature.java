@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.HumanNamedEnum;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
+import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry.Lines;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -85,7 +86,7 @@ public class SlopeFeature implements LineFeature<SlopeFeature.Instance> {
     }
 
     Slope lineToSlope(Line line) {
-        Point size = line.getSize();
+        Point size = Lines.getSize(line);
 
         if (size.getX() < 0) {
             size = new Point(-size.getX(), size.getY());

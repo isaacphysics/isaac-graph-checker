@@ -194,4 +194,16 @@ public class Sector {
             .findFirst()
             .get();
     }
+
+    public static Sector leftOfX(double x) {
+        return new Sector("leftOfX=" + x, Collections.singletonList(
+            Segment.openBothEnds(new Point(x, 0), UP, Side.LEFT)
+        ));
+    }
+
+    public static Sector rightOfX(double x) {
+        return new Sector("rightOfX=" + x, Collections.singletonList(
+            Segment.openBothEnds(new Point(x, 0), UP, Side.RIGHT)
+        ));
+    }
 }
