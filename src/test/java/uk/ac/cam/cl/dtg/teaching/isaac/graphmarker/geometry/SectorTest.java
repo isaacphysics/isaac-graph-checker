@@ -153,7 +153,7 @@ public class SectorTest {
 
         assertIntersects(origin.intersects(lineOf(new Point(-1, 0), new Point(100, 1))));
 
-        assertOutside(origin.intersects(lineOf(new Point(-0.5, 0), new Point(1, 0.1))));
+        assertOutside(origin.intersects(lineOf(new Point(-0.5, 0), new Point(1, 0.2))));
     }
 
     @Test
