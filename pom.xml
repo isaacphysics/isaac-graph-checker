@@ -207,6 +207,32 @@
                   </execution>
               </executions>
           </plugin>
+
+          <plugin>
+              <groupId>com.mycila</groupId>
+              <artifactId>license-maven-plugin</artifactId>
+              <version>3.0</version>
+              <configuration>
+                  <header>src/main/resources/apache-2-header.txt</header>
+                  <properties>
+                      <owner>University of Cambridge</owner>
+                      <project.inceptionYear>2019</project.inceptionYear>
+                  </properties>
+                  <skipExistingHeaders>false</skipExistingHeaders>
+                  <includes>
+                      <include>src/main/java/**</include>
+                      <include>src/test/java/**</include>
+                  </includes>
+              </configuration>
+              <executions>
+                  <execution>
+                      <phase>validate</phase>
+                      <goals>
+                          <goal>check</goal>
+                      </goals>
+                  </execution>
+              </executions>
+          </plugin>
       </plugins>
   </build>
 </project>
