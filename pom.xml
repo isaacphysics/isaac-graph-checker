@@ -213,7 +213,7 @@
               <artifactId>license-maven-plugin</artifactId>
               <version>3.0</version>
               <configuration>
-                  <header>src/main/resources/apache-2-header.txt</header>
+                  <header>.config/apache-2-header.txt</header>
                   <properties>
                       <owner>University of Cambridge</owner>
                       <project.inceptionYear>2019</project.inceptionYear>
