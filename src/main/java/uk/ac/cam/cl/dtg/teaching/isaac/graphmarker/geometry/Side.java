@@ -15,6 +15,9 @@
  */
 package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry;
 
+/**
+ * Which side of a segment to consider the inside.
+ */
 public enum Side {
     LEFT,
     RIGHT,

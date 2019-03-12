@@ -29,15 +29,26 @@ public class Line implements Iterable<Point> {
 
     private final List<PointOfInterest> pointsOfInterest;
 
+    /**
+     * Create a line.
+     * @param points The points on this line.
+     * @param pointsOfInterest Any points of interest on this line.
+     */
     public Line(List<Point> points, List<PointOfInterest> pointsOfInterest) {
         this.points = points;
         this.pointsOfInterest = pointsOfInterest;
     }
 
+    /**
+     * @return Get the points on this line.
+     */
     public List<Point> getPoints() {
         return points;
     }
 
+    /**
+     * @return Get the points of interest on this line.
+     */
     public List<PointOfInterest> getPointsOfInterest() {
         return pointsOfInterest;
     }
@@ -48,14 +59,21 @@ public class Line implements Iterable<Point> {
         return points.iterator();
     }
 
+    /**
+     * @return A Stream of the points on this line.
+     */
     public Stream<Point> stream() {
         return points.stream();
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Line points1 = (Line) o;
         return Objects.equals(points, points1.points);
     }

@@ -20,22 +20,35 @@ import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Input;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * An input feature which requires a specific number of lines to be drawn.
+ */
 public class CurvesCountFeature implements InputFeature<CurvesCountFeature.Instance> {
 
     public static final CurvesCountFeature manager = new CurvesCountFeature();
 
+    /**
+     * Private constructor; use the manager singleton.
+     */
     private CurvesCountFeature() {
     }
 
     @Override
-    public String TAG() {
+    public String tag() {
         return "curves";
     }
 
+    /**
+     * An instance of the CurvesCount feature.
+     */
     public class Instance implements InputFeature.Instance {
 
         private final int count;
 
+        /**
+         * Create a curve count feature.
+         * @param count Required number of curves.
+         */
         private Instance(int count) {
             this.count = count;
         }

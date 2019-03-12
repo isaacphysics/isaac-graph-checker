@@ -24,6 +24,11 @@ public class Point {
     private final double x;
     private final double y;
 
+    /**
+     * Create a point.
+     * @param x The x co-ordinate.
+     * @param y The y co-ordinate.
+     */
     public Point(double x, double y) {
         this.x = x;
         this.y = y;
@@ -31,24 +36,33 @@ public class Point {
 
     @Override
     public String toString() {
-        return "(" + x +", " + y + ")";
+        return "(" + x + ", " + y + ")";
     }
 
+    /**
+     * @return The X co-ordinate.
+     */
     public double getX() {
         return x;
     }
 
+    /**
+     * @return The Y co-ordinate.
+     */
     public double getY() {
         return y;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Point point = (Point) o;
-        return Double.compare(point.x, x) == 0 &&
-                Double.compare(point.y, y) == 0;
+        return Double.compare(point.x, x) == 0 && Double.compare(point.y, y) == 0;
     }
 
     @Override
@@ -56,14 +70,29 @@ public class Point {
         return Objects.hash(x, y);
     }
 
+    /**
+     * Add another point to this one and return as a new point.
+     * @param p Point to add.
+     * @return The new point.
+     */
     public Point add(Point p) {
         return new Point(x + p.x, y + p.y);
     }
 
+    /**
+     * Subtract another point from this one and return as a new point.
+     * @param p Point to subtract.
+     * @return The new point.
+     */
     public Point minus(Point p) {
         return new Point(x - p.x, y - p.y);
     }
 
+    /**
+     * Multiple the co-ordinates by a constant factor and return as a new point.
+     * @param m The factor to multiply by.
+     * @return The new point.
+     */
     public Point times(double m) {
         return new Point(x * m, y * m);
     }

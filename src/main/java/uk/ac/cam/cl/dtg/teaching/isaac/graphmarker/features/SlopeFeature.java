@@ -16,8 +16,6 @@
 package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.features;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.HumanNamedEnum;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
@@ -29,19 +27,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * A line feature which requires the line to have a specific slope at the start and/or end.
+ */
 public class SlopeFeature implements LineFeature<SlopeFeature.Instance> {
 
     public static final SlopeFeature manager = new SlopeFeature();
 
-    private static final Logger log = LoggerFactory.getLogger(SlopeFeature.class);
-
     private static final double SLOPE_THRESHOLD = 4;
+    public static final int NUMBER_OF_POINTS_AT_ENDS = 5;
 
+    /**
+     * A section of the line.
+     */
     enum Position implements HumanNamedEnum {
         START,
         END
     }
 
+    /**
+     * The shape of the slope.
+     */
     enum Slope implements HumanNamedEnum {
         FLAT, // Nearly horizontal
         UP, // Nearly vertical going upwards
@@ -50,12 +56,21 @@ public class SlopeFeature implements LineFeature<SlopeFeature.Instance> {
     }
 
     @Override
-    public String TAG() { return "slope"; }
+    public String tag() {
+        return "slope";
+    }
 
+    /**
+     * An instance of the Slope feature.
+     */
     protected class Instance implements LineFeature.Instance {
 
         private final Map<Position, Slope> expectedSlopes;
 
+        /**
+         * Create an instance which expects these positions to have specified slopes.
+         * @param expectedSlopes A map of positions to expected slopes.
+         */
         Instance(Map<Position, Slope> expectedSlopes) {
             this.expectedSlopes = expectedSlopes;
         }
@@ -97,19 +112,23 @@ public class SlopeFeature implements LineFeature<SlopeFeature.Instance> {
         .collect(Collectors.joining(", ")));
     }
 
+    /**
+     * Use the manager singleton.
+     */
     private SlopeFeature() {
     }
 
-    Slope lineToSlope(Line line) {
+    /**
+     * Convert a line into a slope description.
+     *
+     * @param line The line to measure.
+     * @return The slope of the line.
+     */
+    static Slope lineToSlope(Line line) {
         Point size = Lines.getSize(line);
 
-        if (size.getX() < 0) {
-            size = new Point(-size.getX(), size.getY());
-        }
-        // This test is need because you can get a -0 which then divides to give the opposite infinity to the one you want
-        if (size.getX() == 0) {
-            size = new Point(0, size.getY());
-        }
+        // Negative X is incorrect for our purposes, so force it to be positive.
+        size = new Point(Math.abs(size.getX()), size.getY());
 
         double highIfFlat = size.getX() / size.getY();
         if (Math.abs(highIfFlat) > SLOPE_THRESHOLD) {
@@ -118,21 +137,32 @@ public class SlopeFeature implements LineFeature<SlopeFeature.Instance> {
 
         double highIfSteep = size.getY() / size.getX();
         if (Math.abs(highIfSteep) > SLOPE_THRESHOLD) {
-            return highIfSteep > 0 ? Slope.UP : Slope.DOWN;
+            if (highIfSteep > 0) {
+                return Slope.UP;
+            } else {
+                return Slope.DOWN;
+            }
         }
 
         return Slope.OTHER;
     }
 
+    /**
+     * Take a section of a line at the start or end.
+     * @param line The line.
+     * @param position The section of the line to return.
+     * @return A new line that just covers line at position.
+     */
     private static Line lineAtPosition(Line line, Position position) {
         int size = line.getPoints().size();
-        int desired = Math.min(5, size);
+        int desired = Math.min(NUMBER_OF_POINTS_AT_ENDS, size);
         switch (position) {
             case START:
                 return new Line(line.getPoints().subList(0, desired), Collections.emptyList());
             case END:
                 return new Line(line.getPoints().subList(size - desired, size), Collections.emptyList());
+            default:
+                throw new IllegalArgumentException("Unknown position: " + position);
         }
-        throw new IllegalArgumentException("Unknown position: " + position);
     }
 }

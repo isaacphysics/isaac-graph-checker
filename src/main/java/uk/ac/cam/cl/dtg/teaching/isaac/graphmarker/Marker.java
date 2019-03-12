@@ -23,10 +23,19 @@ import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.dos.IsaacAnswerResponse;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.features.Features;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.translation.AnswerToInput;
 
+/**
+ * Wrapper of Features to take input in the Isaac JSON format and return it in an acceptable format.
+ */
 public class Marker {
 
     private final AnswerToInput answerToInput = new AnswerToInput();
 
+    /**
+     * Mark an answer against a list of solutions.
+     * @param question The list of solutions.
+     * @param graphAnswer The answer.
+     * @return The response from the list of solutions for the first solution that matched.
+     */
     public IsaacAnswerResponse mark(GraphSolutions question, GraphAnswer graphAnswer) {
 
         Input input = answerToInput.apply(graphAnswer);
@@ -38,6 +47,11 @@ public class Marker {
             .orElse(question.getUnmatchedResponse());
     }
 
+    /**
+     * Convert an answer into a feature specification.
+     * @param graphAnswer The solution to be analysed.
+     * @return A specification of all the features in the answer.
+     */
     public String generate(GraphAnswer graphAnswer) {
         Input input = answerToInput.apply(graphAnswer);
 

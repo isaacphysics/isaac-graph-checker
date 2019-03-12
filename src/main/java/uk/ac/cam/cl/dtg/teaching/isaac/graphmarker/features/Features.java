@@ -32,25 +32,34 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * Static class for matching Input to a list of features, and generating a list of features from an input.
+ */
 public class Features {
 
     private static final Logger log = LoggerFactory.getLogger(Features.class);
 
-    private static final List<LineFeature<?>> lineFeatures = ImmutableList.of(
+    private static final List<LineFeature<?>> LINE_FEATURES = ImmutableList.of(
         ExpectedSectorsFeature.manager,
         SlopeFeature.manager,
         SymmetryFeature.manager,
         PointsFeature.manager
     );
 
-    private static final List<InputFeature<?>> inputFeatures = ImmutableList.of(
+    private static final List<InputFeature<?>> INPUT_FEATURES = ImmutableList.of(
         CurvesCountFeature.manager
     );
 
-    private static final List<LineSelector<?>> lineSelectors = ImmutableList.of(
+    private static final List<LineSelector<?>> LINE_SELECTORS = ImmutableList.of(
         NthLineSelector.manager
     );
 
+    /**
+     * Given a feature specification, return a predicate which matches Input to that specification.
+     *
+     * @param feature The feature specification.
+     * @return A predicate on Input.
+     */
     public static Predicate<Input> matcher(String feature) {
         String[] features = feature.split("\n");
         List<ImmutablePair<Predicate<Input>, Boolean>> matchersAndInfo = Arrays.stream(features)
@@ -83,18 +92,23 @@ public class Features {
         };
     }
 
+    /**
+     * Turn a feature specification into an input predicate and a boolean indicating whether it has a line selector.
+     * @param item The feature specification.
+     * @return A pair of an input predicate and whether the feature has a line selector.
+     */
     private static ImmutablePair<Predicate<Input>, Boolean> itemToFeaturePredicate(String item) {
-        for (InputFeature feature : inputFeatures) {
-            if (item.startsWith(feature.TAG() + ":")) {
-                item = item.substring(feature.TAG().length() + 1);
+        for (InputFeature feature : INPUT_FEATURES) {
+            if (item.startsWith(feature.tag() + ":")) {
+                item = item.substring(feature.tag().length() + 1);
                 return ImmutablePair.of(feature.deserialize(item)::match, true);
             }
         }
         LineSelector.Instance selector = null;
         boolean selectorFound = false;
-        for (LineSelector selectors : lineSelectors) {
-            if (item.startsWith(selectors.TAG() + ":")) {
-                item = item.substring(selectors.TAG().length() + 1);
+        for (LineSelector selectors : LINE_SELECTORS) {
+            if (item.startsWith(selectors.tag() + ":")) {
+                item = item.substring(selectors.tag().length() + 1);
                 selector = selectors.deserialize(item);
                 selectorFound = true;
                 break;
@@ -104,9 +118,9 @@ public class Features {
             selector = AnyLineSelector.manager.deserialize(item);
         }
         String subItem = selector.item();
-        for (LineFeature feature : lineFeatures) {
-            if (subItem.startsWith(feature.TAG() + ":")) {
-                String finalSubItem = subItem.substring(feature.TAG().length() + 1);
+        for (LineFeature feature : LINE_FEATURES) {
+            if (subItem.startsWith(feature.tag() + ":")) {
+                String finalSubItem = subItem.substring(feature.tag().length() + 1);
                 Predicate<Line> linePredicate = line -> feature.deserialize(finalSubItem).match(line);
                 return ImmutablePair.of(selector.matcher(linePredicate), selectorFound);
             }
@@ -114,38 +128,56 @@ public class Features {
         throw new IllegalArgumentException("Unknown item: " + item);
     }
 
+    /**
+     * Generate a feature specification from an Input.
+     * @param input The input.
+     * @return The feature specification.
+     */
     public static String generate(Input input) {
         List<String> features = new ArrayList<>();
 
         // Run through input, trying all input features
-        for (InputFeature<?> feature : inputFeatures) {
+        for (InputFeature<?> feature : INPUT_FEATURES) {
             Collection<String> foundFeatures = feature.generate(input);
             foundFeatures.stream()
-                .map(f -> feature.TAG() + ": "+ f)
+                .map(f -> feature.tag() + ": " + f)
                 .forEach(features::add);
         }
 
-        Collection<LineSelector<?>> lineSelectorsToUse = input.getLines().size() == 1
-            ? Collections.singletonList(AnyLineSelector.manager)
-            : lineSelectors;
+        Collection<LineSelector<?>> lineSelectorsToUse;
+        if (input.getLines().size() == 1) {
+            lineSelectorsToUse = Collections.singletonList(AnyLineSelector.manager);
+        } else {
+            lineSelectorsToUse = LINE_SELECTORS;
+        }
 
         // Run through input, applying all relevant line selectors
         for (LineSelector<?> selector : lineSelectorsToUse) {
             Map<String, Line> selectedLines = selector.generate(input);
 
             selectedLines.forEach((lineSelectionSpec, line) -> {
-                String fullLineSelectionSpec = selector == AnyLineSelector.manager ? ""
-                    : selector.TAG() + ": " + lineSelectionSpec;
+                String fullLineSelectionSpec;
+                if (selector == AnyLineSelector.manager) {
+                    fullLineSelectionSpec = "";
+                } else {
+                    fullLineSelectionSpec = selector.tag() + ": " + lineSelectionSpec;
+                }
 
-                for (LineFeature<?> lineFeature : lineFeatures) {
+                for (LineFeature<?> lineFeature : LINE_FEATURES) {
                     lineFeature.generate(line).stream()
                         .filter(feature -> !feature.isEmpty())
-                        .map(feature -> fullLineSelectionSpec + lineFeature.TAG() + ": " + feature)
+                        .map(feature -> fullLineSelectionSpec + lineFeature.tag() + ": " + feature)
                         .forEach(features::add);
                 }
             });
         }
 
         return String.join("\r\n", features);
+    }
+
+    /**
+     * Use the static methods.
+     */
+    private Features() {
     }
 }

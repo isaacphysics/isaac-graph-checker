@@ -18,21 +18,36 @@ package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * A user's input, made up of a list of lines.
+ */
 public class Input {
     private final List<Line> lines;
 
+    /**
+     * Create input with the specified lines.
+     * @param lines The lines.
+     */
     public Input(List<Line> lines) {
         this.lines = lines;
     }
 
+    /**
+     * Get the lines in this input.
+     * @return The lines.
+     */
     public List<Line> getLines() {
         return lines;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Input input = (Input) o;
         return Objects.equals(lines, input.lines);
     }

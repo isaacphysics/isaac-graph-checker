@@ -15,7 +15,14 @@
  */
 package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data;
 
+/**
+ * An interface to indicate an enum should have a human-readable name.
+ */
 public interface HumanNamedEnum {
+    /**
+     * Get the human-readable name of this enum constant.
+     * @return The human-readable name.
+     */
     default String humanName() {
         return this.toString().toLowerCase();
     }

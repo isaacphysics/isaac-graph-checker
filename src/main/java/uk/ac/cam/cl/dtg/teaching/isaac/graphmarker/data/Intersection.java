@@ -15,6 +15,9 @@
  */
 package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data;
 
+/**
+ * Defines whether a Line is inside, outside, or intersecting a Sector boundary.
+ */
 public enum Intersection {
     INSIDE,
     INTERSECTS,

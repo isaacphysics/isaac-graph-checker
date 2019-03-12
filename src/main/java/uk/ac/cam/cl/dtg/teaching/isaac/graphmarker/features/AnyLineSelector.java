@@ -22,38 +22,54 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * A Selector which will match if any line in the input matches.
+ */
 public class AnyLineSelector implements LineSelector<AnyLineSelector.Instance> {
 
     public static final AnyLineSelector manager = new AnyLineSelector();
 
-    public String TAG() {
+    @Override
+    public String tag() {
         return "any";
     }
 
+    /**
+     * An instance of the AnyLine selector.
+     */
     class Instance extends LineSelector.Instance {
 
+        /**
+         * Create an instance of this selector.
+         * @param item The remainder of this item.
+         */
         private Instance(String item) {
             super(item);
         }
 
         @Override
-        Predicate<Input> matcher(Predicate<Line> linePredicate) {
+        Predicate<Input> matcher(final Predicate<Line> linePredicate) {
             return input -> input.getLines().stream()
                 .anyMatch(linePredicate);
         }
     }
 
     @Override
-    public Instance deserialize(String instanceData) {
+    public Instance deserialize(final String instanceData) {
         return new Instance(instanceData);
     }
 
     @Override
-    public Map<String, Line> generate(Input input) {
+    public Map<String, Line> generate(final Input input) {
         return input.getLines().stream()
             .collect(Collectors.toMap(ignored -> "", line -> line));
     }
 
+    /**
+     * There is only one of these, so make the constructor private.
+     *
+     * Use the manager singleton.
+     */
     private AnyLineSelector() {
     }
 }

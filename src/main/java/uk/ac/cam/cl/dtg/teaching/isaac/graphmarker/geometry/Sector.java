@@ -15,6 +15,8 @@
  */
 package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.geometry;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Streams;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Intersection;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.IntersectionParams;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
@@ -30,12 +32,13 @@ import java.util.stream.Collectors;
 /**
  * Represents a region of the graph, e.g. above the x axis, or on the y axis with y < 0
  */
+@SuppressWarnings("checkstyle:constantName")
 public class Sector {
 
     public static final double AXIS_SLOP = 0.02;
     private static final double ORIGIN_SLOP = 0.05;
 
-    private static final Point originPoint = new Point(0, 0);
+    private static final Point ORIGIN_POINT = new Point(0, 0);
 
     private static final Point UP = new Point(0, 1);
     private static final Point DOWN = new Point(0, -1);
@@ -45,6 +48,11 @@ public class Sector {
     private final String name;
     private final List<Segment> segments;
 
+    /**
+     * Create a sector.
+     * @param name The name of the sector.
+     * @param segments The segments defining the boundaries of this sector.
+     */
     private Sector(String name, List<Segment> segments) {
         this.name = name;
         this.segments = segments;
@@ -55,14 +63,29 @@ public class Sector {
         return name;
     }
 
+    /**
+     * Does this sector contain the point?
+     * @param p The point to test.
+     * @return True if the point is inside this sector.
+     */
     public boolean contains(Point p) {
         return this.segments.stream().allMatch(segment -> segment.inside(p));
     }
 
+    /**
+     * Does this sector intersect the segment?
+     * @param s The segment to test.
+     * @return True if the segment intersects with the boundary of this sector.
+     */
     private boolean intersects(Segment s) {
         return this.segments.stream().anyMatch(segment -> segment.intersects(s));
     }
 
+    /**
+     * Measure whether a line is inside, outside, or intersecting this sector.
+     * @param line The line to test.
+     * @return Whether a line is inside, outside, or intersecting this sector.
+     */
     public Intersection intersects(Line line) {
         boolean allInside = true;
         boolean someInside = false;
@@ -79,11 +102,20 @@ public class Sector {
             }
             lastPoint = point;
         }
-        return  allInside && !anyIntersections ? Intersection.INSIDE
-                : someInside || anyIntersections ? Intersection.INTERSECTS
-                : Intersection.OUTSIDE;
+        if (allInside && !anyIntersections) {
+            return Intersection.INSIDE;
+        } else if (someInside || anyIntersections) {
+            return Intersection.INTERSECTS;
+        } else {
+            return Intersection.OUTSIDE;
+        }
     }
 
+    /**
+     * Find the parameters of all intersections between a segment and this sector.
+     * @param lineSegment The segment to analyse.
+     * @return The parameters of each intersection.
+     */
     public IntersectionParams intersectionParams(Segment lineSegment) {
         return new IntersectionParams(this.segments.stream()
                 .map(segment -> segment.intersectionParam(lineSegment))
@@ -93,6 +125,15 @@ public class Sector {
                 .collect(Collectors.toList()));
     }
 
+    /**
+     * Create a line which is clipped to be only inside this sector.
+     *
+     * Any discontinuities are joined by straight lines. For example, clipping a sine wave to the top sector would give
+     * a half-rectified wave.
+     *
+     * @param line The line to clip.
+     * @return A new clip that is wholly inside this sector.
+     */
     public Line clip(Line line) {
         Line result = line;
         for (Segment segment : this.segments) {
@@ -101,6 +142,18 @@ public class Sector {
         return result;
     }
 
+    /**
+     * Helper method to create a quadrant sector.
+     *
+     * Technically, this could make shapes other than a quadrant. It is really an infinite sector from origin between
+     * axis1 and axis2.
+     *
+     * @param name The name of the sector.
+     * @param origin The origin of the quadrant
+     * @param axis1 The direction of one side of the quadrant.
+     * @param axis2 The direction of the other side of the quadrant.
+     * @return The quadrant sector.
+     */
     private static Sector quadrant(String name, Point origin, Point axis1, Point axis2) {
         return new Sector(name, Arrays.asList(
             Segment.openOneEnd(origin, axis1, axis2),
@@ -108,8 +161,15 @@ public class Sector {
         ));
     }
 
+    /**
+     * Helper method to create a quadrant sector centred on the origin.
+     * @param name The name of the sector.
+     * @param axis1 The direction of one side of the quadrant.
+     * @param axis2 The direction of the other side of the quadrant.
+     * @return The sector.
+     */
     private static Sector centeredQuadrant(String name, Point axis1, Point axis2) {
-        return quadrant(name, originPoint, axis1, axis2);
+        return quadrant(name, ORIGIN_POINT, axis1, axis2);
     }
 
     public static final Sector topRight = centeredQuadrant("topRight", RIGHT, UP);
@@ -120,6 +180,18 @@ public class Sector {
 
     public static final Sector bottomRight = centeredQuadrant("bottomRight", RIGHT, DOWN);
 
+    /**
+     * Helper to create a Sector which represents an area near an axis.
+     *
+     * The area is defined as between the points left and right, scaled by AXIS_SLOP, extending out to infinity in the
+     * direction of axis.
+     *
+     * @param name The name of this sector.
+     * @param left The left-hand side of the strip.
+     * @param right The right-hand side of the strip.
+     * @param axis The direction the strip extends in.
+     * @return The sloppy axis sector.
+     */
     private static Sector sloppyAxis(String name, Point left, Point right, Point axis) {
         left = left.times(AXIS_SLOP);
         right = right.times(AXIS_SLOP);
@@ -138,37 +210,64 @@ public class Sector {
 
     public static final Sector onAxisWithNegativeX = sloppyAxis("-Xaxis", DOWN, UP, LEFT);
 
+    /**
+     * Helper to create a Sector which represents a square of a certain size, centred on the origin.
+     *
+     * @param name The name of this sector.
+     * @param size The radius (half-width) of the square.
+     * @return The square sector.
+     */
     private static Sector square(String name, double size) {
         Point[] originPoints = new Point[] {
             new Point(size, size), new Point(-size, size),
             new Point(-size, -size), new Point(size, -size)};
 
-        return new Sector(name, Arrays.asList(
-            Segment.closed(originPoints[0], originPoints[1]),
-            Segment.closed(originPoints[1], originPoints[2]),
-            Segment.closed(originPoints[2], originPoints[3]),
-            Segment.closed(originPoints[3], originPoints[0])
-        ));
+        Iterable<Point> points = Iterables.cycle(originPoints);
+
+        return new Sector(name,
+            Streams.zip(
+                Streams.stream(points),
+                Streams.stream(points).skip(1),
+                Segment::closed)
+            .limit(originPoints.length)
+            .collect(Collectors.toList())
+        );
     }
 
     public static final Sector origin = square("origin", ORIGIN_SLOP);
 
     public static final Sector relaxedOrigin = square("relaxedOrigin", 0.1);
 
+    /**
+     * Helper to create a Sector containing points to the left of line through the origin in the direction of axis.
+     *
+     * Note this is the trickiest one in terms of side. It is always the left, so if you want points to the right of the
+     * origin, you need the axis to point down, because the left of the a line pointing downwards is positive X.
+     *
+     * @param name The name of this sector.
+     * @param axis The direction of the line defining this sector.
+     * @return The half-plane sector.
+     */
     private static Sector centeredHalf(String name, Point axis) {
         return new Sector(name, Collections.singletonList(
-            Segment.openBothEnds(originPoint, axis, Side.LEFT)
+            Segment.openBothEnds(ORIGIN_POINT, axis, Side.LEFT)
         ));
     }
 
     public static final Sector left = centeredHalf("left", UP);
     public static final Sector right = centeredHalf("right", DOWN);
-    public static Sector top = centeredHalf("top", RIGHT);
-    public static Sector bottom = centeredHalf("bottom", LEFT);
 
+    /**
+     * Get a sector by name.
+     *
+     * Some sectors have a shorter alias which should be specified here.
+     *
+     * @param s The name of the sector.
+     * @return The sector.
+     */
     public static Sector byName(String s) {
         try {
-            switch(s) {
+            switch (s) {
                 case "+Xaxis":
                     return onAxisWithPositiveX;
                 case "-Xaxis":
@@ -180,7 +279,7 @@ public class Sector {
                 default:
                     return (Sector) Sector.class.getDeclaredField(s).get(null);
             }
-        } catch (IllegalAccessException|NoSuchFieldException e) {
+        } catch (IllegalAccessException | NoSuchFieldException e) {
             throw new IllegalArgumentException(s + " is not a valid sector");
         }
     }
@@ -197,12 +296,23 @@ public class Sector {
         bottomRight
     );
 
+    /**
+     * Identify which sectors this point could be in.
+     * @param point The point to be classified.
+     * @param orderedSectors The list of sectors to classify this point against.
+     * @return The set of sectors this point could be in.
+     */
     public static Set<Sector> classify(Point point, List<Sector> orderedSectors) {
         return orderedSectors.stream()
             .filter(sector -> sector.contains(point))
             .collect(Collectors.toSet());
     }
 
+    /**
+     * Identify which sector this point is in against the default priority-ordered list of sectors.
+     * @param point The point.
+     * @return The highest-priority sector that contains this point.
+     */
     public static Sector classify(Point point) {
         Set<Sector> possibleSectors = classify(point, defaultOrderedSectors);
         return defaultOrderedSectors.stream()
@@ -211,12 +321,22 @@ public class Sector {
             .get();
     }
 
+    /**
+     * Helper to generate a sector of the half-plane with x co-ordinate less than or equal to X.
+     * @param x The x co-ordinate to split the plane.
+     * @return The half plane.
+     */
     public static Sector leftOfX(double x) {
         return new Sector("leftOfX=" + x, Collections.singletonList(
             Segment.openBothEnds(new Point(x, 0), UP, Side.LEFT)
         ));
     }
 
+    /**
+     * Helper to generate a sector of the half-plane with x co-ordinate greater than or equal to X.
+     * @param x The x co-ordinate to split the plane.
+     * @return The half plane.
+     */
     public static Sector rightOfX(double x) {
         return new Sector("rightOfX=" + x, Collections.singletonList(
             Segment.openBothEnds(new Point(x, 0), UP, Side.RIGHT)

@@ -30,17 +30,28 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Converter from JSON answer format to Input.
+ *
+ * Throws away most of the extraneous details and puts everything (lines, the set of lines, points of interest) in
+ * order of increasing x co-ordinate.
+ */
 public class AnswerToInput implements Function<GraphAnswer, Input> {
 
     @Override
-    public Input apply(GraphAnswer graphAnswer) {
+    public Input apply(final GraphAnswer graphAnswer) {
         return new Input(graphAnswer.getCurves().stream()
             .map(this::curveToLine)
             .sorted(Comparator.comparingDouble(a -> a.getPoints().stream().findFirst().map(Point::getX).orElse(0.0)))
             .collect(Collectors.toList()));
     }
 
-    private Line curveToLine(Curve curve) {
+    /**
+     * Convert an input Curve into a Line.
+     * @param curve Curve to be converted.
+     * @return A Line representing that Curve in a normalised format.
+     */
+    private Line curveToLine(final Curve curve) {
         List<Point> points = curve.getPts().stream()
             .map(pt -> new Point(pt.getX(), pt.getY()))
             .collect(Collectors.toList());

@@ -22,7 +22,25 @@ import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.PointOfInterest;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Utility class of functions on Line objects.
+ */
 public class Lines {
+    /**
+     * Split a line into a list of lines on the x-coordinates of the points of interest.
+     *
+     * There will be an overlapping point between each line.
+     *
+     * For example, 1--2--A--3--B--4--C---5 (where numbers are points and letters are points of interest) will split to:
+     *
+     * - 1--2--A
+     * - A--3--B
+     * - B--4--C
+     * - C---5
+     *
+     * @param line The line to be split.
+     * @return A list of lines.
+     */
     public static List<Line> splitOnPointsOfInterest(Line line) {
         List<Line> lines = new ArrayList<>(line.getPointsOfInterest().size() + 1);
         Line remainder = line;
@@ -36,6 +54,16 @@ public class Lines {
         return lines;
     }
 
+    /**
+     * Get the "size" of a Line.
+     *
+     * The size is the bounding box of the line, with the sign given by whether the line goes in the direction of the
+     * axis, or against it.
+     *
+     * @param line The line to be analysed.
+     * @return The width and height of the bounding box.
+     */
+    @SuppressWarnings({"checkstyle:needBraces", "checkstyle:avoidInlineConditionals"})
     public static Point getSize(Line line) {
         if (line.getPoints().isEmpty()) return new Point(0, 0);
 
@@ -64,5 +92,11 @@ public class Lines {
         double y = startY < centreY ? diffY : -diffY;
 
         return new Point(x, y);
+    }
+
+    /**
+     * This is just a utility class.
+     */
+    private Lines() {
     }
 }

@@ -26,24 +26,38 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * A line feature which requires the line to contain points of interest of certain types in certain sectors.
+ */
 public class PointsFeature implements LineFeature<PointsFeature.Instance> {
 
     public static final PointsFeature manager = new PointsFeature();
 
     @Override
-    public String TAG() { return "points"; }
+    public String tag() {
+        return "points";
+    }
 
+    /**
+     * An instance of the PointsOfInterest feature.
+     */
     protected class Instance implements LineFeature.Instance {
 
         private final List<ImmutablePair<PointType, Sector>> expectedPoints;
 
+        /**
+         * Create an instance which expects these points in order.
+         * @param expectedPoints The points of interest.
+         */
         Instance(List<ImmutablePair<PointType, Sector>> expectedPoints) {
             this.expectedPoints = expectedPoints;
         }
 
         @Override
         public boolean match(Line line) {
-            if (expectedPoints.size() != line.getPointsOfInterest().size()) return false;
+            if (expectedPoints.size() != line.getPointsOfInterest().size()) {
+                return false;
+            }
 
             return Streams.zip(expectedPoints.stream(), line.getPointsOfInterest().stream(),
                 (expected, actual) -> expected.getLeft() == actual.getPointType()
@@ -76,6 +90,7 @@ public class PointsFeature implements LineFeature<PointsFeature.Instance> {
             .map(entry -> {
                 Sector sector = entry.getRight();
                 String sectorName = sector.toString();
+                @SuppressWarnings("checkstyle:avoidInlineConditionals")
                 String preposition = sector == Sector.origin ? "at" : sectorName.matches("[-+].*") ? "on" : "in";
                 return entry.getLeft().humanName() + " " + preposition + " " + sectorName;
             })
@@ -83,6 +98,9 @@ public class PointsFeature implements LineFeature<PointsFeature.Instance> {
         );
     }
 
+    /**
+     * Use the manager singleton.
+     */
     private PointsFeature() {
     }
 }

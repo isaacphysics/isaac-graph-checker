@@ -15,6 +15,9 @@
  */
 package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data;
 
+/**
+ * The type of a point of interest.
+ */
 public enum PointType implements HumanNamedEnum {
     MAXIMA,
     MINIMA

@@ -36,6 +36,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * An line feature which requires the line to pass exactly through a list of sectors.
+ */
 public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeature.Instance> {
 
     public static final ExpectedSectorsFeature manager = new ExpectedSectorsFeature();
@@ -43,13 +46,22 @@ public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeatur
     private static final Logger log = LoggerFactory.getLogger(ExpectedSectorsFeature.class);
 
     @Override
-    public String TAG() { return "through"; }
+    public String tag() {
+        return "through";
+    }
 
     private final List<Sector> orderedSectors;
 
+    /**
+     * An instance of the ExpectedSectors feature.
+     */
     protected class Instance implements LineFeature.Instance {
         private final List<Sector> expectedSectors;
 
+        /**
+         * Create an instance which passes through these sectors.
+         * @param expectedSectors The list of sectors an input must pass through.
+         */
         Instance(List<Sector> expectedSectors) {
             this.expectedSectors = expectedSectors;
         }
@@ -61,6 +73,15 @@ public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeatur
             return match(expectedSectors, 0, actualSectors, 0);
         }
 
+        /**
+         * Recursive function to match an expected sector list against a list of sector sets.
+         *
+         * @param expected The list of expected sectors.
+         * @param i The matched position so far in the expected sector list.
+         * @param actual The list of sets of sectors to be matched.
+         * @param j The matched position so far in the actual set of sectors list.
+         * @return If there is a match.
+         */
         @SuppressWarnings("RedundantIfStatement")
         private boolean match(List<Sector> expected, int i, List<Set<Sector>> actual, int j) {
             boolean expectedFinished = i >= expected.size();
@@ -68,23 +89,37 @@ public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeatur
             if (expectedFinished) {
                 return actualFinished;
             }
-            if (actualFinished) return false;
+            if (actualFinished) {
+                return false;
+            }
 
             if (actual.get(j).isEmpty()) {
                 return match(expected, i, actual, j + 1);
             }
 
+            // TODO: There is probably a dynamic programming algorithm for this with much better worst-case performance.
             if (actual.get(j).contains(expected.get(i))) {
-                if (match(expected, i, actual, j + 1)) return true;
+                if (match(expected, i, actual, j + 1)) {
+                    return true;
+                }
 
-                if (match(expected, i + 1, actual, j)) return true;
-                if (match(expected, i + 1, actual, j + 1)) return true;
+                if (match(expected, i + 1, actual, j)) {
+                    return true;
+                }
+                if (match(expected, i + 1, actual, j + 1)) {
+                    return true;
+                }
             }
             return false;
 
         }
     }
 
+    /**
+     * Create a list of Sector objects from a list of sector names.
+     * @param sectors A comma-separated list of sector names.
+     * @return A list of Sectors.
+     */
     private List<Sector> deserializeSectors(String sectors) {
         return Arrays.stream(sectors.split(","))
                 .map(String::trim)
@@ -99,10 +134,17 @@ public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeatur
         return new Instance(expectedSectors);
     }
 
+    /**
+     * The manager singleton uses a default list of sectors.
+     */
     private ExpectedSectorsFeature() {
         this.orderedSectors = Sector.defaultOrderedSectors;
     }
 
+    /**
+     * For testing, allow checking against a non-standard list of sectors.
+     * @param orderedSectors The priority-ordered list of sectors to check against.
+     */
     ExpectedSectorsFeature(List<Sector> orderedSectors) {
         this.orderedSectors = orderedSectors;
     }
@@ -112,6 +154,11 @@ public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeatur
         return Collections.singletonList(Joiner.on(", ").join(convertLineToSectorList(expectedLine)));
     }
 
+    /**
+     * Convert a line into a list of highest-priority sectors that it passes through.
+     * @param line The line.
+     * @return The list of sectors the line passes through.
+     */
     List<Sector> convertLineToSectorList(Line line) {
         List<Set<Sector>> sectors = convertLineToSectorSetList(line);
 
@@ -127,6 +174,14 @@ public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeatur
         return output;
     }
 
+    /**
+     * Convert a line into a list of sets of sectors that it passes through.
+     *
+     * For example, a line passing near an axis might return a list like: [topRight], [topRight, +Xaxis], [topRight]
+     *
+     * @param line The line.
+     * @return The list of sets of sectors that the line passes through.
+     */
     private List<Set<Sector>> convertLineToSectorSetList(Line line) {
         List<Set<Sector>> output = new ArrayList<>();
 
@@ -155,6 +210,11 @@ public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeatur
         ImmutableSet.of(Sector.onAxisWithPositiveY, Sector.onAxisWithNegativeY)
     );
 
+    /**
+     * Add a set of sectors to a list of sets of sectors, removing illegal combinations and de-duplicating.
+     * @param output The list to add this sector set to.
+     * @param sectors The set of sectors.
+     */
     private void addSector(List<Set<Sector>> output, Set<Sector> sectors) {
         Objects.requireNonNull(sectors);
 
@@ -169,10 +229,20 @@ public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeatur
         }
     }
 
+    /**
+     * Identify which sector this point is in.
+     * @param point The point to be classified.
+     * @return The highest-priority Sector that point is in.
+     */
     private Set<Sector> classifyPoint(Point point) {
         return Sector.classify(point, orderedSectors);
     }
 
+    /**
+     * Add any sector sets this Segment passes through onto a list of sector sets.
+     * @param output The current list of sets of sectors.
+     * @param lineSegment The segment to be added.
+     */
     private void classifyLineSegment(List<Set<Sector>> output, Segment lineSegment) {
         // Calculate when we enter and leave the line segment
         IntersectionParams[] intersectionParams = orderedSectors.stream()
@@ -190,6 +260,7 @@ public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeatur
             inside[index] = intersection.isInside();
 
             // Record all of the sectors we are currently in
+            @SuppressWarnings("checkstyle:avoidInlineConditionals")
             Set<Sector> internalSectors = Streams.zip(
                 orderedSectors.stream(),
                 Arrays.stream(inside),
@@ -203,6 +274,11 @@ public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeatur
         }
     }
 
+    /**
+     * From an array of IntersectionParams, return the index of the one with the earliest T value, or -1 if empty.
+     * @param intersectionParams The array of IntersectionParams to consider.
+     * @return The index of the param with the lowest T value, or -1 if the array is empty.
+     */
     private int lowestIndex(IntersectionParams[] intersectionParams) {
         int index = -1;
         double minParam = Double.MAX_VALUE;

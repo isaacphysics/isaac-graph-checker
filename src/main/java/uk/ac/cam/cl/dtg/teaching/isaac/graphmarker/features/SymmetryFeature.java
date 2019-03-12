@@ -26,15 +26,22 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * An line feature which requires the line to have a specific symmetry.
+ */
 public class SymmetryFeature implements LineFeature<SymmetryFeature.Instance> {
 
     public static final SymmetryFeature manager = new SymmetryFeature();
+    public static final double SYMMETRY_SIMILARITY = 0.4;
 
     @Override
-    public String TAG() {
+    public String tag() {
         return "symmetry";
     }
 
+    /**
+     * Type of symmetry.
+     */
     enum SymmetryType implements HumanNamedEnum {
         NONE,
         ODD,
@@ -42,21 +49,32 @@ public class SymmetryFeature implements LineFeature<SymmetryFeature.Instance> {
         SYMMETRIC,
         ANTISYMMETRIC;
 
+        /**
+         * @return The type of this symmetric if it is not aligned on the x=0 axis.
+         */
         SymmetryType convertToNonAxialSymmetry() {
-            switch(this) {
+            switch (this) {
                 case EVEN:
                     return SYMMETRIC;
                 case ODD:
                     return ANTISYMMETRIC;
+                default:
+                    return this;
             }
-            return this;
         }
     }
 
+    /**
+     * An instance of the Symmetry feature.
+     */
     public class Instance implements LineFeature.Instance {
 
         private final SymmetryType symmetryType;
 
+        /**
+         * Create an instance which expects the line to have a specific symmetry.
+         * @param symmetryType The expected symmetry.
+         */
         private Instance(SymmetryType symmetryType) {
             this.symmetryType = symmetryType;
         }
@@ -82,9 +100,22 @@ public class SymmetryFeature implements LineFeature<SymmetryFeature.Instance> {
         }
     }
 
+    /**
+     * Use the manager singleton.
+     */
     private SymmetryFeature() {
     }
 
+    /**
+     * Calculate the symmetry of a line.
+     *
+     * First, we look for ODD or EVEN symmetry. If those are not found, we find the centre of the line and reposition it
+     * so that centre is at the origin. Then we look for symmetry again, and if found, report it in the non-axis aligned
+     * form.
+     *
+     * @param line The line to calculate.
+     * @return The type of symmetry of this line.
+     */
     SymmetryType getSymmetryOfLine(Line line) {
         SymmetryType standardSymmetryType = getStandardSymmetryType(line);
         if (standardSymmetryType != SymmetryType.NONE) {
@@ -108,6 +139,7 @@ public class SymmetryFeature implements LineFeature<SymmetryFeature.Instance> {
             } else {
                 PointOfInterest center1 = points.get(points.size() / 2 - 1);
                 PointOfInterest center2 = points.get(points.size() / 2);
+                @SuppressWarnings("checkstyle:magicNumber")
                 Point center = center1.add(center2).times(0.5);
 
                 Line newLine = new Line(
@@ -127,7 +159,12 @@ public class SymmetryFeature implements LineFeature<SymmetryFeature.Instance> {
         return standardSymmetryType;
     }
 
-    // TODO: Check maxima and minima match up in order to check shape
+    /**
+     * Get the ODD or EVEN symmetry of the line by splitting at x=0.
+     *
+     * @param line The line.
+     * @return ODD, EVEN, or NONE symmetry.
+     */
     private SymmetryType getStandardSymmetryType(Line line) {
         // Split line at x = 0
         Line left = Sector.left.clip(line);
@@ -146,12 +183,16 @@ public class SymmetryFeature implements LineFeature<SymmetryFeature.Instance> {
         boolean innerMost = true;
         for (int i = 0; i < lefts.size(); i++) {
             SymmetryType nextSymmetryType = getSectionSymmetry(lefts.get(i), rights.get(i), innerMost);
-            if (nextSymmetryType == null) continue;
+            if (nextSymmetryType == null) {
+                continue;
+            }
             if (innerMost) {
                 symmetryType = nextSymmetryType;
                 innerMost = false;
             }
-            if (symmetryType != nextSymmetryType) return SymmetryType.NONE;
+            if (symmetryType != nextSymmetryType) {
+                return SymmetryType.NONE;
+            }
         }
 
         if (symmetryType == null) {
@@ -161,6 +202,14 @@ public class SymmetryFeature implements LineFeature<SymmetryFeature.Instance> {
         return symmetryType;
     }
 
+    /**
+     * Check if these sections of the left and right hand side of the split are symmetrical.
+     *
+     * @param left The section of the left-hand side of the line.
+     * @param right The section of the right-hand side of the line.
+     * @param innerMost True if these are the sections that touch on the split.
+     * @return The symmetry shown by these sections.
+     */
     private SymmetryType getSectionSymmetry(Line left, Line right, boolean innerMost) {
         Point leftSize = Lines.getSize(left);
         Point rightSize = Lines.getSize(right);
@@ -173,11 +222,11 @@ public class SymmetryFeature implements LineFeature<SymmetryFeature.Instance> {
         double yDifferenceOdd = (rightSize.getY() - leftSize.getY()) / rightSize.getY();
         double yDifferenceEven = (rightSize.getY() + leftSize.getY()) / rightSize.getY();
 
-        if(Math.abs(xDifference) < 0.4) {
+        if (Math.abs(xDifference) < SYMMETRY_SIMILARITY) {
             if (rightSize.getY() == 0 && leftSize.getY() == 0) {
                 return SymmetryType.EVEN;
             }
-            if (Math.abs(yDifferenceOdd) < 0.4) {
+            if (Math.abs(yDifferenceOdd) < SYMMETRY_SIMILARITY) {
                 if (innerMost) {
                     if (Sector.relaxedOrigin.contains(left.getPoints().get(left.getPoints().size() - 1))
                         && Sector.relaxedOrigin.contains(right.getPoints().get(0))) {
@@ -189,7 +238,7 @@ public class SymmetryFeature implements LineFeature<SymmetryFeature.Instance> {
                     return SymmetryType.ODD;
                 }
             }
-            if (Math.abs(yDifferenceEven) < 0.4) {
+            if (Math.abs(yDifferenceEven) < SYMMETRY_SIMILARITY) {
                 return SymmetryType.EVEN;
             }
         }

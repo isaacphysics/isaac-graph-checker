@@ -19,20 +19,36 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A list of parameters where one line segment intersects another segment.
+ */
 public class IntersectionParams extends ArrayList<IntersectionParams.IntersectionParam> {
+    /**
+     * A parameteric point on the line segment where an intersection occurred.
+     */
     public static class IntersectionParam implements Comparable<IntersectionParam> {
         private final double t;
         private final boolean inside;
 
+        /**
+         * @param t The parameter defining where on the line this intersection occurs.
+         * @param inside Whether this point is on the inside of the other segment.
+         */
         public IntersectionParam(double t, boolean inside) {
             this.t = t;
             this.inside = inside;
         }
 
+        /**
+         * @return The parameter where this intersection occurred.
+         */
         public double getT() {
             return t;
         }
 
+        /**
+         * @return If the point of intersect is on the inside of the other segment.
+         */
         public boolean isInside() {
             return inside;
         }
@@ -43,6 +59,10 @@ public class IntersectionParams extends ArrayList<IntersectionParams.Intersectio
         }
     }
 
+    /**
+     * Construct a list of intersection parameters.
+     * @param ts A list of intersections.
+     */
     public IntersectionParams(List<IntersectionParam> ts) {
         super(ts);
     }

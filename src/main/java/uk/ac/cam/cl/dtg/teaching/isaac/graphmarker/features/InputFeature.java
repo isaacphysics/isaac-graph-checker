@@ -19,15 +19,43 @@ import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Input;
 
 import java.util.List;
 
+/**
+ * A feature which matches against an input.
+ * @param <FeatureInstance> The class representing instances of this feature.
+ */
 interface InputFeature<FeatureInstance extends InputFeature.Instance> {
 
+    /**
+     * An instance of a feature.
+     */
     interface Instance {
+        /**
+         * Does this feature match this input?
+         * @param input The input.
+         * @return True if this feature matches the input.
+         */
         boolean match(Input input);
     }
 
-    String TAG();
+    /**
+     * For identify this selector in the input specification when parsing.
+     *
+     * @return The name of this selector.
+     */
+    String tag();
 
+    /**
+     * Create an instance of this feature from the specification provided.
+     *
+     * @param featureData The specification.
+     * @return The feature instance.
+     */
     FeatureInstance deserialize(String featureData);
 
+    /**
+     * Generate a list of specifications for this feature from some input.
+     * @param expectedInput Input to be examined.
+     * @return The list of feature specifications.
+     */
     List<String> generate(Input expectedInput);
 }

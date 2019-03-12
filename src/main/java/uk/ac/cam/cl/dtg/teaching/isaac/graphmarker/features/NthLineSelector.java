@@ -25,18 +25,29 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * A Selector which will match if a particular numbered line in the input matches.
+ */
 public class NthLineSelector implements LineSelector<NthLineSelector.Instance> {
 
     public static final NthLineSelector manager = new NthLineSelector();
 
     @Override
-    public String TAG() {
+    public String tag() {
         return "line";
     }
 
+    /**
+     * An instance of the NthLine selector.
+     */
     class Instance extends LineSelector.Instance {
         private final int n;
 
+        /**
+         * Create an instance of this selector.
+         * @param n The number of the line to select (1-based index).
+         * @param item The remainder of this item.
+         */
         private Instance(int n, String item) {
             super(item);
             this.n = n;
@@ -74,6 +85,11 @@ public class NthLineSelector implements LineSelector<NthLineSelector.Instance> {
         return map;
     }
 
+    /**
+     * There is only one of these, so make the constructor private.
+     *
+     * Use the manager singleton.
+     */
     private NthLineSelector() {
     }
 }

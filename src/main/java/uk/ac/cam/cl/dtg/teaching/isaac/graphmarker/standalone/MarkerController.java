@@ -34,6 +34,7 @@ import javax.ws.rs.core.MediaType;
 import java.util.Collections;
 import java.util.Map;
 
+@SuppressWarnings("checkstyle:all")
 @Path("/isaac-api/api/questions")
 public class MarkerController {
 
