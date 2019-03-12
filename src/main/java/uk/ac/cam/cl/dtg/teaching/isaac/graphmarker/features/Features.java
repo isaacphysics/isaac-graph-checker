@@ -36,25 +36,25 @@ public class Features {
 
     private static final Logger log = LoggerFactory.getLogger(Features.class);
 
-    private static List<LineFeature<?>> lineFeatures = ImmutableList.of(
+    private static final List<LineFeature<?>> lineFeatures = ImmutableList.of(
         ExpectedSectorsFeature.manager,
         SlopeFeature.manager,
         SymmetryFeature.manager,
         PointsFeature.manager
     );
 
-    private static List<InputFeature<?>> inputFeatures = ImmutableList.of(
+    private static final List<InputFeature<?>> inputFeatures = ImmutableList.of(
         CurvesCountFeature.manager
     );
 
-    private static List<LineSelector<?>> lineSelectors = ImmutableList.of(
+    private static final List<LineSelector<?>> lineSelectors = ImmutableList.of(
         NthLineSelector.manager
     );
 
     public static Predicate<Input> matcher(String feature) {
         String[] features = feature.split("\n");
         List<ImmutablePair<Predicate<Input>, Boolean>> matchersAndInfo = Arrays.stream(features)
-                .map(item -> itemToFeaturePredicate(item))
+                .map(Features::itemToFeaturePredicate)
                 .collect(Collectors.toList());
 
         List<ImmutablePair<Predicate<Input>, String>> matchers = Streams.zip(matchersAndInfo.stream(),

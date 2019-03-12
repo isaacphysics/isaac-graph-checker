@@ -17,10 +17,8 @@ package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.features;
 
 import org.junit.Test;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Input;
-import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.dos.Curve;
 
 import java.util.List;
-import java.util.function.Predicate;
 
 import static org.junit.Assert.*;
 import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.TestHelpers.inputOf;

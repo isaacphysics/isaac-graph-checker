@@ -47,8 +47,8 @@ public class SlopeFeatureTest {
     public void simpleSlopeTestWorks() {
         List<String> data = SlopeFeature.manager.generate(lineOf(x -> 1 / x, 0.01, 10));
 
-        assertTrue(((Predicate<Line>) line -> SlopeFeature.manager.deserialize(data.get(0)).match(line))
-            .test(lineOf(x -> 0.5 / x, 0.001, 10)));
+        Line line = lineOf(x -> 0.5 / x, 0.001, 10);
+        assertTrue(SlopeFeature.manager.deserialize(data.get(0)).match(line));
     }
 
 

@@ -23,7 +23,6 @@ import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.PointType;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.dos.Curve;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.dos.GraphAnswer;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -58,7 +57,7 @@ public class AnswerToInput implements Function<GraphAnswer, Input> {
                 .map(pt -> new PointOfInterest(pt.getX(), pt.getY(), PointType.MAXIMA)),
             curve.getMinima().stream()
                 .map(pt -> new PointOfInterest(pt.getX(), pt.getY(), PointType.MINIMA)))
-            .sorted(Comparator.comparingDouble(point -> point.getX()))
+            .sorted(Comparator.comparingDouble(Point::getX))
             .collect(Collectors.toList());
 
         return new Line(points, pointsOfInterest);

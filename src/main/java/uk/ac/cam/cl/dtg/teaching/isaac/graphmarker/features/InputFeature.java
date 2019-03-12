@@ -19,7 +19,7 @@ import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Input;
 
 import java.util.List;
 
-public interface InputFeature<FeatureInstance extends InputFeature.Instance> {
+interface InputFeature<FeatureInstance extends InputFeature.Instance> {
 
     interface Instance {
         boolean match(Input input);

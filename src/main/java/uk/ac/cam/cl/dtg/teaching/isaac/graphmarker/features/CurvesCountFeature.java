@@ -34,7 +34,7 @@ public class CurvesCountFeature implements InputFeature<CurvesCountFeature.Insta
 
     public class Instance implements InputFeature.Instance {
 
-        private int count;
+        private final int count;
 
         private Instance(int count) {
             this.count = count;

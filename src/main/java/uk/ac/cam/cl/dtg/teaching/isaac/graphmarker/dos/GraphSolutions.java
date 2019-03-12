@@ -21,8 +21,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public class GraphSolutions {
-    private List<GraphSolutionItem> answers;
-    private IsaacAnswerResponse unmatchedResponse;
+    private final List<GraphSolutionItem> answers;
+    private final IsaacAnswerResponse unmatchedResponse;
 
     @JsonCreator
     public GraphSolutions(@JsonProperty("answers") List<GraphSolutionItem> answers,

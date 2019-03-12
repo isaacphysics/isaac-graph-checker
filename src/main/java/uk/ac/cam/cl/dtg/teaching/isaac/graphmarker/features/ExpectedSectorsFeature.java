@@ -61,6 +61,7 @@ public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeatur
             return match(expectedSectors, 0, actualSectors, 0);
         }
 
+        @SuppressWarnings("RedundantIfStatement")
         private boolean match(List<Sector> expected, int i, List<Set<Sector>> actual, int j) {
             boolean expectedFinished = i >= expected.size();
             boolean actualFinished = j >= actual.size();
@@ -86,9 +87,9 @@ public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeatur
 
     private List<Sector> deserializeSectors(String sectors) {
         return Arrays.stream(sectors.split(","))
-                .map(s -> s.trim())
+                .map(String::trim)
                 .filter(s -> s.length() > 0)
-                .map(s -> Sector.byName(s))
+                .map(Sector::byName)
                 .collect(Collectors.toList());
     }
 
@@ -145,7 +146,7 @@ public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeatur
         return output;
     }
 
-    private List<Set<Sector>> invalidSectorSets = ImmutableList.of(
+    private final List<Set<Sector>> invalidSectorSets = ImmutableList.of(
         ImmutableSet.of(Sector.topRight, Sector.bottomRight),
         ImmutableSet.of(Sector.topLeft, Sector.bottomLeft),
         ImmutableSet.of(Sector.topRight, Sector.topLeft),

@@ -40,7 +40,7 @@ public class StandaloneApplication extends Application {
             CorsFilter corsFilter = new CorsFilter();
             corsFilter.getAllowedOrigins().add("*");
 
-            singletons = new HashSet<Object>();
+            singletons = new HashSet<>();
             singletons.add(corsFilter);
         }
         return singletons;

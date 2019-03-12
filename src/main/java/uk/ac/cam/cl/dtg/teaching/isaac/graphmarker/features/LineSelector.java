@@ -21,12 +21,12 @@ import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 import java.util.Map;
 import java.util.function.Predicate;
 
-public interface LineSelector<I extends LineSelector.Instance> {
+interface LineSelector<I extends LineSelector.Instance> {
 
     abstract class Instance {
         private final String item;
 
-        protected Instance(String item) {
+        Instance(String item) {
             this.item = item;
         }
 

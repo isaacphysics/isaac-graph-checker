@@ -19,10 +19,7 @@ import org.junit.Test;
 import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Line;
 
 import java.util.List;
-import java.util.function.Predicate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.TestHelpers.lineOf;
 

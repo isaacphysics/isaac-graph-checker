@@ -22,17 +22,17 @@ import java.util.List;
 
 public class Curve {
 
-    private List<Point> pts;
-    private double minX;
-    private double maxX;
-    private double minY;
-    private double maxY;
-    private List<Point> endPt;
-    private List<Point> interX; // What is this?
-    private List<Point> interY; // What is this
-    private List<Point> maxima;
-    private List<Point> minima;
-    private int colorIdx;
+    private final List<Point> pts;
+    private final double minX;
+    private final double maxX;
+    private final double minY;
+    private final double maxY;
+    private final List<Point> endPt;
+    private final List<Point> interX; // What is this?
+    private final List<Point> interY; // What is this
+    private final List<Point> maxima;
+    private final List<Point> minima;
+    private final int colorIdx;
 
     @JsonCreator
     public Curve(@JsonProperty("pts") List<Point> pts,

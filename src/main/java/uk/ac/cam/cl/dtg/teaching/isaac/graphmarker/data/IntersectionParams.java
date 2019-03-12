@@ -15,6 +15,7 @@
  */
 package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +38,7 @@ public class IntersectionParams extends ArrayList<IntersectionParams.Intersectio
         }
 
         @Override
-        public int compareTo(IntersectionParam o) {
+        public int compareTo(@Nonnull IntersectionParam o) {
             return Double.compare(t, o.t);
         }
     }

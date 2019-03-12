@@ -19,8 +19,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class IsaacAnswer {
-    private String type;
-    private String value;
+    private final String type;
+    private final String value;
 
     @JsonCreator
     public IsaacAnswer(@JsonProperty("type") String type, @JsonProperty("value") String value) {

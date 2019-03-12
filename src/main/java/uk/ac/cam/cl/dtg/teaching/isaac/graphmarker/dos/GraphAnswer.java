@@ -22,12 +22,12 @@ import java.util.List;
 
 public class GraphAnswer {
 
-    private int canvasWidth;
-    private int canvasHeight;
+    private final int canvasWidth;
+    private final int canvasHeight;
 
-    private List<Curve> curves;
+    private final List<Curve> curves;
 
-    private List<Symbol> freeSymbols;
+    private final List<Symbol> freeSymbols;
 
     @JsonCreator
     public GraphAnswer(@JsonProperty("canvasWidth") int canvasWidth,

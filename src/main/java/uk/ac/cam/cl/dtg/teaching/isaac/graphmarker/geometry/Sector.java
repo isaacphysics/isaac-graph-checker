@@ -23,6 +23,7 @@ import uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.data.Point;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -86,7 +87,7 @@ public class Sector {
     public IntersectionParams intersectionParams(Segment lineSegment) {
         return new IntersectionParams(this.segments.stream()
                 .map(segment -> segment.intersectionParam(lineSegment))
-                .filter(t -> t != null)
+                .filter(Objects::nonNull)
                 .distinct()
                 .sorted()
                 .collect(Collectors.toList()));
@@ -111,13 +112,13 @@ public class Sector {
         return quadrant(name, originPoint, axis1, axis2);
     }
 
-    public static Sector topRight = centeredQuadrant("topRight", RIGHT, UP);
+    public static final Sector topRight = centeredQuadrant("topRight", RIGHT, UP);
 
-    public static Sector topLeft = centeredQuadrant("topLeft", LEFT, UP);
+    public static final Sector topLeft = centeredQuadrant("topLeft", LEFT, UP);
 
-    public static Sector bottomLeft = centeredQuadrant("bottomLeft", LEFT, DOWN);
+    public static final Sector bottomLeft = centeredQuadrant("bottomLeft", LEFT, DOWN);
 
-    public static Sector bottomRight = centeredQuadrant("bottomRight", RIGHT, DOWN);
+    public static final Sector bottomRight = centeredQuadrant("bottomRight", RIGHT, DOWN);
 
     private static Sector sloppyAxis(String name, Point left, Point right, Point axis) {
         left = left.times(AXIS_SLOP);
@@ -129,13 +130,13 @@ public class Sector {
         ));
     }
 
-    public static Sector onAxisWithPositiveY = sloppyAxis("+Yaxis", LEFT, RIGHT, UP);
+    public static final Sector onAxisWithPositiveY = sloppyAxis("+Yaxis", LEFT, RIGHT, UP);
 
-    public static Sector onAxisWithNegativeY = sloppyAxis("-Yaxis", RIGHT, LEFT, DOWN);
+    public static final Sector onAxisWithNegativeY = sloppyAxis("-Yaxis", RIGHT, LEFT, DOWN);
 
-    public static Sector onAxisWithPositiveX = sloppyAxis("+Xaxis", UP, DOWN, RIGHT);
+    public static final Sector onAxisWithPositiveX = sloppyAxis("+Xaxis", UP, DOWN, RIGHT);
 
-    public static Sector onAxisWithNegativeX = sloppyAxis("-Xaxis", DOWN, UP, LEFT);
+    public static final Sector onAxisWithNegativeX = sloppyAxis("-Xaxis", DOWN, UP, LEFT);
 
     private static Sector square(String name, double size) {
         Point[] originPoints = new Point[] {
@@ -150,9 +151,9 @@ public class Sector {
         ));
     }
 
-    public static Sector origin = square("origin", ORIGIN_SLOP);
+    public static final Sector origin = square("origin", ORIGIN_SLOP);
 
-    public static Sector relaxedOrigin = square("relaxedOrigin", 0.1);
+    public static final Sector relaxedOrigin = square("relaxedOrigin", 0.1);
 
     private static Sector centeredHalf(String name, Point axis) {
         return new Sector(name, Collections.singletonList(
@@ -160,8 +161,8 @@ public class Sector {
         ));
     }
 
-    public static Sector left = centeredHalf("left", UP);
-    public static Sector right = centeredHalf("right", DOWN);
+    public static final Sector left = centeredHalf("left", UP);
+    public static final Sector right = centeredHalf("right", DOWN);
     public static Sector top = centeredHalf("top", RIGHT);
     public static Sector bottom = centeredHalf("bottom", LEFT);
 

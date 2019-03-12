@@ -19,8 +19,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class GraphSolutionItem {
-    private String graphDefinition;
-    private IsaacAnswerResponse response;
+    private final String graphDefinition;
+    private final IsaacAnswerResponse response;
 
     @JsonCreator
     public GraphSolutionItem(@JsonProperty("graphDefinition") String graphDefinition,

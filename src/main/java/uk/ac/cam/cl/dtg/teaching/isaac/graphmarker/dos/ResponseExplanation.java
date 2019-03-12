@@ -22,9 +22,9 @@ import java.util.List;
 
 public class ResponseExplanation {
 
-    private String encoding;
-    private String[] tags;
-    private String type;
+    private final String encoding;
+    private final String[] tags;
+    private final String type;
     private List<ResponseExplanation> children;
     private String value;
 

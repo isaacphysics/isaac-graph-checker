@@ -31,11 +31,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Path("/isaac-api/api/questions")
 public class MarkerController {

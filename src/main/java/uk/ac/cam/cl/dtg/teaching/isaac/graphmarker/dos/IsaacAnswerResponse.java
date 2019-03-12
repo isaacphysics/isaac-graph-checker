@@ -19,8 +19,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class IsaacAnswerResponse {
-    private boolean correct;
-    private ResponseExplanation explanation;
+    private final boolean correct;
+    private final ResponseExplanation explanation;
 
     @JsonCreator
     public IsaacAnswerResponse(@JsonProperty("correct") boolean correct,

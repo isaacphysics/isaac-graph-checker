@@ -42,7 +42,7 @@ public class SymmetryFeature implements LineFeature<SymmetryFeature.Instance> {
         SYMMETRIC,
         ANTISYMMETRIC;
 
-        public SymmetryType convertToNonAxialSymmetry() {
+        SymmetryType convertToNonAxialSymmetry() {
             switch(this) {
                 case EVEN:
                     return SYMMETRIC;
@@ -55,7 +55,7 @@ public class SymmetryFeature implements LineFeature<SymmetryFeature.Instance> {
 
     public class Instance implements LineFeature.Instance {
 
-        private SymmetryType symmetryType;
+        private final SymmetryType symmetryType;
 
         private Instance(SymmetryType symmetryType) {
             this.symmetryType = symmetryType;

@@ -18,10 +18,10 @@ package uk.ac.cam.cl.dtg.teaching.isaac.graphmarker.dos;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Symbol {
-    private String text;
-    private double x;
-    private double y;
+class Symbol {
+    private final String text;
+    private final double x;
+    private final double y;
 
     @JsonCreator
     public Symbol(@JsonProperty("text") String text,
