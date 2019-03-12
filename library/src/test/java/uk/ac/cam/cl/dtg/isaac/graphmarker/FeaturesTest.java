@@ -37,7 +37,7 @@ public class FeaturesTest {
 
     @Test
     public void testCombinedFeaturesWorks() {
-        Predicate<Input> testFeature = Features.matcher("through:  topLeft, +Yaxis, topRight\r\nsymmetry:even");
+        Predicate<Input> testFeature = Features.matcher("through:  topLeft, +Yaxis, topRight\r\nsymmetry: even ");
 
         assertTrue(testFeature.test(inputOf(x -> x * x + 3, -10, 10)));
         assertFalse(testFeature.test(inputOf(x -> x > 0 ? x + 3 : x * x + 3, -10, 10)));

@@ -87,7 +87,7 @@ public class SymmetryFeature implements LineFeature<SymmetryFeature.Instance> {
 
     @Override
     public Instance deserialize(String featureData) {
-        return new Instance(SymmetryType.valueOf(featureData.toUpperCase()));
+        return new Instance(SymmetryType.valueOf(featureData.trim().toUpperCase()));
     }
 
     @Override
