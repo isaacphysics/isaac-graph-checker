@@ -54,13 +54,41 @@ public class Features {
         NthLineSelector.manager
     );
 
+    public static class Matcher implements Predicate<Input> {
+        private final List<ImmutablePair<Predicate<Input>, String>> matchers;
+
+        private Matcher(List<ImmutablePair<Predicate<Input>, String>> matchers) {
+            this.matchers = matchers;
+        }
+
+        public List<String> getFailingSpecs(Input input) {
+            List<String> failedPredicates = new ArrayList<>();
+            for (ImmutablePair<Predicate<Input>, String> matcher: matchers) {
+                boolean test = matcher.left.test(input);
+                if (!test) {
+                    failedPredicates.add(matcher.right);
+                }
+            }
+            return failedPredicates;
+        }
+
+        @Override
+        public boolean test(Input input) {
+            List<String> failingSpecs = getFailingSpecs(input);
+            if (!failingSpecs.isEmpty()) {
+                log.info("Failed specs: " + String.join("\r\n\t\t", failingSpecs));
+            }
+            return failingSpecs.isEmpty();
+        }
+    }
+
     /**
      * Given a feature specification, return a predicate which matches Input to that specification.
      *
      * @param feature The feature specification.
      * @return A predicate on Input.
      */
-    public static Predicate<Input> matcher(String feature) {
+    public static Matcher matcher(String feature) {
         String[] features = feature.split("\n");
         List<ImmutablePair<Predicate<Input>, Boolean>> matchersAndInfo = Arrays.stream(features)
                 .map(Features::itemToFeaturePredicate)
@@ -75,21 +103,7 @@ public class Features {
                 "curves: 1 (implicit)"));
         }
 
-        return input -> {
-            List<String> failedPredicates = new ArrayList<>();
-            boolean success = true;
-            for (ImmutablePair<Predicate<Input>, String> matcher: matchers) {
-                boolean test = matcher.left.test(input);
-                success &= test;
-                if (!test) {
-                    failedPredicates.add(matcher.right);
-                }
-            }
-            if (!success) {
-                log.info("Failed predicates: " + String.join("\r\n\t\t", failedPredicates));
-            }
-            return success;
-        };
+        return new Matcher(matchers);
     }
 
     /**
