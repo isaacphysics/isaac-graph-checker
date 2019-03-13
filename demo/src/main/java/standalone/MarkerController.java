@@ -17,6 +17,8 @@ package standalone;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.GraphAnswer;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.GraphSolutionItem;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.GraphSolutions;
@@ -24,18 +26,26 @@ import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.IsaacAnswer;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.IsaacAnswerResponse;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.ResponseExplanation;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Map;
 
 @SuppressWarnings("checkstyle:all")
 @Path("/isaac-api/api/questions")
 public class MarkerController {
+    private static final Logger log = LoggerFactory.getLogger(MarkerController.class);
 
     private final ObjectMapper om = new ObjectMapper();
 
@@ -102,8 +112,45 @@ public class MarkerController {
             if (question == null) {
                 throw new Exception("Unknown question " + questionId);
             }
+
+            save(questionId, question, graphAnswer);
             return marker.mark(question, graphAnswer);
         }
         throw new Exception("Unknown answer type " + answer.getType());
+    }
+
+    @Context
+    private HttpServletRequest currentRequest;
+
+    private static int requestId = 1;
+
+    private void save(String questionId, GraphSolutions question, GraphAnswer graphAnswer) {
+        try {
+            File rootPath = new File("../samples", questionId);
+            File unknownPath = new File(rootPath, "unknown");
+
+            Files.createDirectories(unknownPath.toPath());
+
+            String user = currentRequest.getRemoteUser();
+            if (user == null || user.isEmpty()) {
+                user = currentRequest.getRemoteAddr();
+            }
+
+            String name = DateTimeFormatter.ISO_INSTANT.format(Instant.now()) + " " + requestId++ + " " + user + ".json";
+
+            File filePath = new File(unknownPath, name);
+            om.writeValue(filePath, graphAnswer);
+
+            File specification = new File(rootPath, "specification.json");
+
+            if (!specification.exists()) {
+                StubExampleSet exampleSet = new StubExampleSet(questionId,
+                    question.getAnswers().get(0).getGraphDefinition(),
+                    graphAnswer);
+                om.writeValue(specification, exampleSet);
+            }
+        } catch (IOException e) {
+            log.error("Couldn't save", e);
+        }
     }
 }
