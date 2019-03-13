@@ -15,6 +15,7 @@
  */
 package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 
+import org.junit.Ignore;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers;
 import org.junit.Test;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
@@ -78,6 +79,7 @@ public class ExpectedSectorsFeatureTest {
         assertFalse(testFeature.test(TestHelpers.lineOf(x -> Math.cos(x), -2 * Math.PI, 2 * Math.PI)));
     }
 
+    @Ignore
     @Test
     public void matchCorrectlyWhenStartingAtOrigin() {
         Predicate<Line> testFeature = line -> ExpectedSectorsFeature.manager.deserialize("origin, topRight").match(line);

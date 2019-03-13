@@ -256,6 +256,8 @@ public class Sector {
 
     public static final Sector left = centeredHalf("left", UP);
     public static final Sector right = centeredHalf("right", DOWN);
+    public static final Sector top = centeredHalf("top", RIGHT);
+    public static final Sector bottom = centeredHalf("right", LEFT);
 
     /**
      * Get a sector by name.
@@ -293,7 +295,11 @@ public class Sector {
         topRight,
         topLeft,
         bottomLeft,
-        bottomRight
+        bottomRight,
+        top,
+        bottom,
+        left,
+        right
     );
 
     /**

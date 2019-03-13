@@ -256,10 +256,17 @@ public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeatur
         int index = lowestIndex(intersectionParams);
         while (index != -1) {
             IntersectionParams.IntersectionParam intersection = intersectionParams[index].remove(0);
-
             inside[index] = intersection.isInside();
 
-            // Record all of the sectors we are currently in
+            index = lowestIndex(intersectionParams);
+            while (index != -1 && intersection.getT() == intersectionParams[index].get(0).getT()) {
+                intersection = intersectionParams[index].remove(0);
+                inside[index] = intersection.isInside();
+
+                index = lowestIndex(intersectionParams);
+            }
+
+                // Record all of the sectors we are currently in
             @SuppressWarnings("checkstyle:avoidInlineConditionals")
             Set<Sector> internalSectors = Streams.zip(
                 orderedSectors.stream(),
@@ -269,8 +276,6 @@ public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeatur
                 .collect(Collectors.toSet());
 
             addSector(output, internalSectors);
-
-            index = lowestIndex(intersectionParams);
         }
     }
 
