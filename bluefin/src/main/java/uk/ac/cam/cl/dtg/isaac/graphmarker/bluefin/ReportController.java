@@ -18,9 +18,11 @@ package uk.ac.cam.cl.dtg.isaac.graphmarker.bluefin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang3.tuple.Pair;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.GraphAnswer;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.features.Features;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.translation.AnswerToInput;
 
 import javax.imageio.ImageIO;
@@ -37,6 +39,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -47,15 +50,16 @@ import java.util.stream.Collectors;
 @Path("/")
 public class ReportController {
 
-    private static final String HEADER = "<html><head><script src=\"buttons.js\"></script></head><body>";
+    private static final String HEADER = "<html><head><title>Isaac Graph Marker Tuner</title>"
+        + "<script src=\"buttons.js\"></script></head><body>";
     private static final String FOOTER = "</body></html>";
 
-    public static final Color BLUE = new Color(0.3f, 0.6f, 1.0f);
-    public static final Color RED = new Color(1.0f, 0.3f, 0.6f);
-    public static final Color GREEN = new Color(0.2f, 0.8f, 0.4f);
-    public static final Color ORANGE = new Color(1.0f, 0.6f, 0.3f);
-    public static final Color GREY = new Color(0.5f, 0.5f, 0.5f);
-    public static final Color ARGH = new Color(1.0f, 0.5f, 0.3f);
+    private static final Color BLUE = new Color(0.3f, 0.6f, 1.0f);
+    private static final Color RED = new Color(1.0f, 0.3f, 0.6f);
+    private static final Color GREEN = new Color(0.2f, 0.8f, 0.4f);
+    private static final Color ORANGE = new Color(1.0f, 0.6f, 0.3f);
+    private static final Color GREY = new Color(0.5f, 0.5f, 0.5f);
+    private static final Color ARGH = new Color(1.0f, 0.5f, 0.3f);
 
     private final ObjectMapper om = new ObjectMapper();
     private final AnswerToInput answerToInput = new AnswerToInput();
@@ -64,7 +68,11 @@ public class ReportController {
     @Path("/{filename}.{extension: [^/.]+}")
     public Response staticFile(@PathParam("filename") String filename, @PathParam("extension") String extension) {
         ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource(filename + "." + extension).getFile());
+        URL resourceUrl = classLoader.getResource(filename + "." + extension);
+        if (resourceUrl == null) {
+            return Response.status(404).build();
+        }
+        File file = new File(resourceUrl.getFile());
         return Response.ok(file).build();
     }
 
@@ -75,7 +83,7 @@ public class ReportController {
     }
 
     @GET
-    public String report() {
+    public String report(@QueryParam("withoutSuppression") boolean withoutSuppression) {
         final StringBuilder response = new StringBuilder();
         response.append(HEADER);
 
@@ -88,25 +96,34 @@ public class ReportController {
         List<String> fullyCorrectExamples = new ArrayList<>();
 
         examples.forEach(example -> {
+            String fullName = example.getName();
+            if (!fullName.equals(example.getId())) {
+                fullName += " <small>(" + example.getId() + ")</small>";
+            }
+
             // mark the example set
             Marker.Context markerContext = marker.newContext();
             Marks marks = markerContext.mark(example);
             marksList.add(marks);
 
-            if (marks.allCorrect()) {
-                fullyCorrectExamples.add(example.getName());
+            if (marks.allCorrect() && !withoutSuppression) {
+                fullyCorrectExamples.add(fullName);
                 return;
             }
 
             // - info about question
-            response.append("<h1>").append(example.getName()).append("</h1>");
+            response.append("<h1>").append(fullName).append("</h1>");
 
             response.append("<h2>Specification</h2>");
             response.append("<table cellspacing=5><tr>");
-            boolean canonicalPasses = marker.mark(example.getSpecification(), example.getCanonical());
+            boolean canonicalPasses;
             if (example.getCanonical() != null) {
+                canonicalPasses = marker.mark(example.getSpecification(), example.getCanonical());
                 response.append("<td>").append(drawGraph(example.getCanonical(), canonicalPasses ? GREY : ARGH));
+            } else {
+                canonicalPasses = true;
             }
+
             String specification = Arrays.stream(example.getSpecification().split("\r?\n"))
                 .map(line -> "<li>" + line + "</li>")
                 .collect(Collectors.joining("\r\n"));
@@ -130,17 +147,82 @@ public class ReportController {
 
             displayForClassification(response, example, markerContext, marks,
                 "Passes to be classified", AnswerStatus.UNKNOWN, true);
+
+            if (withoutSuppression) {
+                displayForClassification(response, example, markerContext, marks,
+                    "Incorrect and failing", AnswerStatus.INCORRECT, false);
+
+                displayForClassification(response, example, markerContext, marks,
+                    "Correct and passing", AnswerStatus.CORRECT, true);
+            }
         });
 
         // overall totals
         response.append("<h1>").append("Overall").append("</h1>")
             .append(marksInfo(new Marks(marksList)));
 
-        response.append("Fully correct examples that were suppressed: ")
-            .append(String.join(", ", fullyCorrectExamples));
+        if (!fullyCorrectExamples.isEmpty()) {
+            response.append("<br>Fully correct examples that were suppressed:<ul>");
+            fullyCorrectExamples.forEach(name -> response.append("<li>").append(name));
+            response.append("</ul>");
+        }
+
+        if (withoutSuppression) {
+            response.append("<a href=\"?withoutSuppression=false\">Hide boring things</a>");
+        } else {
+            response.append("<a href=\"?withoutSuppression=true\">Show all without suppression</a>");
+        }
+
+        response.append("<br><a href=\"/crossValidate\">Cross-validate</a>");
 
         // parameter adjustments
 
+        response.append(FOOTER);
+        return response.toString();
+    }
+
+    @GET
+    @Path("crossValidate")
+    public String crossValidate(@QueryParam("withoutSuppression") boolean withoutSuppression) {
+        final StringBuilder response = new StringBuilder();
+        response.append(HEADER);
+
+        List<ExampleSet> examples = Examples.load();
+
+        response.append("<table border=1><tr><th>");
+        examples.forEach(example -> {
+            response.append("<th>").append(example.getName());
+        });
+        response.append("</tr>");
+
+        examples.forEach(example -> {
+            response.append("<tr><th>").append(example.getName());
+
+            examples.forEach(crossValidator -> {
+                response.append("<td>");
+
+                crossValidator.getAnswers().forEach((answerId, answer) -> {
+                    AnswerStatus answerStatus = crossValidator.getResults().get(answerId);
+                    if (answerStatus != AnswerStatus.CORRECT) {
+                        return;
+                    }
+
+                    Input input = answerToInput.apply(answer);
+
+                    Features.Matcher matcher = Features.matcher(example.getSpecification());
+
+                    boolean result = matcher.test(input);
+
+                    if (result) {
+                        // Would expect a right answer of the crossValidator to fail this, so output it
+                        Color color = example == crossValidator ? GREEN : RED;
+                        response.append(drawGraph(answer, color)).append("<br>");
+                    }
+                });
+            });
+
+            response.append("</tr>");
+        });
         response.append(FOOTER);
         return response.toString();
     }
@@ -150,12 +232,15 @@ public class ReportController {
         Marks.Mark mark = marks.get(status);
         ImmutableList<String> answers = mark.get(passed);
 
-        String correct = "<button class='Correct'>Correct</button>";
-        String incorrect = "<button class='Incorrect'>Incorrect</button>";
+        String correct = "<button class='correct'>Correct</button>";
+        String incorrect = "<button class='incorrect'>Incorrect</button>";
+        String delete = "<br><br><button class='delete'>Delete</button>";
 
-        String buttons = status == AnswerStatus.UNKNOWN ? "<td>" + correct + "<br><br>" + incorrect + "<td>"
-            : status == AnswerStatus.CORRECT ? "<td>" + incorrect + "<td>"
-            : status == AnswerStatus.INCORRECT ? "<td>" + correct + "<td>"
+        String buttons = status == AnswerStatus.UNKNOWN ?
+                passed ? "<td>" + correct + "<br><br>" + incorrect + delete + "<td>"
+                       : "<td>" + incorrect + "<br><br>" + correct + delete + "<td>"
+            : status == AnswerStatus.CORRECT ? "<td>" + incorrect + delete + "<td>"
+            : status == AnswerStatus.INCORRECT ? "<td>" + correct + delete + "<td>"
             : "<td><td>";
 
         if (answers.size() > 0) {
