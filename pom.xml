@@ -10,6 +10,7 @@
     <modules>
         <module>demo</module>
         <module>library</module>
+        <module>bluefin</module>
     </modules>
     <packaging>pom</packaging>
 
