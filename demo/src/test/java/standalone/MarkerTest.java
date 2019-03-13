@@ -56,11 +56,8 @@ public class MarkerTest {
             failedResponse);
     }
 
-    private int dirtyTemp = 0;
-
     private uk.ac.cam.cl.dtg.isaac.graphmarker.dos.Point toPoint(Point p) {
         return new uk.ac.cam.cl.dtg.isaac.graphmarker.dos.Point(
-            dirtyTemp++,
             p.getX(),
             p.getY()
         );

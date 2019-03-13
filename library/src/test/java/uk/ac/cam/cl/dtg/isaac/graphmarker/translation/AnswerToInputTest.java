@@ -30,11 +30,8 @@ import static org.junit.Assert.assertEquals;
 
 public class AnswerToInputTest {
 
-    private int dirtyTemp = 0;
-
     private uk.ac.cam.cl.dtg.isaac.graphmarker.dos.Point toPoint(uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point p) {
         return new uk.ac.cam.cl.dtg.isaac.graphmarker.dos.Point(
-            dirtyTemp++,
             p.getX(),
             p.getY()
         );

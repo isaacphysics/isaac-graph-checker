@@ -16,22 +16,18 @@
 package uk.ac.cam.cl.dtg.isaac.graphmarker.dos;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+@JsonFormat(shape = JsonFormat.Shape.ARRAY)
 public class Point {
-    private final int index;
     private final double x;
     private final double y;
 
     @JsonCreator
-    public Point(@JsonProperty("ind") int index, @JsonProperty("x") double x, @JsonProperty("y") double y) {
-        this.index = index;
+    public Point(@JsonProperty("x") double x, @JsonProperty("y") double y) {
         this.x = x;
         this.y = y;
-    }
-
-    public int getIndex() {
-        return index;
     }
 
     public double getX() {
