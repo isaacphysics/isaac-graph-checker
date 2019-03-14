@@ -54,13 +54,27 @@ public class Features {
         NthLineSelector.manager
     );
 
+    /**
+     * A predicate for matching an input against a particular specification.
+     */
     public static class Matcher implements Predicate<Input> {
         private final List<ImmutablePair<Predicate<Input>, String>> matchers;
 
+        /**
+         * Create a matcher that requires all of the input matchers to pass.
+         *
+         * @param matchers A list of pairs of input predicates and the string that defined them.
+         */
         private Matcher(List<ImmutablePair<Predicate<Input>, String>> matchers) {
             this.matchers = matchers;
         }
 
+        /**
+         * Get a list of any specifications that an input fails against. Returns an empty list if the input passes.
+         *
+         * @param input The input to test.
+         * @return A list of lines of specification that this input violates.
+         */
         public List<String> getFailingSpecs(Input input) {
             List<String> failedPredicates = new ArrayList<>();
             for (ImmutablePair<Predicate<Input>, String> matcher: matchers) {
