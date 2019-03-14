@@ -16,7 +16,6 @@
 
 package uk.ac.cam.cl.dtg.isaac.graphmarker.bluefin;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.features.Features;
 
@@ -187,7 +186,7 @@ public class ReportController {
 
                     Input input = ReportHelpers.answerToInput.apply(answer);
 
-                    Features.Matcher matcher = Features.matcher(example.getSpecification());
+                    Features.Matcher matcher = new Features().matcher(example.getSpecification());
 
                     boolean result = matcher.test(input);
 

@@ -41,7 +41,7 @@ public class Marker {
         Input input = answerToInput.apply(graphAnswer);
 
         return question.getAnswers().stream()
-            .filter(solution -> Features.matcher(solution.getGraphDefinition()).test(input))
+            .filter(solution -> new Features().matcher(solution.getGraphDefinition()).test(input))
             .findFirst()
             .map(GraphSolutionItem::getResponse)
             .orElse(question.getUnmatchedResponse());
@@ -55,6 +55,6 @@ public class Marker {
     public String generate(GraphAnswer graphAnswer) {
         Input input = answerToInput.apply(graphAnswer);
 
-        return Features.generate(input);
+        return new Features().generate(input);
     }
 }

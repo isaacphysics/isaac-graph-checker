@@ -44,7 +44,7 @@ public class Marker {
                 .map(entry -> {
                     Input input = answerToInput.apply(entry.getValue());
 
-                    Features.Matcher matcher = Features.matcher(examples.getSpecification());
+                    Features.Matcher matcher = new Features().matcher(examples.getSpecification());
 
                     List<String> failures = matcher.getFailingSpecs(input);
                     return Pair.of(entry.getKey(), failures);
@@ -88,6 +88,6 @@ public class Marker {
     public boolean mark(String specification, GraphAnswer graphAnswer) {
         Input input = answerToInput.apply(graphAnswer);
 
-        return Features.matcher(specification).test(input);
+        return new Features().matcher(specification).test(input);
     }
 }

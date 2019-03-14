@@ -33,7 +33,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * Static class for matching Input to a list of features, and generating a list of features from an input.
+ * Class for matching Input to a list of features, and generating a list of features from an input.
  */
 public class Features {
 
@@ -55,45 +55,9 @@ public class Features {
     );
 
     /**
-     * A predicate for matching an input against a particular specification.
+     * Create a feature object for matching or generating with the default configuration.
      */
-    public static class Matcher implements Predicate<Input> {
-        private final List<ImmutablePair<Predicate<Input>, String>> matchers;
-
-        /**
-         * Create a matcher that requires all of the input matchers to pass.
-         *
-         * @param matchers A list of pairs of input predicates and the string that defined them.
-         */
-        private Matcher(List<ImmutablePair<Predicate<Input>, String>> matchers) {
-            this.matchers = matchers;
-        }
-
-        /**
-         * Get a list of any specifications that an input fails against. Returns an empty list if the input passes.
-         *
-         * @param input The input to test.
-         * @return A list of lines of specification that this input violates.
-         */
-        public List<String> getFailingSpecs(Input input) {
-            List<String> failedPredicates = new ArrayList<>();
-            for (ImmutablePair<Predicate<Input>, String> matcher: matchers) {
-                boolean test = matcher.left.test(input);
-                if (!test) {
-                    failedPredicates.add(matcher.right);
-                }
-            }
-            return failedPredicates;
-        }
-
-        @Override
-        public boolean test(Input input) {
-            List<String> failingSpecs = getFailingSpecs(input);
-            if (!failingSpecs.isEmpty()) {
-                log.info("Failed specs: " + String.join("\r\n\t\t", failingSpecs));
-            }
-            return failingSpecs.isEmpty();
-        }
+    public Features() {
     }
 
     /**
@@ -102,58 +66,23 @@ public class Features {
      * @param feature The feature specification.
      * @return A predicate on Input.
      */
-    public static Matcher matcher(String feature) {
+    public Matcher matcher(String feature) {
         String[] features = feature.split("\n");
-        List<ImmutablePair<Predicate<Input>, Boolean>> matchersAndInfo = Arrays.stream(features)
-                .map(Features::itemToFeaturePredicate)
+        List<InputPredicate> matchers = Arrays.stream(features)
+                .map(this::itemToFeaturePredicate)
                 .collect(Collectors.toList());
 
-        List<ImmutablePair<Predicate<Input>, String>> matchers = Streams.zip(matchersAndInfo.stream(),
-            Arrays.stream(features), (pair, name) -> ImmutablePair.of(pair.left, name)
-        ).collect(Collectors.toList());
-
-        if (matchersAndInfo.stream().noneMatch(pair -> pair.right)) {
-            matchers.add(ImmutablePair.of(CurvesCountFeature.manager.deserialize("1")::match,
-                "curves: 1 (implicit)"));
+        if (matchers.stream().noneMatch(InputPredicate::isLineAware)) {
+            CurvesCountFeature.Instance instance = CurvesCountFeature.manager.deserialize("1");
+            matchers.add(new InputPredicate("curves: 1 (implicit)", true) {
+                @Override
+                public boolean test(Input input) {
+                    return instance.match(input);
+                }
+            });
         }
 
         return new Matcher(matchers);
-    }
-
-    /**
-     * Turn a feature specification into an input predicate and a boolean indicating whether it has a line selector.
-     * @param item The feature specification.
-     * @return A pair of an input predicate and whether the feature has a line selector.
-     */
-    private static ImmutablePair<Predicate<Input>, Boolean> itemToFeaturePredicate(String item) {
-        for (InputFeature feature : INPUT_FEATURES) {
-            if (item.startsWith(feature.tag() + ":")) {
-                item = item.substring(feature.tag().length() + 1);
-                return ImmutablePair.of(feature.deserialize(item)::match, true);
-            }
-        }
-        LineSelector.Instance selector = null;
-        boolean selectorFound = false;
-        for (LineSelector selectors : LINE_SELECTORS) {
-            if (item.startsWith(selectors.tag() + ":")) {
-                item = item.substring(selectors.tag().length() + 1);
-                selector = selectors.deserialize(item);
-                selectorFound = true;
-                break;
-            }
-        }
-        if (selector == null) {
-            selector = AnyLineSelector.manager.deserialize(item);
-        }
-        String subItem = selector.item();
-        for (LineFeature feature : LINE_FEATURES) {
-            if (subItem.startsWith(feature.tag() + ":")) {
-                String finalSubItem = subItem.substring(feature.tag().length() + 1);
-                Predicate<Line> linePredicate = line -> feature.deserialize(finalSubItem).match(line);
-                return ImmutablePair.of(selector.matcher(linePredicate), selectorFound);
-            }
-        }
-        throw new IllegalArgumentException("Unknown item: " + item);
     }
 
     /**
@@ -161,7 +90,7 @@ public class Features {
      * @param input The input.
      * @return The feature specification.
      */
-    public static String generate(Input input) {
+    public String generate(Input input) {
         List<String> features = new ArrayList<>();
 
         // Run through input, trying all input features
@@ -203,9 +132,149 @@ public class Features {
         return String.join("\r\n", features);
     }
 
+    public abstract class InputPredicate implements Predicate<Input> {
+        private final String item;
+        private final boolean lineAware;
+
+        private InputPredicate(String item, boolean lineAware) {
+            this.item = item;
+            this.lineAware = lineAware;
+        }
+
+        public String getItem() {
+            return item;
+        }
+
+        public boolean isLineAware() {
+            return lineAware;
+        }
+    }
+
+    public abstract class LinePredicate implements Predicate<Line> {
+        private final String item;
+
+        private LinePredicate(String item) {
+            this.item = item;
+        }
+
+        public String getItem() {
+            return item;
+        }
+    }
+
+    public InputPredicate wrapLinePredicate(LinePredicate linePredicate) {
+        return new InputPredicate(
+            linePredicate.getItem(),
+            false
+        ) {
+            @Override
+            public boolean test(Input input) {
+                return input.getLines().stream()
+                    .anyMatch(linePredicate);
+            }
+        };
+    }
+
     /**
-     * Use the static methods.
+     * A predicate for matching an input against a particular specification.
      */
-    private Features() {
+    public class Matcher extends InputPredicate {
+        private final List<InputPredicate> matchers;
+
+        /**
+         * Create a matcher that requires all of the input matchers to pass.
+         *
+         * @param matchers A list of input predicates.
+         */
+        private Matcher(List<InputPredicate> matchers) {
+            super(
+                matchers.stream()
+                    .map(InputPredicate::getItem)
+                    .collect(Collectors.joining("\r\n")),
+                matchers.stream()
+                    .anyMatch(InputPredicate::isLineAware)
+            );
+            this.matchers = matchers;
+        }
+
+        /**
+         * Get a list of any specifications that an input fails against. Returns an empty list if the input passes.
+         *
+         * @param input The input to test.
+         * @return A list of lines of specification that this input violates.
+         */
+        public List<String> getFailingSpecs(Input input) {
+            List<String> failedPredicates = new ArrayList<>();
+            for (InputPredicate inputPredicate: matchers) {
+                boolean test = inputPredicate.test(input);
+                if (!test) {
+                    failedPredicates.add(inputPredicate.getItem());
+                }
+            }
+            return failedPredicates;
+        }
+
+        @Override
+        public boolean test(Input input) {
+            List<String> failingSpecs = getFailingSpecs(input);
+            if (!failingSpecs.isEmpty()) {
+                log.info("Failed specs: " + String.join("\r\n\t\t", failingSpecs));
+            }
+            return failingSpecs.isEmpty();
+        }
+    }
+
+    /**
+     * Turn a feature specification into an input predicate and a boolean indicating whether it has a line selector.
+     * @param item The feature specification.
+     * @return A pair of an input predicate and whether the feature has a line selector.
+     */
+    private InputPredicate itemToFeaturePredicate(final String item) {
+        for (InputFeature feature : INPUT_FEATURES) {
+            if (item.startsWith(feature.tag() + ":")) {
+                String featureSpec = item.substring(feature.tag().length() + 1);
+                InputFeature.Instance instance = feature.deserialize(featureSpec);
+                return new InputPredicate(item, true) {
+                    @Override
+                    public boolean test(Input input) {
+                        return instance.match(input);
+                    }
+                };
+            }
+        }
+        LineSelector.Instance selector = null;
+        String subItem = item;
+        for (LineSelector selectors : LINE_SELECTORS) {
+            if (item.startsWith(selectors.tag() + ":")) {
+                String featureSpec = item.substring(selectors.tag().length() + 1);
+                selector = selectors.deserialize(featureSpec);
+                subItem = selector.item();
+                break;
+            }
+        }
+        final String lineItem = subItem;
+        final LineSelector.Instance lineSelector = selector;
+        for (LineFeature feature : LINE_FEATURES) {
+            if (lineItem.startsWith(feature.tag() + ":")) {
+                String featureSpec = lineItem.substring(feature.tag().length() + 1);
+                Predicate<Line> linePredicate = line -> feature.deserialize(featureSpec).match(line);
+                if (lineSelector != null) {
+                    return new InputPredicate(item, true) {
+                        @Override
+                        public boolean test(Input input) {
+                            return lineSelector.matcher(linePredicate).test(input);
+                        }
+                    };
+                } else {
+                    return wrapLinePredicate(new LinePredicate(item) {
+                        @Override
+                        public boolean test(Line line) {
+                            return linePredicate.test(line);
+                        }
+                    });
+                }
+            }
+        }
+        throw new IllegalArgumentException("Unknown item: " + item);
     }
 }
