@@ -26,6 +26,10 @@ import java.util.List;
 abstract class InputFeature<FeatureInstance extends InputFeature.Instance>
     extends Feature<FeatureInstance, Input, List<String>> {
 
+    public InputFeature(Settings settings) {
+        super(settings);
+    }
+
     /**
      * An instance of an InputFeature.
      */
@@ -57,7 +61,11 @@ abstract class InputFeature<FeatureInstance extends InputFeature.Instance>
      * A type of input feature which wraps other features so doesn't have its own parsing or generation.
      * @param <T> The type of instances of this feature.
      */
-    private static class WrapperFeature<T extends InputFeature.Instance> extends InputFeature<T> {
+    abstract static class WrapperFeature<T extends InputFeature.Instance> extends InputFeature<T> {
+
+        public WrapperFeature(Settings settings) {
+            super(settings);
+        }
 
         /**
          * @deprecated It doesn't make sense to use this.
@@ -65,7 +73,7 @@ abstract class InputFeature<FeatureInstance extends InputFeature.Instance>
          */
         @Override
         @Deprecated
-        protected String tag() {
+        public String tag() {
             throw new UnsupportedOperationException();
         }
 
@@ -92,88 +100,6 @@ abstract class InputFeature<FeatureInstance extends InputFeature.Instance>
         @Override
         public String prefix(String item) {
             return item;
-        }
-    }
-
-    /**
-     * A wrapper that makes an input feature from a line selector and a line feature.
-     */
-    static class LineSelectorWrapperFeature extends WrapperFeature<LineSelectorWrapperFeature.Instance> {
-        /**
-         * An instance of this feature.
-         */
-        class Instance extends InputFeature<Instance>.Instance {
-
-            private final LineSelector<?>.Instance selectorInstance;
-            private final LineFeature<?>.Instance lineFeatureInstance;
-
-            /**
-             * Create an instance of this feature.
-             * @param item The specification text that created this feature.
-             * @param selectorInstance The line selector instance.
-             * @param lineFeatureInstance The line feature instance.
-             */
-            private Instance(String item, LineSelector<?>.Instance selectorInstance,
-                               LineFeature<?>.Instance lineFeatureInstance) {
-                super(item, true);
-                this.selectorInstance = selectorInstance;
-                this.lineFeatureInstance = lineFeatureInstance;
-            }
-
-            @Override
-            public boolean test(Input input) {
-                return selectorInstance.matcher(lineFeatureInstance).test(input);
-            }
-        }
-
-        /**
-         * Create an instance of this feature.
-         * @param item The specification text that created this feature.
-         * @param selectorInstance The line selector instance.
-         * @param lineFeatureInstance The line feature instance.
-         * @return An input feature instance that recognises the line feature in the selected line(s).
-         */
-        public Instance wrap(String item, LineSelector<?>.Instance selectorInstance,
-                             LineFeature<?>.Instance lineFeatureInstance) {
-            return new Instance(item, selectorInstance, lineFeatureInstance);
-        }
-    }
-
-    /**
-     * A wrapper that makes an input feature from a line feature. It will match if any line matches.
-     */
-    static class LineFeatureWrapper extends WrapperFeature<LineFeatureWrapper.Instance> {
-        /**
-         * An instance of this feature.
-         */
-        class Instance extends InputFeature<LineFeatureWrapper.Instance>.Instance {
-            private final LineFeature<?>.Instance lineFeatureInstance;
-
-            /**
-             * Create an instance of this feature.
-             * @param item The specification text that created this feature.
-             * @param lineFeatureInstance The line feature instance.
-             */
-            private Instance(String item, LineFeature<?>.Instance lineFeatureInstance) {
-                super(item, false);
-                this.lineFeatureInstance = lineFeatureInstance;
-            }
-
-            @Override
-            public boolean test(Input input) {
-                return input.getLines().stream()
-                    .anyMatch(lineFeatureInstance);
-            }
-        }
-
-        /**
-         * Create an instance of this feature.
-         * @param item The specification text that created this feature.
-         * @param lineFeatureInstance The line feature instance.
-         * @return An input feature instance that recognises the line feature in any line.
-         */
-        public Instance wrap(String item, LineFeature.Instance lineFeatureInstance) {
-            return new Instance(item, lineFeatureInstance);
         }
     }
 }

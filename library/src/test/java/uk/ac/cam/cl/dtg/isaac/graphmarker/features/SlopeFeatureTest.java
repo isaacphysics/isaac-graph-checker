@@ -31,6 +31,8 @@ import static uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers.lineOf;
 
 public class SlopeFeatureTest {
 
+    private SlopeFeature slopeFeature = new SlopeFeature(Settings.NONE);
+
     @Test
     public void slopeCalculatorIsCorrect() {
         Map<Line, SlopeFeature.Slope> expectations = ImmutableMap.of(
@@ -41,22 +43,22 @@ public class SlopeFeatureTest {
             TestHelpers.lineOf(new Point(0, 0), new Point(100, 100)), SlopeFeature.Slope.OTHER
         );
 
-        expectations.forEach((line, slope) -> assertEquals(slope, SlopeFeature.manager.lineToSlope(line)));
+        expectations.forEach((line, slope) -> assertEquals(slope, slopeFeature.lineToSlope(line)));
     }
 
     @Test
     public void simpleSlopeTestWorks() {
-        List<String> data = SlopeFeature.manager.generate(TestHelpers.lineOf(x -> 1 / x, 0.01, 10));
+        List<String> data = slopeFeature.generate(TestHelpers.lineOf(x -> 1 / x, 0.01, 10));
 
         Line line = TestHelpers.lineOf(x -> 0.5 / x, 0.001, 10);
-        assertTrue(SlopeFeature.manager.deserializeInternal(data.get(0)).test(line));
+        assertTrue(slopeFeature.deserializeInternal(data.get(0)).test(line));
     }
 
 
     @Test
     public void inverseOfXworks() {
-        Predicate<Line> startMatcher = line -> SlopeFeature.manager.deserializeInternal("start=down").test(line);
-        Predicate<Line> endMatcher = line -> SlopeFeature.manager.deserializeInternal("end = flat").test(line);
+        Predicate<Line> startMatcher = line -> slopeFeature.deserializeInternal("start=down").test(line);
+        Predicate<Line> endMatcher = line -> slopeFeature.deserializeInternal("end = flat").test(line);
 
         assertTrue(startMatcher.test(TestHelpers.lineOf(x -> 1 / x, 0.001, 15)));
         assertTrue(endMatcher.test(TestHelpers.lineOf(x -> 1 / x, 0.001, 15)));
@@ -67,7 +69,7 @@ public class SlopeFeatureTest {
 
     @Test
     public void inverseOfXworksAsOneMatcher() {
-        Predicate<Line> matcher = line -> SlopeFeature.manager.deserializeInternal("start=down, end = flat").test(line);
+        Predicate<Line> matcher = line -> slopeFeature.deserializeInternal("start=down, end = flat").test(line);
 
         assertTrue(matcher.test(TestHelpers.lineOf(x -> 1 / x, 0.001, 15)));
 
@@ -76,36 +78,36 @@ public class SlopeFeatureTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void mustProvideTwoArguments() {
-        SlopeFeature.manager.deserializeInternal("one=two=three");
+        slopeFeature.deserializeInternal("one=two=three");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void mustUseCorrectRegionNames() {
-        SlopeFeature.manager.deserializeInternal("middle=flat");
+        slopeFeature.deserializeInternal("middle=flat");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void mustUseCorrectSlopeNames() {
-        SlopeFeature.manager.deserializeInternal("all=wibbly");
+        slopeFeature.deserializeInternal("all=wibbly");
     }
 
     @Test
     public void slopeUpOrDownIsntOverSensitiveToX() {
-        Predicate<Line> matcher = line -> SlopeFeature.manager.deserializeInternal("start=down, end=down").test(line);
+        Predicate<Line> matcher = line -> slopeFeature.deserializeInternal("start=down, end=down").test(line);
 
         assertTrue(matcher.test(TestHelpers.lineOf(new Point(0, 0), new Point(-1, -100))));
     }
 
     @Test
     public void inverseOfXgeneratesTwoSlopes() {
-        List<String> featureData = SlopeFeature.manager.generate(TestHelpers.lineOf(x -> 1 / x, 0.01, 10));
+        List<String> featureData = slopeFeature.generate(TestHelpers.lineOf(x -> 1 / x, 0.01, 10));
 
         assertEquals(2, StringUtils.countMatches(featureData.get(0), '='));
     }
 
     @Test
     public void almostStraightDownSlopeGeneratesCorrectly() {
-        String featureData = SlopeFeature.manager.generate(TestHelpers.lineOf(
+        String featureData = slopeFeature.generate(TestHelpers.lineOf(
             new Point(1, 0),
             new Point(1, -1),
             new Point(1.001, -2),
@@ -118,7 +120,7 @@ public class SlopeFeatureTest {
 
     @Test
     public void straightDownSlopeGeneratesCorrectly() {
-        String featureData = SlopeFeature.manager.generate(TestHelpers.lineOf(
+        String featureData = slopeFeature.generate(TestHelpers.lineOf(
             new Point(1, 0),
             new Point(1, -1),
             new Point(1, -2),

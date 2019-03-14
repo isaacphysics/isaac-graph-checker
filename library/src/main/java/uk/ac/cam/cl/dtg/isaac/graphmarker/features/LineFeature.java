@@ -15,9 +15,12 @@
  */
 package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 
+import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A feature which matches against a line.
@@ -25,6 +28,10 @@ import java.util.List;
  */
 abstract class LineFeature<FeatureInstance extends LineFeature.Instance>
     extends Feature<FeatureInstance, Line, List<String>> {
+
+    public LineFeature(Settings settings) {
+        super(settings);
+    }
 
     /**
      * An instance of a LineFeature.
@@ -36,6 +43,14 @@ abstract class LineFeature<FeatureInstance extends LineFeature.Instance>
          */
         protected Instance(String item) {
             super(item, false);
+        }
+
+        /**
+         * Wrap this line feature into an item feature that matches if any line matches.
+         * @return An input feature instance that recognises the line feature in any line.
+         */
+        public InputFeature.Instance wrapToItemFeature() {
+            return new LineFeatureWrapper(settings).new Instance(this.getTaggedFeatureData(), this);
         }
     }
 
@@ -50,5 +65,43 @@ abstract class LineFeature<FeatureInstance extends LineFeature.Instance>
      */
     public final FeatureInstance deserialize(String item) {
         return super.deserialize(item);
+    }
+
+    /**
+     * A wrapper that makes an input feature from a line feature. It will match if any line matches.
+     */
+    class LineFeatureWrapper extends InputFeature.WrapperFeature<LineFeatureWrapper.Instance> {
+
+        public LineFeatureWrapper(Settings settings) {
+            super(settings);
+        }
+
+        @Override
+        public Map<String, Castable> defaults() {
+            return Collections.emptyMap();
+        }
+
+        /**
+         * An instance of this feature.
+         */
+        class Instance extends InputFeature<Instance>.Instance {
+            private final LineFeature<?>.Instance lineFeatureInstance;
+
+            /**
+             * Create an instance of this feature.
+             * @param item The specification text that created this feature.
+             * @param lineFeatureInstance The line feature instance.
+             */
+            private Instance(String item, LineFeature<?>.Instance lineFeatureInstance) {
+                super(item, false);
+                this.lineFeatureInstance = lineFeatureInstance;
+            }
+
+            @Override
+            public boolean test(Input input) {
+                return input.getLines().stream()
+                    .anyMatch(lineFeatureInstance);
+            }
+        }
     }
 }

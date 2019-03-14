@@ -18,6 +18,7 @@ package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,18 @@ import java.util.regex.Pattern;
  */
 public class NthLineSelector extends LineSelector<NthLineSelector.Instance> {
 
-    public static final NthLineSelector manager = new NthLineSelector();
+    /**
+     * Create an Nth line selector with specified settings.
+     * @param settings The settings.
+     */
+    NthLineSelector(Settings settings) {
+        super(settings);
+    }
+
+    @Override
+    public Map<String, Castable> defaults() {
+        return Collections.emptyMap();
+    }
 
     @Override
     public String tag() {
@@ -49,7 +61,7 @@ public class NthLineSelector extends LineSelector<NthLineSelector.Instance> {
          * @param item The remainder of this item.
          */
         private Instance(int n, String item) {
-            super(item);
+            super(n + "; ", item);
             this.n = n;
         }
 
@@ -83,13 +95,5 @@ public class NthLineSelector extends LineSelector<NthLineSelector.Instance> {
             map.put((i + 1) + "; ", lines.get(i));
         }
         return map;
-    }
-
-    /**
-     * There is only one of these, so make the constructor private.
-     *
-     * Use the manager singleton.
-     */
-    private NthLineSelector() {
     }
 }

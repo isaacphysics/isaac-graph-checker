@@ -19,18 +19,24 @@ import org.junit.Test;
 
 public class InputFeatureTest {
 
+    private final LineSelector.LineSelectorWrapperFeature lineSelectorWrapperFeature =
+        new LineSelector.LineSelectorWrapperFeature(Settings.NONE);
+
     @Test(expected =  UnsupportedOperationException.class)
+    @SuppressWarnings("deprecation")
     public void testTagThrows() {
-        new InputFeature.LineSelectorWrapperFeature().tag();
+        lineSelectorWrapperFeature.tag();
     }
 
     @Test(expected =  UnsupportedOperationException.class)
+    @SuppressWarnings("deprecation")
     public void testDeserializeInternalThrows() {
-        new InputFeature.LineSelectorWrapperFeature().deserializeInternal("");
+        lineSelectorWrapperFeature.deserializeInternal("");
     }
 
     @Test(expected =  UnsupportedOperationException.class)
+    @SuppressWarnings("deprecation")
     public void testGenerateThrows() {
-        new InputFeature.LineSelectorWrapperFeature().generate(null);
+        lineSelectorWrapperFeature.generate(null);
     }
 }

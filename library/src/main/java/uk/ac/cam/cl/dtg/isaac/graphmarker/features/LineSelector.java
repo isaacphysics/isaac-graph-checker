@@ -18,6 +18,7 @@ package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -26,12 +27,16 @@ import java.util.function.Predicate;
  * @param <SelectorInstance> The class representing instances of this selector.
  */
 abstract class LineSelector<SelectorInstance extends LineSelector.Instance>
-    extends Parsable<SelectorInstance, Input, Map<String, Line>> {
+    extends Item<SelectorInstance, Input, Map<String, Line>> {
+
+    public LineSelector(Settings settings) {
+        super(settings);
+    }
 
     /**
      * An instance of a LineSelector that can be used to test against input.
      */
-    abstract class Instance {
+    abstract class Instance extends Item.AbstractInstance {
         private final String item;
 
         /**
@@ -39,7 +44,8 @@ abstract class LineSelector<SelectorInstance extends LineSelector.Instance>
          *
          * @param item The configuration of the line feature inside this selector.
          */
-        Instance(final String item) {
+        Instance(String featureData, String item) {
+            super(featureData, true);
             this.item = item;
         }
 
@@ -62,6 +68,15 @@ abstract class LineSelector<SelectorInstance extends LineSelector.Instance>
          * @return An input predicate.
          */
         abstract Predicate<Input> matcher(Predicate<Line> linePredicate);
+
+        /**
+         * Wrap a line feature into an item feature that matches lines selected by this selector.
+         * @param instance The line predicate to wrap.
+         * @return An input feature instance that recognises the line feature in the selected line.
+         */
+        public InputFeature.Instance wrapToItemFeature(LineFeature<?>.Instance instance) {
+            return new LineSelectorWrapperFeature(settings).new Instance(this, instance);
+        }
     }
 
     /**
@@ -75,5 +90,46 @@ abstract class LineSelector<SelectorInstance extends LineSelector.Instance>
      */
     public final SelectorInstance deserialize(String item) {
         return super.deserialize(item);
+    }
+
+    /**
+     * A wrapper that makes an input feature from a line selector and a line feature.
+     */
+    static class LineSelectorWrapperFeature extends InputFeature.WrapperFeature<LineSelectorWrapperFeature.Instance> {
+
+        LineSelectorWrapperFeature(Settings settings) {
+            super(settings);
+        }
+
+        @Override
+        public Map<String, Castable> defaults() {
+            return Collections.emptyMap();
+        }
+
+        /**
+         * An instance of this feature.
+         */
+        class Instance extends InputFeature.WrapperFeature<LineSelectorWrapperFeature.Instance>.Instance {
+
+            private final LineSelector<?>.Instance selectorInstance;
+            private final LineFeature<?>.Instance lineFeatureInstance;
+
+            /**
+             * Create an instance of this feature.
+             * @param selectorInstance The line selector instance.
+             * @param lineFeatureInstance The line feature instance.
+             */
+            private Instance(LineSelector<?>.Instance selectorInstance,
+                             LineFeature<?>.Instance lineFeatureInstance) {
+                super(selectorInstance.getTaggedFeatureData() + lineFeatureInstance.getTaggedFeatureData(), true);
+                this.selectorInstance = selectorInstance;
+                this.lineFeatureInstance = lineFeatureInstance;
+            }
+
+            @Override
+            public boolean test(Input input) {
+                return selectorInstance.matcher(lineFeatureInstance).test(input);
+            }
+        }
     }
 }

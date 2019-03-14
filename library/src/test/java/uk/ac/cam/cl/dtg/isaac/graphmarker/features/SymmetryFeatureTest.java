@@ -30,19 +30,21 @@ import static uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers.lineOf;
 
 public class SymmetryFeatureTest {
 
+    private SymmetryFeature symmetryFeature = new SymmetryFeature(Settings.NONE);
+
     @Test
     public void noSymmetryIsDetectedCorrectly() {
-        assertEquals(SymmetryFeature.SymmetryType.NONE, SymmetryFeature.manager.getSymmetryOfLine(TestHelpers.lineOf(x -> x*x + 2*x + 3, 0, 10)));
+        assertEquals(SymmetryFeature.SymmetryType.NONE, symmetryFeature.getSymmetryOfLine(TestHelpers.lineOf(x -> x*x + 2*x + 3, 0, 10)));
     }
 
     @Test
     public void evenSymmetryIsDetectedCorrectly() {
-        assertEquals(SymmetryFeature.SymmetryType.EVEN, SymmetryFeature.manager.getSymmetryOfLine(TestHelpers.lineOf(x -> x*x, -10, 10)));
+        assertEquals(SymmetryFeature.SymmetryType.EVEN, symmetryFeature.getSymmetryOfLine(TestHelpers.lineOf(x -> x*x, -10, 10)));
     }
 
     @Test
     public void oddSymmetryIsDetectedCorrectly() {
-        assertEquals(SymmetryFeature.SymmetryType.ODD, SymmetryFeature.manager.getSymmetryOfLine(TestHelpers.lineOf(x -> 2*x, -10, 10)));
+        assertEquals(SymmetryFeature.SymmetryType.ODD, symmetryFeature.getSymmetryOfLine(TestHelpers.lineOf(x -> 2*x, -10, 10)));
     }
 
     @Test
@@ -62,36 +64,36 @@ public class SymmetryFeatureTest {
             .add(ImmutableTriple.of("(x-2)(x-2)", TestHelpers.lineOf(x -> (x-2)*(x-2), -8, 12), SymmetryFeature.SymmetryType.SYMMETRIC))
             .build();
 
-        functions.forEach((item) -> assertEquals(item.left + " should be " + item.right, item.right, SymmetryFeature.manager.getSymmetryOfLine(item.middle)));
+        functions.forEach((item) -> assertEquals(item.left + " should be " + item.right, item.right, symmetryFeature.getSymmetryOfLine(item.middle)));
     }
 
     @Test
     public void curveOnlyOnRightOfYaxisHasNoSymmetry() {
-        assertEquals(SymmetryFeature.SymmetryType.NONE, SymmetryFeature.manager.getSymmetryOfLine(TestHelpers.lineOf(x -> x*x + 2 * x + 3, 0, 10)));
-        assertEquals(SymmetryFeature.SymmetryType.NONE, SymmetryFeature.manager.getSymmetryOfLine(TestHelpers.lineOf(x -> x, 0, 10)));
+        assertEquals(SymmetryFeature.SymmetryType.NONE, symmetryFeature.getSymmetryOfLine(TestHelpers.lineOf(x -> x*x + 2 * x + 3, 0, 10)));
+        assertEquals(SymmetryFeature.SymmetryType.NONE, symmetryFeature.getSymmetryOfLine(TestHelpers.lineOf(x -> x, 0, 10)));
     }
 
     @Test
     public void simpleSymmetryTestWorks() {
-        List<String> data = SymmetryFeature.manager.generate(TestHelpers.lineOf(x -> x, -10, 10));
+        List<String> data = symmetryFeature.generate(TestHelpers.lineOf(x -> x, -10, 10));
 
         Line line = TestHelpers.lineOf(x -> x * 1.5, -10, 10);
-        assertTrue(SymmetryFeature.manager.deserializeInternal(data.get(0)).test(line));
+        symmetryFeature.deserializeInternal(data.get(0)).test(line);
     }
 
     @Test
     public void symmetricSymmetryIsDetectedCorrectly() {
-        assertEquals(SymmetryFeature.SymmetryType.SYMMETRIC, SymmetryFeature.manager.getSymmetryOfLine(TestHelpers.lineOf(x -> x*x + 2 * x + 3, -11, 9)));
+        assertEquals(SymmetryFeature.SymmetryType.SYMMETRIC, symmetryFeature.getSymmetryOfLine(TestHelpers.lineOf(x -> x*x + 2 * x + 3, -11, 9)));
     }
 
     @Test
     public void antiSymmetryIsDetectedCorrectly() {
-        assertEquals(SymmetryFeature.SymmetryType.ANTISYMMETRIC, SymmetryFeature.manager.getSymmetryOfLine(TestHelpers.lineOf(x -> (x - 0.1) * (x - 0.3) * (x - 0.4), -0.24, 0.76)));
+        assertEquals(SymmetryFeature.SymmetryType.ANTISYMMETRIC, symmetryFeature.getSymmetryOfLine(TestHelpers.lineOf(x -> (x - 0.1) * (x - 0.3) * (x - 0.4), -0.24, 0.76)));
     }
 
     @Test
     public void noneSymmetryGeneratesNoFeature() {
-        List<String> data = SymmetryFeature.manager.generate(TestHelpers.lineOf(x -> x < 0 ? 0 : x, -10, 10));
+        List<String> data = symmetryFeature.generate(TestHelpers.lineOf(x -> x < 0 ? 0 : x, -10, 10));
 
         assertEquals(0, data.size());
     }
@@ -99,13 +101,13 @@ public class SymmetryFeatureTest {
     @Test
     public void nonSymmetryWithSameBoundingIsDetectedCorrectly() {
         Line line = TestHelpers.lineOf(-10,0, -9,1, 0,0, 1,-1, 10, 0);
-        assertEquals(SymmetryFeature.SymmetryType.NONE, SymmetryFeature.manager.getSymmetryOfLine(line));
+        assertEquals(SymmetryFeature.SymmetryType.NONE, symmetryFeature.getSymmetryOfLine(line));
     }
 
     @Test
     public void emptyLineHasNoSymmetry() {
         Line line = TestHelpers.lineOf(new Point[]{});
-        assertEquals(SymmetryFeature.SymmetryType.NONE, SymmetryFeature.manager.getSymmetryOfLine(line));
+        assertEquals(SymmetryFeature.SymmetryType.NONE, symmetryFeature.getSymmetryOfLine(line));
     }
 
 }

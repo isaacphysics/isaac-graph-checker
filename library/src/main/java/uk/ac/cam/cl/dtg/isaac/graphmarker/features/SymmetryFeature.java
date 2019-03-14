@@ -15,6 +15,7 @@
  */
 package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 
+import com.google.common.collect.ImmutableMap;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.HumanNamedEnum;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point;
@@ -24,6 +25,7 @@ import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.Sector;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -31,8 +33,23 @@ import java.util.stream.Collectors;
  */
 public class SymmetryFeature extends LineFeature<SymmetryFeature.Instance> {
 
-    public static final SymmetryFeature manager = new SymmetryFeature();
-    public static final double SYMMETRY_SIMILARITY = 0.4;
+    public SymmetryFeature(Settings settings) {
+        super(settings);
+    }
+
+    @SuppressWarnings("magicNumber")
+    @Override
+    public Map<String, Castable> defaults() {
+        return ImmutableMap.of(
+            SYMMETRY_SIMILARITY, Castable.of(0.4)
+        );
+    }
+
+    private static final String SYMMETRY_SIMILARITY = "similarity";
+
+    private double getSymmetrySimilarity() {
+        return settings.get(SYMMETRY_SIMILARITY).asDouble();
+    }
 
     @Override
     public String tag() {
@@ -100,12 +117,6 @@ public class SymmetryFeature extends LineFeature<SymmetryFeature.Instance> {
         } else {
             return Collections.emptyList();
         }
-    }
-
-    /**
-     * Use the manager singleton.
-     */
-    private SymmetryFeature() {
     }
 
     /**
@@ -225,11 +236,11 @@ public class SymmetryFeature extends LineFeature<SymmetryFeature.Instance> {
         double yDifferenceOdd = (rightSize.getY() - leftSize.getY()) / rightSize.getY();
         double yDifferenceEven = (rightSize.getY() + leftSize.getY()) / rightSize.getY();
 
-        if (Math.abs(xDifference) < SYMMETRY_SIMILARITY) {
+        if (Math.abs(xDifference) < getSymmetrySimilarity()) {
             if (rightSize.getY() == 0 && leftSize.getY() == 0) {
                 return SymmetryType.EVEN;
             }
-            if (Math.abs(yDifferenceOdd) < SYMMETRY_SIMILARITY) {
+            if (Math.abs(yDifferenceOdd) < getSymmetrySimilarity()) {
                 if (innerMost) {
                     if (Sector.relaxedOrigin.contains(left.getPoints().get(left.getPoints().size() - 1))
                         && Sector.relaxedOrigin.contains(right.getPoints().get(0))) {
@@ -241,7 +252,7 @@ public class SymmetryFeature extends LineFeature<SymmetryFeature.Instance> {
                     return SymmetryType.ODD;
                 }
             }
-            if (Math.abs(yDifferenceEven) < SYMMETRY_SIMILARITY) {
+            if (Math.abs(yDifferenceEven) < getSymmetrySimilarity()) {
                 return SymmetryType.EVEN;
             }
         }

@@ -24,37 +24,24 @@ import java.util.function.Predicate;
  * @param <GeneratedType> The type of output this feature can generate. Should be some kind of String collection.
  */
 public abstract class Feature<FeatureInstance extends Feature.AbstractInstance, InputType, GeneratedType>
-    extends Parsable<FeatureInstance, InputType, GeneratedType> {
+    extends Item<FeatureInstance, InputType, GeneratedType> {
+
+    public Feature(Settings settings) {
+        super(settings);
+    }
 
     /**
      * An instance of a feature.
      */
-    abstract class AbstractInstance implements Predicate<InputType> {
-        private final String featureData;
-        private final boolean lineAware;
-
+    abstract class AbstractInstance extends Item<FeatureInstance, InputType, GeneratedType>.AbstractInstance
+        implements Predicate<InputType> {
         /**
          * Create an instance of a feature.
          * @param featureData The specification for this feature.
          * @param lineAware True if this feature is aware of which lines it is being applied to.
          */
         AbstractInstance(String featureData, boolean lineAware) {
-            this.featureData = featureData;
-            this.lineAware = lineAware;
-        }
-
-        /**
-         * @return The full definition for this feature.
-         */
-        public String getTaggedFeatureData() {
-            return prefix(featureData);
-        }
-
-        /**
-         * @return True if this feature is aware of which lines it is being applied to.
-         */
-        public boolean isLineAware() {
-            return lineAware;
+            super(featureData, lineAware);
         }
     }
 }

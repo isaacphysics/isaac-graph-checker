@@ -24,6 +24,7 @@ import uk.ac.cam.cl.dtg.isaac.graphmarker.data.PointType;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -31,7 +32,18 @@ import java.util.stream.Collectors;
  */
 public class PointsFeature extends LineFeature<PointsFeature.Instance> {
 
-    public static final PointsFeature manager = new PointsFeature();
+    /**
+     * Create a points feature with specified settings.
+     * @param settings The settings.
+     */
+    PointsFeature(Settings settings) {
+        super(settings);
+    }
+
+    @Override
+    public Map<String, Castable> defaults() {
+        return Collections.emptyMap();
+    }
 
     @Override
     public String tag() {
@@ -98,11 +110,5 @@ public class PointsFeature extends LineFeature<PointsFeature.Instance> {
             })
             .collect(Collectors.joining(", "))
         );
-    }
-
-    /**
-     * Use the manager singleton.
-     */
-    private PointsFeature() {
     }
 }

@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.ac.cam.cl.dtg.isaac.graphmarker;
+package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 
 import org.junit.Test;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.features.ExpectedSectorsFeature;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.features.Features;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.features.Settings;
 
+import java.util.Map;
 import java.util.function.Predicate;
 
 import static org.junit.Assert.*;
@@ -27,6 +29,8 @@ import static uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers.inputOf;
 import static uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers.lineOf;
 
 public class FeaturesTest {
+
+    private final ExpectedSectorsFeature expectedSectorsFeature = new ExpectedSectorsFeature(Settings.NONE);
 
     @Test
     public void testMatcherDesrializesAndWorks() {
@@ -51,7 +55,7 @@ public class FeaturesTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testMismatchedDeserializeThrows() {
-        ExpectedSectorsFeature.manager.deserialize("foo#!!!");
+        expectedSectorsFeature.deserialize("foo#!!!");
     }
 
     @Test
@@ -134,5 +138,12 @@ public class FeaturesTest {
         assertTrue(features.contains("start=flat"));
         assertTrue(features.contains("bottomLeft"));
         assertTrue(features.contains("topRight"));
+    }
+
+    @Test
+    public void getSettings() {
+        Features features = new Features();
+        Map<String, Castable> settings = features.getSettings();
+        assertEquals(4, settings.size());
     }
 }

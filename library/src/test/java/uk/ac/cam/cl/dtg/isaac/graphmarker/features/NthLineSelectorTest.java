@@ -28,9 +28,11 @@ import static uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers.lineOf;
 
 public class NthLineSelectorTest {
 
+    private NthLineSelector nthLineSelector = new NthLineSelector(Settings.NONE);
+
     @Test
     public void testDeserialize() {
-        NthLineSelector.Instance success = NthLineSelector.manager.deserializeInternal("1; foo");
+        NthLineSelector.Instance success = nthLineSelector.deserializeInternal("1; foo");
 
         assertEquals("foo", success.item());
     }
@@ -39,7 +41,7 @@ public class NthLineSelectorTest {
     public void testGenerate() {
         Line line1 = TestHelpers.lineOf(x -> x, -1, 1);
         Line line2 = TestHelpers.lineOf(x -> -x, -1, 1);
-        Map<String, Line> lineMap = NthLineSelector.manager.generate(TestHelpers.inputOf(line1,
+        Map<String, Line> lineMap = nthLineSelector.generate(TestHelpers.inputOf(line1,
             line2));
 
         assertArrayEquals(ImmutableList.of(line1, line2).toArray(), lineMap.values().toArray());
@@ -47,12 +49,12 @@ public class NthLineSelectorTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testParseFailureWithLine0() {
-        NthLineSelector.manager.deserializeInternal("0; foo");
+        nthLineSelector.deserializeInternal("0; foo");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testParseFailureWithNonNumberedLine() {
-        NthLineSelector.manager.deserializeInternal("a; foo");
+        nthLineSelector.deserializeInternal("a; foo");
     }
 
 }

@@ -36,25 +36,42 @@ public class Features {
 
     private static final Logger log = LoggerFactory.getLogger(Features.class);
 
-    private static final List<LineFeature<?>> LINE_FEATURES = ImmutableList.of(
-        ExpectedSectorsFeature.manager,
-        SlopeFeature.manager,
-        SymmetryFeature.manager,
-        PointsFeature.manager
-    );
-
-    private static final List<InputFeature<?>> INPUT_FEATURES = ImmutableList.of(
-        CurvesCountFeature.manager
-    );
-
-    private static final List<LineSelector<?>> LINE_SELECTORS = ImmutableList.of(
-        NthLineSelector.manager
-    );
+    private final Settings settings;
+    private final List<LineFeature<?>> lineFeatures;
+    private final List<InputFeature<?>> inputFeatures;
+    private final List<LineSelector<?>> lineSelectors;
+    private final CurvesCountFeature curvesCountFeature;
 
     /**
      * Create a feature object for matching or generating with the default configuration.
      */
     public Features() {
+        this(Settings.NONE);
+    }
+
+    /**
+     * Create a feature object for matching or generating with custom settings.
+     * @param settings The settings to use.
+     */
+    public Features(Settings settings) {
+        this.settings = settings;
+        lineFeatures = ImmutableList.of(
+            new ExpectedSectorsFeature(this.settings),
+            new SlopeFeature(settings),
+            new SymmetryFeature(settings),
+            new PointsFeature(settings)
+        );
+        curvesCountFeature = new CurvesCountFeature(settings);
+        inputFeatures = ImmutableList.of(
+            curvesCountFeature
+        );
+        lineSelectors = ImmutableList.of(
+            new NthLineSelector(settings)
+        );
+    }
+
+    public Map<String, Castable> getSettings() {
+        return settings.getAll();
     }
 
     /**
@@ -70,7 +87,7 @@ public class Features {
                 .collect(Collectors.toList());
 
         if (matchers.stream().noneMatch(InputFeature.Instance::isLineAware)) {
-            CurvesCountFeature.Instance instance = CurvesCountFeature.manager.oneCurveOnlyImplicitly();
+            CurvesCountFeature.Instance instance = curvesCountFeature.oneCurveOnlyImplicitly();
             matchers.add(instance);
         }
 
@@ -86,7 +103,7 @@ public class Features {
         List<String> features = new ArrayList<>();
 
         // Run through input, trying all input features
-        for (InputFeature<?> feature : INPUT_FEATURES) {
+        for (InputFeature<?> feature : inputFeatures) {
             Collection<String> foundFeatures = feature.generate(input);
             foundFeatures.stream()
                 .map(feature::prefix)
@@ -98,7 +115,7 @@ public class Features {
             Line line = input.getLines().get(0);
             features.addAll(generate(line));
         } else {
-            for (LineSelector<?> selector : LINE_SELECTORS) {
+            for (LineSelector<?> selector : lineSelectors) {
                 Map<String, Line> selectedLines = selector.generate(input);
 
                 selectedLines.forEach((lineSelectionSpec, line) -> {
@@ -118,7 +135,7 @@ public class Features {
      * @return A list of features that match it.
      */
     private List<String> generate(Line line) {
-        return LINE_FEATURES.stream()
+        return lineFeatures.stream()
             .flatMap(lineFeature -> lineFeature.generate(line).stream()
                 .filter(feature -> !feature.isEmpty())
                 .map(lineFeature::prefix))
@@ -173,21 +190,21 @@ public class Features {
      * @return A pair of an input predicate and whether the feature has a line selector.
      */
     private InputFeature<?>.Instance itemToFeatureInstance(final String item) {
-        for (InputFeature<?> feature : INPUT_FEATURES) {
+        for (InputFeature<?> feature : inputFeatures) {
             if (feature.canDeserialize(item)) {
                 return feature.deserialize(item);
             }
         }
 
-        for (LineSelector<?> selector : LINE_SELECTORS) {
+        for (LineSelector<?> selector : lineSelectors) {
             if (selector.canDeserialize(item)) {
-                LineSelector.Instance selectorInstance = selector.deserialize(item);
-                return new InputFeature.LineSelectorWrapperFeature().wrap(item, selectorInstance,
-                    itemToLineFeature(selectorInstance.item()));
+                LineSelector<?>.Instance selectorInstance = selector.deserialize(item);
+                return selectorInstance.wrapToItemFeature(itemToLineFeature(selectorInstance.item()));
             }
         }
 
-        return new InputFeature.LineFeatureWrapper().wrap(item, itemToLineFeature(item));
+        LineFeature<?>.Instance lineFeatureInstance = itemToLineFeature(item);
+        return lineFeatureInstance.wrapToItemFeature();
     }
 
     /**
@@ -196,7 +213,7 @@ public class Features {
      * @return The line feature instance.
      */
     private LineFeature<?>.Instance itemToLineFeature(final String item) {
-        for (LineFeature<?> feature : LINE_FEATURES) {
+        for (LineFeature<?> feature : lineFeatures) {
             if (feature.canDeserialize(item)) {
                 return feature.deserialize(item);
             }

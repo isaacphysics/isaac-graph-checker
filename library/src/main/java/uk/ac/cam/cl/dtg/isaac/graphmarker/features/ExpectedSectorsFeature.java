@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,17 +41,32 @@ import java.util.stream.Collectors;
  * An line feature which requires the line to pass exactly through a list of sectors.
  */
 public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.Instance> {
-
-    public static final ExpectedSectorsFeature manager = new ExpectedSectorsFeature();
-
     private static final Logger log = LoggerFactory.getLogger(ExpectedSectorsFeature.class);
+
+    /**
+     * Create a expected sectors feature with specified settings.
+     * @param settings The settings.
+     */
+    ExpectedSectorsFeature(Settings settings) {
+        super(settings);
+    }
+
+    static final String ORDERED_SECTORS = "orderedSectors";
+
+    @Override
+    public Map<String, Castable> defaults() {
+        return Collections.singletonMap(ORDERED_SECTORS,
+            Castable.of(Joiner.on(",").join(Sector.defaultOrderedSectors)));
+    }
 
     @Override
     public String tag() {
         return "through";
     }
 
-    private final List<Sector> orderedSectors;
+    private List<Sector> getOrderedSectors() {
+        return deserializeSectors(settings.get(ORDERED_SECTORS).asString());
+    }
 
     /**
      * An instance of the ExpectedSectors feature.
@@ -136,21 +152,6 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
         return new Instance(featureData, expectedSectors);
     }
 
-    /**
-     * The manager singleton uses a default list of sectors.
-     */
-    private ExpectedSectorsFeature() {
-        this.orderedSectors = Sector.defaultOrderedSectors;
-    }
-
-    /**
-     * For testing, allow checking against a non-standard list of sectors.
-     * @param orderedSectors The priority-ordered list of sectors to check against.
-     */
-    ExpectedSectorsFeature(List<Sector> orderedSectors) {
-        this.orderedSectors = orderedSectors;
-    }
-
     @Override
     public List<String> generate(Line expectedLine) {
         return Collections.singletonList(Joiner.on(", ").join(convertLineToSectorList(expectedLine)));
@@ -166,7 +167,7 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
 
         List<Sector> output = new ArrayList<>();
         sectors.stream()
-            .map(set -> orderedSectors.stream().filter(set::contains).findFirst().orElse(null))
+            .map(set -> getOrderedSectors().stream().filter(set::contains).findFirst().orElse(null))
             .forEach(sector -> {
                 if (output.isEmpty() || !output.get(output.size() - 1).equals(sector)) {
                     output.add(sector);
@@ -237,7 +238,7 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
      * @return The highest-priority Sector that point is in.
      */
     private Set<Sector> classifyPoint(Point point) {
-        return Sector.classify(point, orderedSectors);
+        return Sector.classify(point, getOrderedSectors());
     }
 
     /**
@@ -247,11 +248,11 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
      */
     private void classifyLineSegment(List<Set<Sector>> output, Segment lineSegment) {
         // Calculate when we enter and leave the line segment
-        IntersectionParams[] intersectionParams = orderedSectors.stream()
+        IntersectionParams[] intersectionParams = getOrderedSectors().stream()
             .map(sector -> sector.intersectionParams(lineSegment))
             .toArray(IntersectionParams[]::new);
 
-        Boolean[] inside = orderedSectors.stream()
+        Boolean[] inside = getOrderedSectors().stream()
             .map(sector -> sector.contains(lineSegment.getStart()))
             .toArray(Boolean[]::new);
 
@@ -271,7 +272,7 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
                 // Record all of the sectors we are currently in
             @SuppressWarnings("checkstyle:avoidInlineConditionals")
             Set<Sector> internalSectors = Streams.zip(
-                orderedSectors.stream(),
+                getOrderedSectors().stream(),
                 Arrays.stream(inside),
                 (sector, in) -> in ? sector : null)
                 .filter(Objects::nonNull)

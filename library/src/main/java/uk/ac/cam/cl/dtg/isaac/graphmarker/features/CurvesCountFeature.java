@@ -19,18 +19,24 @@ import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * An input feature which requires a specific number of lines to be drawn.
  */
 public class CurvesCountFeature extends InputFeature<CurvesCountFeature.Instance> {
 
-    public static final CurvesCountFeature manager = new CurvesCountFeature();
-
     /**
-     * Private constructor; use the manager singleton.
+     * Create a curve count feature with specified settings.
+     * @param settings The settings.
      */
-    private CurvesCountFeature() {
+    CurvesCountFeature(Settings settings) {
+        super(settings);
+    }
+
+    @Override
+    public Map<String, Castable> defaults() {
+        return Collections.emptyMap();
     }
 
     @Override

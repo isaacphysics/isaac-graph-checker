@@ -16,12 +16,52 @@
 package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 
 /**
- * Something that can be parsed and generated in our feature handling code.
+ * Something that can be parsed, generated, and configured in our feature handling code.
  * @param <Instance> The type of instances of this thing.
  * @param <InputType> The type of input this can read.
  * @param <GeneratedType> Some kind of collection of feature specifications this can generate.
  */
-public abstract class Parsable<Instance, InputType, GeneratedType> {
+public abstract class Item<Instance extends Item.AbstractInstance, InputType, GeneratedType>
+    implements Settings.HasSettings {
+
+    final Settings settings;
+
+    public Item(Settings settings) {
+        this.settings = settings.getFor(this);
+    }
+
+    /**
+     * An instance of an item.
+     */
+    abstract class AbstractInstance {
+        private final String featureData;
+        private final boolean lineAware;
+
+        /**
+         * Create an instance of a feature.
+         * @param featureData The specification for this feature.
+         * @param lineAware True if this feature is aware of which lines it is being applied to.
+         */
+        AbstractInstance(String featureData, boolean lineAware) {
+            this.featureData = featureData;
+            this.lineAware = lineAware;
+        }
+
+        /**
+         * @return The full definition for this feature.
+         */
+        public String getTaggedFeatureData() {
+            return prefix(featureData);
+        }
+
+        /**
+         * @return True if this feature is aware of which lines it is being applied to.
+         */
+        public boolean isLineAware() {
+            return lineAware;
+        }
+    }
+
     /**
      * Can an instance of this item be created from this specification?.
      *
@@ -46,13 +86,6 @@ public abstract class Parsable<Instance, InputType, GeneratedType> {
     }
 
     /**
-     * To identify this item in the specification when parsing.
-     *
-     * @return The name of this item.
-     */
-    protected abstract String tag();
-
-    /**
      * Put our parsing prefix onto the item.
      * @param item item to be prefixed.
      * @return Prefixed item.
@@ -62,13 +95,19 @@ public abstract class Parsable<Instance, InputType, GeneratedType> {
     }
 
     /**
+     * To identify this item in the specification when parsing.
+     *
+     * @return The name of this item.
+     */
+    public abstract String tag();
+
+    /**
      * Create an instance of this item from the specification provided.
      *
      * @param featureData The specification with the tag stripped off.
      * @return The item instance.
      */
     protected abstract Instance deserializeInternal(String featureData);
-
 
     /**
      * Generate a list of specifications for this feature from some input.

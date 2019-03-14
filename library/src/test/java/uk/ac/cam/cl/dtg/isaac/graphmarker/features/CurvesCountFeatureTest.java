@@ -27,26 +27,28 @@ import static uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers.lineOf;
 
 public class CurvesCountFeatureTest {
 
+    private CurvesCountFeature curvesCountFeature = new CurvesCountFeature(Settings.NONE);
+
     @Test
     public void simpleCurveCountWorks() {
-        List<String> data = CurvesCountFeature.manager.generate(TestHelpers.inputOf(
+        List<String> data = curvesCountFeature.generate(TestHelpers.inputOf(
             TestHelpers.lineOf(x -> x, -10, 0),
             TestHelpers.lineOf(x -> x, 0, 10)
         ));
 
         Input input = TestHelpers.inputOf(TestHelpers.lineOf(x -> 1.0, -10, 10), TestHelpers.lineOf(x -> 0.0, -10, 10));
 
-        assertTrue(CurvesCountFeature.manager.deserializeInternal(data.get(0)).test(input));
+        assertTrue(curvesCountFeature.deserializeInternal(data.get(0)).test(input));
     }
 
     @Test
     public void oneCurveDoesntGenerateAFeature() {
         Input input = TestHelpers.inputOf(TestHelpers.lineOf(x -> 1.0, -10, 10));
-        assertEquals(0, CurvesCountFeature.manager.generate(input).size());
+        assertEquals(0, curvesCountFeature.generate(input).size());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void notAnumberThrows() {
-        CurvesCountFeature.manager.deserializeInternal("foo");
+        curvesCountFeature.deserializeInternal("foo");
     }
 }

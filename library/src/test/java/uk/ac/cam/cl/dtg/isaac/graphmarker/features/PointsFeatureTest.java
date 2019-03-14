@@ -26,25 +26,27 @@ import static org.junit.Assert.assertFalse;
 
 public class PointsFeatureTest {
 
+    private final PointsFeature pointsFeature = new PointsFeature(Settings.NONE);
+
     @Test
     public void simplePointsTest() {
-        List<String> data = PointsFeature.manager.generate(TestHelpers.lineOf(x -> x * x, -5, 5));
+        List<String> data = pointsFeature.generate(TestHelpers.lineOf(x -> x * x, -5, 5));
 
         Line passLine = TestHelpers.lineOf(x -> Math.abs(x), -5, 5);
         Line failLine = TestHelpers.lineOf(x -> x, -5, 5);
 
-        assertTrue(PointsFeature.manager.deserializeInternal(data.get(0)).test(passLine));
-        assertFalse(PointsFeature.manager.deserializeInternal(data.get(0)).test(failLine));
+        assertTrue(pointsFeature.deserializeInternal(data.get(0)).test(passLine));
+        assertFalse(pointsFeature.deserializeInternal(data.get(0)).test(failLine));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void mustProvideTwoArguments() {
-        PointsFeature.manager.deserializeInternal("one,two,three");
+        pointsFeature.deserializeInternal("one,two,three");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void mustUseCorrectNames() {
-        PointsFeature.manager.deserializeInternal("middle, flat");
+        pointsFeature.deserializeInternal("middle, flat");
     }
 
 
