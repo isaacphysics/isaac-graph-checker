@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 /**
  * An line feature which requires the line to have a specific symmetry.
  */
-public class SymmetryFeature implements LineFeature<SymmetryFeature.Instance> {
+public class SymmetryFeature extends LineFeature<SymmetryFeature.Instance> {
 
     public static final SymmetryFeature manager = new SymmetryFeature();
     public static final double SYMMETRY_SIMILARITY = 0.4;
@@ -67,27 +67,29 @@ public class SymmetryFeature implements LineFeature<SymmetryFeature.Instance> {
     /**
      * An instance of the Symmetry feature.
      */
-    public class Instance implements LineFeature.Instance {
+    public class Instance extends LineFeature<?>.Instance {
 
         private final SymmetryType symmetryType;
 
         /**
          * Create an instance which expects the line to have a specific symmetry.
+         * @param featureData The specification for this feature.
          * @param symmetryType The expected symmetry.
          */
-        private Instance(SymmetryType symmetryType) {
+        private Instance(String featureData, SymmetryType symmetryType) {
+            super(featureData);
             this.symmetryType = symmetryType;
         }
 
         @Override
-        public boolean match(Line line) {
+        public boolean test(Line line) {
             return getSymmetryOfLine(line) == symmetryType;
         }
     }
 
     @Override
-    public Instance deserialize(String featureData) {
-        return new Instance(SymmetryType.valueOf(featureData.trim().toUpperCase()));
+    public Instance deserializeInternal(String featureData) {
+        return new Instance(featureData, SymmetryType.valueOf(featureData.trim().toUpperCase()));
     }
 
     @Override
@@ -155,7 +157,8 @@ public class SymmetryFeature implements LineFeature<SymmetryFeature.Instance> {
                 return newSymmetryType.convertToNonAxialSymmetry();
             }
         }
-        // TODO: Add else clause here: find centre of all points and use that as the center
+        // Not odd or even and has no turning points, so the line is either curved and has no symmetry, or
+        // straight-ish. A straight line has anti-symmetry, but it is kind of boring, so we'll ignore it.
         return standardSymmetryType;
     }
 

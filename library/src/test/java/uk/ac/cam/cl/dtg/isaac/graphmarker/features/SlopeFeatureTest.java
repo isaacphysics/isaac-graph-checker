@@ -49,14 +49,14 @@ public class SlopeFeatureTest {
         List<String> data = SlopeFeature.manager.generate(TestHelpers.lineOf(x -> 1 / x, 0.01, 10));
 
         Line line = TestHelpers.lineOf(x -> 0.5 / x, 0.001, 10);
-        assertTrue(SlopeFeature.manager.deserialize(data.get(0)).match(line));
+        assertTrue(SlopeFeature.manager.deserializeInternal(data.get(0)).test(line));
     }
 
 
     @Test
     public void inverseOfXworks() {
-        Predicate<Line> startMatcher = line -> SlopeFeature.manager.deserialize("start=down").match(line);
-        Predicate<Line> endMatcher = line -> SlopeFeature.manager.deserialize("end = flat").match(line);
+        Predicate<Line> startMatcher = line -> SlopeFeature.manager.deserializeInternal("start=down").test(line);
+        Predicate<Line> endMatcher = line -> SlopeFeature.manager.deserializeInternal("end = flat").test(line);
 
         assertTrue(startMatcher.test(TestHelpers.lineOf(x -> 1 / x, 0.001, 15)));
         assertTrue(endMatcher.test(TestHelpers.lineOf(x -> 1 / x, 0.001, 15)));
@@ -67,7 +67,7 @@ public class SlopeFeatureTest {
 
     @Test
     public void inverseOfXworksAsOneMatcher() {
-        Predicate<Line> matcher = line -> SlopeFeature.manager.deserialize("start=down, end = flat").match(line);
+        Predicate<Line> matcher = line -> SlopeFeature.manager.deserializeInternal("start=down, end = flat").test(line);
 
         assertTrue(matcher.test(TestHelpers.lineOf(x -> 1 / x, 0.001, 15)));
 
@@ -76,22 +76,22 @@ public class SlopeFeatureTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void mustProvideTwoArguments() {
-        SlopeFeature.manager.deserialize("one=two=three");
+        SlopeFeature.manager.deserializeInternal("one=two=three");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void mustUseCorrectRegionNames() {
-        SlopeFeature.manager.deserialize("middle=flat");
+        SlopeFeature.manager.deserializeInternal("middle=flat");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void mustUseCorrectSlopeNames() {
-        SlopeFeature.manager.deserialize("all=wibbly");
+        SlopeFeature.manager.deserializeInternal("all=wibbly");
     }
 
     @Test
     public void slopeUpOrDownIsntOverSensitiveToX() {
-        Predicate<Line> matcher = line -> SlopeFeature.manager.deserialize("start=down, end=down").match(line);
+        Predicate<Line> matcher = line -> SlopeFeature.manager.deserializeInternal("start=down, end=down").test(line);
 
         assertTrue(matcher.test(TestHelpers.lineOf(new Point(0, 0), new Point(-1, -100))));
     }

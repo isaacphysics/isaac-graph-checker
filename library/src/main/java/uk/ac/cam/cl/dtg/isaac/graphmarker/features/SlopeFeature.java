@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 /**
  * A line feature which requires the line to have a specific slope at the start and/or end.
  */
-public class SlopeFeature implements LineFeature<SlopeFeature.Instance> {
+public class SlopeFeature extends LineFeature<SlopeFeature.Instance> {
 
     public static final SlopeFeature manager = new SlopeFeature();
 
@@ -83,20 +83,22 @@ public class SlopeFeature implements LineFeature<SlopeFeature.Instance> {
     /**
      * An instance of the Slope feature.
      */
-    protected class Instance implements LineFeature.Instance {
+    protected class Instance extends LineFeature<?>.Instance {
 
         private final Map<Position, Slope> expectedSlopes;
 
         /**
          * Create an instance which expects these positions to have specified slopes.
+         * @param featureData The specification for this feature.
          * @param expectedSlopes A map of positions to expected slopes.
          */
-        Instance(Map<Position, Slope> expectedSlopes) {
+        Instance(String featureData, Map<Position, Slope> expectedSlopes) {
+            super(featureData);
             this.expectedSlopes = expectedSlopes;
         }
 
         @Override
-        public boolean match(Line line) {
+        public boolean test(Line line) {
             return expectedSlopes.entrySet().stream()
                 .allMatch(entry -> {
                     Position position = entry.getKey();
@@ -108,9 +110,9 @@ public class SlopeFeature implements LineFeature<SlopeFeature.Instance> {
     }
 
     @Override
-    public Instance deserialize(String featureData) {
+    public Instance deserializeInternal(String featureData) {
         String[] items = featureData.split("\\s*,\\s*");
-        return new Instance(Arrays.stream(items)
+        return new Instance(featureData, Arrays.stream(items)
             .map(item -> {
                 String[] parts = item.split("=");
                 if (parts.length != 2) {

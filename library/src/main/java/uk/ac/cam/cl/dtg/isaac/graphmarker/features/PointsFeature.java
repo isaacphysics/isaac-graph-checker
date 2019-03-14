@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 /**
  * A line feature which requires the line to contain points of interest of certain types in certain sectors.
  */
-public class PointsFeature implements LineFeature<PointsFeature.Instance> {
+public class PointsFeature extends LineFeature<PointsFeature.Instance> {
 
     public static final PointsFeature manager = new PointsFeature();
 
@@ -41,20 +41,22 @@ public class PointsFeature implements LineFeature<PointsFeature.Instance> {
     /**
      * An instance of the PointsOfInterest feature.
      */
-    protected class Instance implements LineFeature.Instance {
+    protected class Instance extends LineFeature<?>.Instance {
 
         private final List<ImmutablePair<PointType, Sector>> expectedPoints;
 
         /**
          * Create an instance which expects these points in order.
+         * @param featureData The specification for this feature.
          * @param expectedPoints The points of interest.
          */
-        Instance(List<ImmutablePair<PointType, Sector>> expectedPoints) {
+        Instance(String featureData, List<ImmutablePair<PointType, Sector>> expectedPoints) {
+            super(featureData);
             this.expectedPoints = expectedPoints;
         }
 
         @Override
-        public boolean match(Line line) {
+        public boolean test(Line line) {
             if (expectedPoints.size() != line.getPointsOfInterest().size()) {
                 return false;
             }
@@ -67,9 +69,9 @@ public class PointsFeature implements LineFeature<PointsFeature.Instance> {
     }
 
     @Override
-    public Instance deserialize(String featureData) {
+    public Instance deserializeInternal(String featureData) {
         String[] items = featureData.split("\\s*,\\s*");
-        return new Instance(Arrays.stream(items)
+        return new Instance(featureData, Arrays.stream(items)
             .map(item -> {
                 String[] parts = item.split(" (in|on|at) ");
                 if (parts.length != 2) {

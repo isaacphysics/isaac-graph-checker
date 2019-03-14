@@ -26,9 +26,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * A Selector which will match if a particular numbered line in the input matches.
+ * A Selector which will test if a particular numbered line in the input matches.
  */
-public class NthLineSelector implements LineSelector<NthLineSelector.Instance> {
+public class NthLineSelector extends LineSelector<NthLineSelector.Instance> {
 
     public static final NthLineSelector manager = new NthLineSelector();
 
@@ -40,7 +40,7 @@ public class NthLineSelector implements LineSelector<NthLineSelector.Instance> {
     /**
      * An instance of the NthLine selector.
      */
-    class Instance extends LineSelector.Instance {
+    class Instance extends LineSelector<?>.Instance {
         private final int n;
 
         /**
@@ -66,7 +66,7 @@ public class NthLineSelector implements LineSelector<NthLineSelector.Instance> {
     }
 
     @Override
-    public Instance deserialize(String item) {
+    public Instance deserializeInternal(String item) {
         Pattern pattern = Pattern.compile("\\s*([1-9][0-9]*);\\s*(.*)");
         Matcher matcher = pattern.matcher(item);
         if (!matcher.find()) {

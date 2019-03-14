@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 /**
  * An line feature which requires the line to pass exactly through a list of sectors.
  */
-public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeature.Instance> {
+public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.Instance> {
 
     public static final ExpectedSectorsFeature manager = new ExpectedSectorsFeature();
 
@@ -55,32 +55,34 @@ public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeatur
     /**
      * An instance of the ExpectedSectors feature.
      */
-    protected class Instance implements LineFeature.Instance {
+    protected class Instance extends LineFeature<?>.Instance {
         private final List<Sector> expectedSectors;
 
         /**
          * Create an instance which passes through these sectors.
+         * @param featureData The specification for this feature.
          * @param expectedSectors The list of sectors an input must pass through.
          */
-        Instance(List<Sector> expectedSectors) {
+        Instance(String featureData, List<Sector> expectedSectors) {
+            super(featureData);
             this.expectedSectors = expectedSectors;
         }
 
         @Override
-        public boolean match(Line line) {
+        public boolean test(Line line) {
             List<Set<Sector>> actualSectors = convertLineToSectorSetList(line);
             log.debug("User line passed through sectors: " + actualSectors);
             return match(expectedSectors, 0, actualSectors, 0);
         }
 
         /**
-         * Recursive function to match an expected sector list against a list of sector sets.
+         * Recursive function to test an expected sector list against a list of sector sets.
          *
          * @param expected The list of expected sectors.
          * @param i The matched position so far in the expected sector list.
          * @param actual The list of sets of sectors to be matched.
          * @param j The matched position so far in the actual set of sectors list.
-         * @return If there is a match.
+         * @return If there is a test.
          */
         @SuppressWarnings("RedundantIfStatement")
         private boolean match(List<Sector> expected, int i, List<Set<Sector>> actual, int j) {
@@ -129,9 +131,9 @@ public class ExpectedSectorsFeature implements LineFeature<ExpectedSectorsFeatur
     }
 
     @Override
-    public Instance deserialize(String featureData) {
+    public Instance deserializeInternal(String featureData) {
         List<Sector> expectedSectors = deserializeSectors(featureData);
-        return new Instance(expectedSectors);
+        return new Instance(featureData, expectedSectors);
     }
 
     /**

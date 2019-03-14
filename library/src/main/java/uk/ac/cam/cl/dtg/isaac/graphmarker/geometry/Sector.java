@@ -295,11 +295,11 @@ public class Sector {
         topRight,
         topLeft,
         bottomLeft,
-        bottomRight,
-        top,
+        bottomRight
+        /*top
         bottom,
         left,
-        right
+        right*/
     );
 
     /**

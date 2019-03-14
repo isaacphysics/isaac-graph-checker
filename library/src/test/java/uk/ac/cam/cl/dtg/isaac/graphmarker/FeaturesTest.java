@@ -17,6 +17,7 @@ package uk.ac.cam.cl.dtg.isaac.graphmarker;
 
 import org.junit.Test;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.features.ExpectedSectorsFeature;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.features.Features;
 
 import java.util.function.Predicate;
@@ -46,6 +47,11 @@ public class FeaturesTest {
     @Test(expected = IllegalArgumentException.class)
     public void testMissingFeatureThrows() {
         new Features().matcher("foo#!!!1!!: bar?");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testMismatchedDeserializeThrows() {
+        ExpectedSectorsFeature.manager.deserialize("foo#!!!");
     }
 
     @Test

@@ -45,8 +45,8 @@ public class ExpectedSectorsFeatureTest {
 
     @Test
     public void xSquaredMinusTwoHasCorrectSectorList() {
-        Predicate<Line> testFeature = line -> ExpectedSectorsFeature.manager.deserialize(
-            "topLeft, onAxisWithNegativeX, bottomLeft, onAxisWithNegativeY, bottomRight, onAxisWithPositiveX, topRight").match(line);
+        Predicate<Line> testFeature = line -> ExpectedSectorsFeature.manager.deserializeInternal(
+            "topLeft, onAxisWithNegativeX, bottomLeft, onAxisWithNegativeY, bottomRight, onAxisWithPositiveX, topRight").test(line);
 
         assertTrue(testFeature.test(TestHelpers.lineOf(x -> x*x - 2, -5, 5)));
         assertFalse(testFeature.test(TestHelpers.lineOf(x -> x*x + 2, -5, 5)));
@@ -54,8 +54,8 @@ public class ExpectedSectorsFeatureTest {
 
     @Test
     public void xCubedPlusSquaredMinusTwoHasCorrectSectorList() {
-        Predicate<Line> testFeature = line -> ExpectedSectorsFeature.manager.deserialize(
-            "bottomLeft, onAxisWithNegativeX, topLeft, onAxisWithPositiveY, topRight, onAxisWithPositiveX, bottomRight, onAxisWithPositiveX, topRight").match(line);
+        Predicate<Line> testFeature = line -> ExpectedSectorsFeature.manager.deserializeInternal(
+            "bottomLeft, onAxisWithNegativeX, topLeft, onAxisWithPositiveY, topRight, onAxisWithPositiveX, bottomRight, onAxisWithPositiveX, topRight").test(line);
 
         assertTrue(testFeature.test(TestHelpers.lineOf(x -> x*x*x - 3*x*x + 2, -10, 10)));
         assertFalse(testFeature.test(TestHelpers.lineOf(x -> x*x - 3*x*x + 2, -10, 10)));
@@ -63,8 +63,8 @@ public class ExpectedSectorsFeatureTest {
 
     @Test
     public void cosXFromMinus2PiTo2Pi() {
-        Predicate<Line> testFeature = line -> ExpectedSectorsFeature.manager.deserialize(
-            "topLeft, onAxisWithNegativeX, bottomLeft, onAxisWithNegativeX, topLeft, onAxisWithPositiveY, topRight, onAxisWithPositiveX, bottomRight, onAxisWithPositiveX, topRight").match(line);
+        Predicate<Line> testFeature = line -> ExpectedSectorsFeature.manager.deserializeInternal(
+            "topLeft, onAxisWithNegativeX, bottomLeft, onAxisWithNegativeX, topLeft, onAxisWithPositiveY, topRight, onAxisWithPositiveX, bottomRight, onAxisWithPositiveX, topRight").test(line);
 
         assertTrue(testFeature.test(TestHelpers.lineOf(x -> Math.cos(x), -2 * Math.PI, 2 * Math.PI)));
         assertFalse(testFeature.test(TestHelpers.lineOf(x -> Math.cos(x + Math.PI / 2), -2 * Math.PI, 2 * Math.PI)));
@@ -72,17 +72,16 @@ public class ExpectedSectorsFeatureTest {
 
     @Test
     public void sinXFromMinus2PiTo2Pi() {
-        Predicate<Line> testFeature = line -> ExpectedSectorsFeature.manager.deserialize(
-            "onAxisWithNegativeX, topLeft, onAxisWithNegativeX, bottomLeft, origin, topRight, onAxisWithPositiveX, bottomRight, onAxisWithPositiveX").match(line);
+        Predicate<Line> testFeature = line -> ExpectedSectorsFeature.manager.deserializeInternal(
+            "onAxisWithNegativeX, topLeft, onAxisWithNegativeX, bottomLeft, origin, topRight, onAxisWithPositiveX, bottomRight, onAxisWithPositiveX").test(line);
 
         assertTrue(testFeature.test(TestHelpers.lineOf(x -> Math.sin(x), -2 * Math.PI, 2 * Math.PI)));
         assertFalse(testFeature.test(TestHelpers.lineOf(x -> Math.cos(x), -2 * Math.PI, 2 * Math.PI)));
     }
 
-    @Ignore
     @Test
     public void matchCorrectlyWhenStartingAtOrigin() {
-        Predicate<Line> testFeature = line -> ExpectedSectorsFeature.manager.deserialize("origin, topRight").match(line);
+        Predicate<Line> testFeature = line -> ExpectedSectorsFeature.manager.deserializeInternal("origin, topRight").test(line);
 
         assertTrue(testFeature.test(TestHelpers.lineOf(x -> x, 0, 10)));
     }
@@ -92,7 +91,7 @@ public class ExpectedSectorsFeatureTest {
         Sector[] sectors = {Sector.topLeft, Sector.bottomRight};
         ExpectedSectorsFeature feature = new ExpectedSectorsFeature(Arrays.asList(sectors));
 
-        Predicate<Line> testFeature = line -> feature.deserialize("topLeft, bottomRight").match(line);
+        Predicate<Line> testFeature = line -> feature.deserializeInternal("topLeft, bottomRight").test(line);
 
         assertTrue(testFeature.test(TestHelpers.lineOf(x -> 2 - x, -5, 5)));
     }
@@ -101,7 +100,7 @@ public class ExpectedSectorsFeatureTest {
     public void generateMatchesItself() {
         List<String> data = ExpectedSectorsFeature.manager.generate((TestHelpers.lineOf(x -> Math.cos(x), -2 * Math.PI, 2 * Math.PI)));
 
-        Predicate<Line> testFeature = line -> ExpectedSectorsFeature.manager.deserialize(data.get(0)).match(line);
+        Predicate<Line> testFeature = line -> ExpectedSectorsFeature.manager.deserializeInternal(data.get(0)).test(line);
 
         assertTrue(testFeature.test(wobbly(TestHelpers.lineOf(x -> Math.cos(x), -2 * Math.PI, 2 * Math.PI))));
     }
@@ -120,16 +119,16 @@ public class ExpectedSectorsFeatureTest {
 
         // TODO: How arbitrarily close to the origin can we go?
 
-        Predicate<Line> testFeature = line -> ExpectedSectorsFeature.manager.deserialize(
-            "bottomLeft, -Xaxis, topLeft, +Yaxis, topRight").match(line);
+        Predicate<Line> testFeature = line -> ExpectedSectorsFeature.manager.deserializeInternal(
+            "bottomLeft, -Xaxis, topLeft, +Yaxis, topRight").test(line);
 
         assertTrue(testFeature.test(TestHelpers.lineOf(x -> 2 * x + 0.03, -0.1, 0.1)));
     }
 
     @Test
     public void crossingTheAxisShouldBeIrreversible() {
-        Predicate<Line> testFeature = line -> ExpectedSectorsFeature.manager.deserialize(
-            "bottomRight,+Xaxis,topRight,+Xaxis,bottomRight,+Xaxis,topRight").match(line);
+        Predicate<Line> testFeature = line -> ExpectedSectorsFeature.manager.deserializeInternal(
+            "bottomRight,+Xaxis,topRight,+Xaxis,bottomRight,+Xaxis,topRight").test(line);
 
         assertTrue(testFeature.test(TestHelpers.lineOf(x -> (x - 1) * (x - 3) * (x - 4), 0.5, 10)));
 

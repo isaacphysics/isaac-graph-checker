@@ -23,39 +23,32 @@ import java.util.List;
  * A feature which matches against a line.
  * @param <FeatureInstance> The class representing instances of this feature.
  */
-interface LineFeature<FeatureInstance extends LineFeature.Instance> {
+abstract class LineFeature<FeatureInstance extends LineFeature.Instance>
+    extends Feature<FeatureInstance, Line, List<String>> {
 
     /**
-     * An instance of this feature.
+     * An instance of a LineFeature.
      */
-    interface Instance {
+    abstract class Instance extends AbstractInstance {
         /**
-         * Does this feature match this line?
-         * @param line The line.
-         * @return True if this feature matches the line.
+         * Create an instance of this feature; this is wrapped for type purposes.
+         * @param item The feature specification.
          */
-        boolean match(Line line);
+        protected Instance(String item) {
+            super(item, false);
+        }
     }
-
-    /**
-     * For identify this selector in the input specification when parsing.
-     *
-     * @return The name of this selector.
-     */
-    String tag();
 
     /**
      * Create an instance of this feature from the specification provided.
      *
-     * @param featureData The specification.
+     * It might look like this doesn't do anything useful. But it does, it helps the Java type-checker understand the
+     * code, and what could be more important than that?
+     *
+     * @param item The specification with tag.
      * @return The feature instance.
      */
-    FeatureInstance deserialize(String featureData);
-
-    /**
-     * Generate a list of specifications for this feature from some line.
-     * @param expectedLine Line to be examined.
-     * @return The list of feature specifications.
-     */
-    List<String> generate(Line expectedLine);
+    public final FeatureInstance deserialize(String item) {
+        return super.deserialize(item);
+    }
 }

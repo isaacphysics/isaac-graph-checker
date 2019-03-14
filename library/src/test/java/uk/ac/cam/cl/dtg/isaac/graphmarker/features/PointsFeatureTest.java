@@ -33,18 +33,18 @@ public class PointsFeatureTest {
         Line passLine = TestHelpers.lineOf(x -> Math.abs(x), -5, 5);
         Line failLine = TestHelpers.lineOf(x -> x, -5, 5);
 
-        assertTrue(PointsFeature.manager.deserialize(data.get(0)).match(passLine));
-        assertFalse(PointsFeature.manager.deserialize(data.get(0)).match(failLine));
+        assertTrue(PointsFeature.manager.deserializeInternal(data.get(0)).test(passLine));
+        assertFalse(PointsFeature.manager.deserializeInternal(data.get(0)).test(failLine));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void mustProvideTwoArguments() {
-        PointsFeature.manager.deserialize("one,two,three");
+        PointsFeature.manager.deserializeInternal("one,two,three");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void mustUseCorrectNames() {
-        PointsFeature.manager.deserialize("middle, flat");
+        PointsFeature.manager.deserializeInternal("middle, flat");
     }
 
 

@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * An input feature which requires a specific number of lines to be drawn.
  */
-public class CurvesCountFeature implements InputFeature<CurvesCountFeature.Instance> {
+public class CurvesCountFeature extends InputFeature<CurvesCountFeature.Instance> {
 
     public static final CurvesCountFeature manager = new CurvesCountFeature();
 
@@ -41,7 +41,7 @@ public class CurvesCountFeature implements InputFeature<CurvesCountFeature.Insta
     /**
      * An instance of the CurvesCount feature.
      */
-    public class Instance implements InputFeature.Instance {
+    public class Instance extends InputFeature<?>.Instance {
 
         private final int count;
 
@@ -50,17 +50,34 @@ public class CurvesCountFeature implements InputFeature<CurvesCountFeature.Insta
          * @param count Required number of curves.
          */
         private Instance(int count) {
+            super("" + count, true);
             this.count = count;
         }
 
+        /**
+         * Create an implicit curve count feature that requires a single curve.
+         */
+        private Instance() {
+            super("1 (implicitly)", false);
+            this.count = 1;
+        }
+
         @Override
-        public boolean match(Input input) {
+        public boolean test(Input input) {
             return input.getLines().size() == count;
         }
     }
 
+    /**
+     * Create an implicit curve count feature that requires a single curve.
+     * @return A curve count instance with count = 1.
+     */
+    public Instance oneCurveOnlyImplicitly() {
+        return new Instance();
+    }
+
     @Override
-    public Instance deserialize(String featureData) {
+    protected Instance deserializeInternal(String featureData) {
         try {
             return new Instance(Integer.valueOf(featureData.trim()));
         } catch (NumberFormatException e) {

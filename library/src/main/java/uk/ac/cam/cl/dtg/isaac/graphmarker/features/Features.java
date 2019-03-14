@@ -16,8 +16,6 @@
 package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Streams;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
@@ -26,7 +24,6 @@ import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -68,18 +65,13 @@ public class Features {
      */
     public Matcher matcher(String feature) {
         String[] features = feature.split("\n");
-        List<InputPredicate> matchers = Arrays.stream(features)
-                .map(this::itemToFeaturePredicate)
+        List<InputFeature<?>.Instance> matchers = Arrays.stream(features)
+                .map(this::itemToFeatureInstance)
                 .collect(Collectors.toList());
 
-        if (matchers.stream().noneMatch(InputPredicate::isLineAware)) {
-            CurvesCountFeature.Instance instance = CurvesCountFeature.manager.deserialize("1");
-            matchers.add(new InputPredicate("curves: 1 (implicit)", true) {
-                @Override
-                public boolean test(Input input) {
-                    return instance.match(input);
-                }
-            });
+        if (matchers.stream().noneMatch(InputFeature.Instance::isLineAware)) {
+            CurvesCountFeature.Instance instance = CurvesCountFeature.manager.oneCurveOnlyImplicitly();
+            matchers.add(instance);
         }
 
         return new Matcher(matchers);
@@ -97,103 +89,54 @@ public class Features {
         for (InputFeature<?> feature : INPUT_FEATURES) {
             Collection<String> foundFeatures = feature.generate(input);
             foundFeatures.stream()
-                .map(f -> feature.tag() + ": " + f)
+                .map(feature::prefix)
                 .forEach(features::add);
         }
 
-        Collection<LineSelector<?>> lineSelectorsToUse;
         if (input.getLines().size() == 1) {
-            lineSelectorsToUse = Collections.singletonList(AnyLineSelector.manager);
+            // Don't bother with line selectors
+            Line line = input.getLines().get(0);
+            features.addAll(generate(line));
         } else {
-            lineSelectorsToUse = LINE_SELECTORS;
-        }
+            for (LineSelector<?> selector : LINE_SELECTORS) {
+                Map<String, Line> selectedLines = selector.generate(input);
 
-        // Run through input, applying all relevant line selectors
-        for (LineSelector<?> selector : lineSelectorsToUse) {
-            Map<String, Line> selectedLines = selector.generate(input);
-
-            selectedLines.forEach((lineSelectionSpec, line) -> {
-                String fullLineSelectionSpec;
-                if (selector == AnyLineSelector.manager) {
-                    fullLineSelectionSpec = "";
-                } else {
-                    fullLineSelectionSpec = selector.tag() + ": " + lineSelectionSpec;
-                }
-
-                for (LineFeature<?> lineFeature : LINE_FEATURES) {
-                    lineFeature.generate(line).stream()
-                        .filter(feature -> !feature.isEmpty())
-                        .map(feature -> fullLineSelectionSpec + lineFeature.tag() + ": " + feature)
-                        .forEach(features::add);
-                }
-            });
+                selectedLines.forEach((lineSelectionSpec, line) -> {
+                    features.addAll(generate(line).stream()
+                        .map(item -> selector.prefix(lineSelectionSpec + item))
+                        .collect(Collectors.toList()));
+                });
+            }
         }
 
         return String.join("\r\n", features);
     }
 
-    public abstract class InputPredicate implements Predicate<Input> {
-        private final String item;
-        private final boolean lineAware;
-
-        private InputPredicate(String item, boolean lineAware) {
-            this.item = item;
-            this.lineAware = lineAware;
-        }
-
-        public String getItem() {
-            return item;
-        }
-
-        public boolean isLineAware() {
-            return lineAware;
-        }
-    }
-
-    public abstract class LinePredicate implements Predicate<Line> {
-        private final String item;
-
-        private LinePredicate(String item) {
-            this.item = item;
-        }
-
-        public String getItem() {
-            return item;
-        }
-    }
-
-    public InputPredicate wrapLinePredicate(LinePredicate linePredicate) {
-        return new InputPredicate(
-            linePredicate.getItem(),
-            false
-        ) {
-            @Override
-            public boolean test(Input input) {
-                return input.getLines().stream()
-                    .anyMatch(linePredicate);
-            }
-        };
+    /**
+     * Generate a list of features that match this line.
+     * @param line The line.
+     * @return A list of features that match it.
+     */
+    private List<String> generate(Line line) {
+        return LINE_FEATURES.stream()
+            .flatMap(lineFeature -> lineFeature.generate(line).stream()
+                .filter(feature -> !feature.isEmpty())
+                .map(lineFeature::prefix))
+            .collect(Collectors.toList());
     }
 
     /**
      * A predicate for matching an input against a particular specification.
      */
-    public class Matcher extends InputPredicate {
-        private final List<InputPredicate> matchers;
+    public class Matcher implements Predicate<Input> {
+        private final List<InputFeature<?>.Instance> matchers;
 
         /**
-         * Create a matcher that requires all of the input matchers to pass.
+         * Create a matcher that requires all of the input feature instances to pass.
          *
-         * @param matchers A list of input predicates.
+         * @param matchers A list of input feature instances.
          */
-        private Matcher(List<InputPredicate> matchers) {
-            super(
-                matchers.stream()
-                    .map(InputPredicate::getItem)
-                    .collect(Collectors.joining("\r\n")),
-                matchers.stream()
-                    .anyMatch(InputPredicate::isLineAware)
-            );
+        private Matcher(List<InputFeature<?>.Instance> matchers) {
             this.matchers = matchers;
         }
 
@@ -205,10 +148,10 @@ public class Features {
          */
         public List<String> getFailingSpecs(Input input) {
             List<String> failedPredicates = new ArrayList<>();
-            for (InputPredicate inputPredicate: matchers) {
+            for (InputFeature<?>.Instance inputPredicate: matchers) {
                 boolean test = inputPredicate.test(input);
                 if (!test) {
-                    failedPredicates.add(inputPredicate.getItem());
+                    failedPredicates.add(inputPredicate.getTaggedFeatureData());
                 }
             }
             return failedPredicates;
@@ -229,50 +172,33 @@ public class Features {
      * @param item The feature specification.
      * @return A pair of an input predicate and whether the feature has a line selector.
      */
-    private InputPredicate itemToFeaturePredicate(final String item) {
-        for (InputFeature feature : INPUT_FEATURES) {
-            if (item.startsWith(feature.tag() + ":")) {
-                String featureSpec = item.substring(feature.tag().length() + 1);
-                InputFeature.Instance instance = feature.deserialize(featureSpec);
-                return new InputPredicate(item, true) {
-                    @Override
-                    public boolean test(Input input) {
-                        return instance.match(input);
-                    }
-                };
+    private InputFeature<?>.Instance itemToFeatureInstance(final String item) {
+        for (InputFeature<?> feature : INPUT_FEATURES) {
+            if (feature.canDeserialize(item)) {
+                return feature.deserialize(item);
             }
         }
-        LineSelector.Instance selector = null;
-        String subItem = item;
-        for (LineSelector selectors : LINE_SELECTORS) {
-            if (item.startsWith(selectors.tag() + ":")) {
-                String featureSpec = item.substring(selectors.tag().length() + 1);
-                selector = selectors.deserialize(featureSpec);
-                subItem = selector.item();
-                break;
+
+        for (LineSelector<?> selector : LINE_SELECTORS) {
+            if (selector.canDeserialize(item)) {
+                LineSelector.Instance selectorInstance = selector.deserialize(item);
+                return new InputFeature.LineSelectorWrapperFeature().wrap(item, selectorInstance,
+                    itemToLineFeature(selectorInstance.item()));
             }
         }
-        final String lineItem = subItem;
-        final LineSelector.Instance lineSelector = selector;
-        for (LineFeature feature : LINE_FEATURES) {
-            if (lineItem.startsWith(feature.tag() + ":")) {
-                String featureSpec = lineItem.substring(feature.tag().length() + 1);
-                Predicate<Line> linePredicate = line -> feature.deserialize(featureSpec).match(line);
-                if (lineSelector != null) {
-                    return new InputPredicate(item, true) {
-                        @Override
-                        public boolean test(Input input) {
-                            return lineSelector.matcher(linePredicate).test(input);
-                        }
-                    };
-                } else {
-                    return wrapLinePredicate(new LinePredicate(item) {
-                        @Override
-                        public boolean test(Line line) {
-                            return linePredicate.test(line);
-                        }
-                    });
-                }
+
+        return new InputFeature.LineFeatureWrapper().wrap(item, itemToLineFeature(item));
+    }
+
+    /**
+     * Build a line feature instance from this item.
+     * @param item The item.
+     * @return The line feature instance.
+     */
+    private LineFeature<?>.Instance itemToLineFeature(final String item) {
+        for (LineFeature<?> feature : LINE_FEATURES) {
+            if (feature.canDeserialize(item)) {
+                return feature.deserialize(item);
             }
         }
         throw new IllegalArgumentException("Unknown item: " + item);

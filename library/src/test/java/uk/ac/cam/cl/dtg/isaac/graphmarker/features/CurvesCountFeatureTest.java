@@ -36,7 +36,7 @@ public class CurvesCountFeatureTest {
 
         Input input = TestHelpers.inputOf(TestHelpers.lineOf(x -> 1.0, -10, 10), TestHelpers.lineOf(x -> 0.0, -10, 10));
 
-        assertTrue(CurvesCountFeature.manager.deserialize(data.get(0)).match(input));
+        assertTrue(CurvesCountFeature.manager.deserializeInternal(data.get(0)).test(input));
     }
 
     @Test
@@ -47,6 +47,6 @@ public class CurvesCountFeatureTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void notAnumberThrows() {
-        CurvesCountFeature.manager.deserialize("foo");
+        CurvesCountFeature.manager.deserializeInternal("foo");
     }
 }

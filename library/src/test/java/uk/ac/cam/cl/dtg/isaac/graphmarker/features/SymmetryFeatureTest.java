@@ -76,7 +76,7 @@ public class SymmetryFeatureTest {
         List<String> data = SymmetryFeature.manager.generate(TestHelpers.lineOf(x -> x, -10, 10));
 
         Line line = TestHelpers.lineOf(x -> x * 1.5, -10, 10);
-        assertTrue(SymmetryFeature.manager.deserialize(data.get(0)).match(line));
+        assertTrue(SymmetryFeature.manager.deserializeInternal(data.get(0)).test(line));
     }
 
     @Test

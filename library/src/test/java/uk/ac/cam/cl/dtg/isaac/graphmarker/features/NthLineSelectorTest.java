@@ -30,7 +30,7 @@ public class NthLineSelectorTest {
 
     @Test
     public void testDeserialize() {
-        NthLineSelector.Instance success = NthLineSelector.manager.deserialize("1; foo");
+        NthLineSelector.Instance success = NthLineSelector.manager.deserializeInternal("1; foo");
 
         assertEquals("foo", success.item());
     }
@@ -47,12 +47,12 @@ public class NthLineSelectorTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testParseFailureWithLine0() {
-        NthLineSelector.manager.deserialize("0; foo");
+        NthLineSelector.manager.deserializeInternal("0; foo");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testParseFailureWithNonNumberedLine() {
-        NthLineSelector.manager.deserialize("a; foo");
+        NthLineSelector.manager.deserializeInternal("a; foo");
     }
 
 }

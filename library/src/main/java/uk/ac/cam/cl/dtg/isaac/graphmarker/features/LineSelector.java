@@ -23,18 +23,20 @@ import java.util.function.Predicate;
 
 /**
  * A selector which chooses some lines from the Input and applies a LineFeature to them.
- * @param <I> The class representing instances of this selector.
+ * @param <SelectorInstance> The class representing instances of this selector.
  */
-interface LineSelector<I extends LineSelector.Instance> {
+abstract class LineSelector<SelectorInstance extends LineSelector.Instance>
+    extends Parsable<SelectorInstance, Input, Map<String, Line>> {
 
     /**
-     * An instance of a LineSelector that can be used to match against input.
+     * An instance of a LineSelector that can be used to test against input.
      */
     abstract class Instance {
         private final String item;
 
         /**
          * Create an instance of a LineSelector.
+         *
          * @param item The configuration of the line feature inside this selector.
          */
         Instance(final String item) {
@@ -43,6 +45,7 @@ interface LineSelector<I extends LineSelector.Instance> {
 
         /**
          * Get the configuration of the line feature inside this selector.
+         *
          * @return The line feature configuration.
          */
         public String item() {
@@ -53,7 +56,7 @@ interface LineSelector<I extends LineSelector.Instance> {
          * Create an input predicate which will be based on a line predicate.
          *
          * This selector will select zero or more lines from the input, apply the line predicate to some or all of them,
-         * and then combine the output of the predicates in some way to give an overall match.
+         * and then combine the output of the predicates in some way to give an overall test.
          *
          * @param linePredicate The line predicate to be applied.
          * @return An input predicate.
@@ -62,24 +65,15 @@ interface LineSelector<I extends LineSelector.Instance> {
     }
 
     /**
-     * For identify this selector in the input specification when parsing.
+     * Create an instance of this feature from the specification provided.
      *
-     * @return The name of this selector.
-     */
-    String tag();
-
-    /**
-     * Create an instance of this selector from the specification provided.
+     * It might look like this doesn't do anything useful. But it does, it helps the Java type-checker understand the
+     * code, and what could be more important than that?
      *
-     * @param instanceData The specification.
-     * @return The selector instance.
+     * @param item The specification with tag.
+     * @return The feature instance.
      */
-    I deserialize(String instanceData);
-
-    /**
-     * Generate a map from instance specifications to lines from some input.
-     * @param input Input to be converted.
-     * @return The map of instance specifications to lines.
-     */
-    Map<String, Line> generate(Input input);
+    public final SelectorInstance deserialize(String item) {
+        return super.deserialize(item);
+    }
 }
