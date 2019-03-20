@@ -23,10 +23,10 @@ import java.util.List;
  * A feature which matches against an input.
  * @param <FeatureInstance> The class representing instances of this feature.
  */
-abstract class InputFeature<FeatureInstance extends InputFeature.Instance>
-    extends Feature<FeatureInstance, Input, List<String>> {
+abstract class InputFeature<FeatureInstance extends InputFeature.Instance, SettingsType extends Item.Settings>
+    extends Feature<FeatureInstance, Input, List<String>, SettingsType> {
 
-    public InputFeature(Settings settings) {
+    public InputFeature(SettingsType settings) {
         super(settings);
     }
 
@@ -58,10 +58,10 @@ abstract class InputFeature<FeatureInstance extends InputFeature.Instance>
     }
 
     /**
-     * A type of input feature which wraps other features so doesn't have its own parsing or generation.
+     * A type of input feature which wraps other features so doesn't have its own parsing or generation or settings.
      * @param <T> The type of instances of this feature.
      */
-    abstract static class WrapperFeature<T extends InputFeature.Instance> extends InputFeature<T> {
+    abstract static class WrapperFeature<T extends InputFeature.Instance> extends InputFeature<T, Settings> {
 
         public WrapperFeature(Settings settings) {
             super(settings);

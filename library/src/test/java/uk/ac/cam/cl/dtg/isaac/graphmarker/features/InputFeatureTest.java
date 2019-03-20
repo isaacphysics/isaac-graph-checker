@@ -20,7 +20,7 @@ import org.junit.Test;
 public class InputFeatureTest {
 
     private final LineSelector.LineSelectorWrapperFeature lineSelectorWrapperFeature =
-        new LineSelector.LineSelectorWrapperFeature(Settings.NONE);
+        new LineSelector.LineSelectorWrapperFeature(Item.Settings.NONE);
 
     @Test(expected =  UnsupportedOperationException.class)
     @SuppressWarnings("deprecation")

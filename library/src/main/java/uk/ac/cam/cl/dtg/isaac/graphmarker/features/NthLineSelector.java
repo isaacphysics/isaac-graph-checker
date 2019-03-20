@@ -29,19 +29,14 @@ import java.util.regex.Pattern;
 /**
  * A Selector which will test if a particular numbered line in the input matches.
  */
-public class NthLineSelector extends LineSelector<NthLineSelector.Instance> {
+public class NthLineSelector extends LineSelector<NthLineSelector.Instance, Item.NoSettings> {
 
     /**
      * Create an Nth line selector with specified settings.
      * @param settings The settings.
      */
-    NthLineSelector(Settings settings) {
+    NthLineSelector(Item.NoSettings settings) {
         super(settings);
-    }
-
-    @Override
-    public Map<String, Castable> defaults() {
-        return Collections.emptyMap();
     }
 
     @Override
@@ -52,7 +47,7 @@ public class NthLineSelector extends LineSelector<NthLineSelector.Instance> {
     /**
      * An instance of the NthLine selector.
      */
-    class Instance extends LineSelector<?>.Instance {
+    class Instance extends LineSelector<?, ?>.Instance {
         private final int n;
 
         /**

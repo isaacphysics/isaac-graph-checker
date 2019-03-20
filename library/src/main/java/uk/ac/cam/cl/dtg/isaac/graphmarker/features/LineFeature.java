@@ -26,10 +26,10 @@ import java.util.Map;
  * A feature which matches against a line.
  * @param <FeatureInstance> The class representing instances of this feature.
  */
-abstract class LineFeature<FeatureInstance extends LineFeature.Instance>
-    extends Feature<FeatureInstance, Line, List<String>> {
+abstract class LineFeature<FeatureInstance extends LineFeature.Instance, SettingsType extends Item.Settings>
+    extends Feature<FeatureInstance, Line, List<String>, SettingsType> {
 
-    public LineFeature(Settings settings) {
+    public LineFeature(SettingsType settings) {
         super(settings);
     }
 
@@ -76,23 +76,18 @@ abstract class LineFeature<FeatureInstance extends LineFeature.Instance>
             super(settings);
         }
 
-        @Override
-        public Map<String, Castable> defaults() {
-            return Collections.emptyMap();
-        }
-
         /**
          * An instance of this feature.
          */
-        class Instance extends InputFeature<Instance>.Instance {
-            private final LineFeature<?>.Instance lineFeatureInstance;
+        class Instance extends InputFeature<Instance, SettingsType>.Instance {
+            private final LineFeature<?, ?>.Instance lineFeatureInstance;
 
             /**
              * Create an instance of this feature.
              * @param item The specification text that created this feature.
              * @param lineFeatureInstance The line feature instance.
              */
-            private Instance(String item, LineFeature<?>.Instance lineFeatureInstance) {
+            private Instance(String item, LineFeature<?, ?>.Instance lineFeatureInstance) {
                 super(item, false);
                 this.lineFeatureInstance = lineFeatureInstance;
             }

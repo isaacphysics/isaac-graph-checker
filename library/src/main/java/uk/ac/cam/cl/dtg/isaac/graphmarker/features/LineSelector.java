@@ -26,10 +26,10 @@ import java.util.function.Predicate;
  * A selector which chooses some lines from the Input and applies a LineFeature to them.
  * @param <SelectorInstance> The class representing instances of this selector.
  */
-abstract class LineSelector<SelectorInstance extends LineSelector.Instance>
-    extends Item<SelectorInstance, Input, Map<String, Line>> {
+abstract class LineSelector<SelectorInstance extends LineSelector.Instance, SettingsType extends Item.Settings>
+    extends Item<SelectorInstance, Input, Map<String, Line>, SettingsType> {
 
-    public LineSelector(Settings settings) {
+    public LineSelector(SettingsType settings) {
         super(settings);
     }
 
@@ -74,7 +74,7 @@ abstract class LineSelector<SelectorInstance extends LineSelector.Instance>
          * @param instance The line predicate to wrap.
          * @return An input feature instance that recognises the line feature in the selected line.
          */
-        public InputFeature.Instance wrapToItemFeature(LineFeature<?>.Instance instance) {
+        public InputFeature.Instance wrapToItemFeature(LineFeature<?, ?>.Instance instance) {
             return new LineSelectorWrapperFeature(settings).new Instance(this, instance);
         }
     }
@@ -101,26 +101,21 @@ abstract class LineSelector<SelectorInstance extends LineSelector.Instance>
             super(settings);
         }
 
-        @Override
-        public Map<String, Castable> defaults() {
-            return Collections.emptyMap();
-        }
-
         /**
          * An instance of this feature.
          */
         class Instance extends InputFeature.WrapperFeature<LineSelectorWrapperFeature.Instance>.Instance {
 
-            private final LineSelector<?>.Instance selectorInstance;
-            private final LineFeature<?>.Instance lineFeatureInstance;
+            private final LineSelector<?, ?>.Instance selectorInstance;
+            private final LineFeature<?, ?>.Instance lineFeatureInstance;
 
             /**
              * Create an instance of this feature.
              * @param selectorInstance The line selector instance.
              * @param lineFeatureInstance The line feature instance.
              */
-            private Instance(LineSelector<?>.Instance selectorInstance,
-                             LineFeature<?>.Instance lineFeatureInstance) {
+            private Instance(LineSelector<?, ?>.Instance selectorInstance,
+                             LineFeature<?, ?>.Instance lineFeatureInstance) {
                 super(selectorInstance.getTaggedFeatureData() + lineFeatureInstance.getTaggedFeatureData(), true);
                 this.selectorInstance = selectorInstance;
                 this.lineFeatureInstance = lineFeatureInstance;

@@ -23,17 +23,17 @@ import java.util.function.Predicate;
  * @param <InputType> The type of input this feature processes.
  * @param <GeneratedType> The type of output this feature can generate. Should be some kind of String collection.
  */
-public abstract class Feature<FeatureInstance extends Feature.AbstractInstance, InputType, GeneratedType>
-    extends Item<FeatureInstance, InputType, GeneratedType> {
+public abstract class Feature<FeatureInstance extends Feature.AbstractInstance, InputType, GeneratedType, SettingsType extends Item.Settings>
+    extends Item<FeatureInstance, InputType, GeneratedType, SettingsType> {
 
-    public Feature(Settings settings) {
+    public Feature(SettingsType settings) {
         super(settings);
     }
 
     /**
      * An instance of a feature.
      */
-    abstract class AbstractInstance extends Item<FeatureInstance, InputType, GeneratedType>.AbstractInstance
+    abstract class AbstractInstance extends Item<FeatureInstance, InputType, GeneratedType, SettingsType>.AbstractInstance
         implements Predicate<InputType> {
         /**
          * Create an instance of a feature.

@@ -36,27 +36,26 @@ public class Features {
 
     private static final Logger log = LoggerFactory.getLogger(Features.class);
 
-    private final Settings settings;
-    private final List<LineFeature<?>> lineFeatures;
-    private final List<InputFeature<?>> inputFeatures;
-    private final List<LineSelector<?>> lineSelectors;
+    private final List<LineFeature<?, ?>> lineFeatures;
+    private final List<InputFeature<?, ?>> inputFeatures;
+    private final List<LineSelector<?, ?>> lineSelectors;
     private final CurvesCountFeature curvesCountFeature;
 
     /**
      * Create a feature object for matching or generating with the default configuration.
      */
     public Features() {
-        this(Settings.NONE);
+        this(new SettingsWrapper() {
+        });
     }
 
     /**
      * Create a feature object for matching or generating with custom settings.
      * @param settings The settings to use.
      */
-    public Features(Settings settings) {
-        this.settings = settings;
+    public Features(SettingsWrapper settings) {
         lineFeatures = ImmutableList.of(
-            new ExpectedSectorsFeature(this.settings),
+            new ExpectedSectorsFeature(settings),
             new SlopeFeature(settings),
             new SymmetryFeature(settings),
             new PointsFeature(settings)
@@ -70,10 +69,6 @@ public class Features {
         );
     }
 
-    public Map<String, Castable> getSettings() {
-        return settings.getAll();
-    }
-
     /**
      * Given a feature specification, return a predicate which matches Input to that specification.
      *
@@ -82,7 +77,7 @@ public class Features {
      */
     public Matcher matcher(String feature) {
         String[] features = feature.split("\n");
-        List<InputFeature<?>.Instance> matchers = Arrays.stream(features)
+        List<InputFeature<?, ?>.Instance> matchers = Arrays.stream(features)
                 .map(this::itemToFeatureInstance)
                 .collect(Collectors.toList());
 
@@ -103,7 +98,7 @@ public class Features {
         List<String> features = new ArrayList<>();
 
         // Run through input, trying all input features
-        for (InputFeature<?> feature : inputFeatures) {
+        for (InputFeature<?, ?> feature : inputFeatures) {
             Collection<String> foundFeatures = feature.generate(input);
             foundFeatures.stream()
                 .map(feature::prefix)
@@ -115,7 +110,7 @@ public class Features {
             Line line = input.getLines().get(0);
             features.addAll(generate(line));
         } else {
-            for (LineSelector<?> selector : lineSelectors) {
+            for (LineSelector<?, ?> selector : lineSelectors) {
                 Map<String, Line> selectedLines = selector.generate(input);
 
                 selectedLines.forEach((lineSelectionSpec, line) -> {
@@ -146,14 +141,14 @@ public class Features {
      * A predicate for matching an input against a particular specification.
      */
     public class Matcher implements Predicate<Input> {
-        private final List<InputFeature<?>.Instance> matchers;
+        private final List<InputFeature<?, ?>.Instance> matchers;
 
         /**
          * Create a matcher that requires all of the input feature instances to pass.
          *
          * @param matchers A list of input feature instances.
          */
-        private Matcher(List<InputFeature<?>.Instance> matchers) {
+        private Matcher(List<InputFeature<?, ?>.Instance> matchers) {
             this.matchers = matchers;
         }
 
@@ -165,7 +160,7 @@ public class Features {
          */
         public List<String> getFailingSpecs(Input input) {
             List<String> failedPredicates = new ArrayList<>();
-            for (InputFeature<?>.Instance inputPredicate: matchers) {
+            for (InputFeature<?, ?>.Instance inputPredicate: matchers) {
                 boolean test = inputPredicate.test(input);
                 if (!test) {
                     failedPredicates.add(inputPredicate.getTaggedFeatureData());
@@ -189,21 +184,21 @@ public class Features {
      * @param item The feature specification.
      * @return A pair of an input predicate and whether the feature has a line selector.
      */
-    private InputFeature<?>.Instance itemToFeatureInstance(final String item) {
-        for (InputFeature<?> feature : inputFeatures) {
+    private InputFeature<?, ?>.Instance itemToFeatureInstance(final String item) {
+        for (InputFeature<?, ?> feature : inputFeatures) {
             if (feature.canDeserialize(item)) {
                 return feature.deserialize(item);
             }
         }
 
-        for (LineSelector<?> selector : lineSelectors) {
+        for (LineSelector<?, ?> selector : lineSelectors) {
             if (selector.canDeserialize(item)) {
-                LineSelector<?>.Instance selectorInstance = selector.deserialize(item);
+                LineSelector<?, ?>.Instance selectorInstance = selector.deserialize(item);
                 return selectorInstance.wrapToItemFeature(itemToLineFeature(selectorInstance.item()));
             }
         }
 
-        LineFeature<?>.Instance lineFeatureInstance = itemToLineFeature(item);
+        LineFeature<?, ?>.Instance lineFeatureInstance = itemToLineFeature(item);
         return lineFeatureInstance.wrapToItemFeature();
     }
 
@@ -212,8 +207,8 @@ public class Features {
      * @param item The item.
      * @return The line feature instance.
      */
-    private LineFeature<?>.Instance itemToLineFeature(final String item) {
-        for (LineFeature<?> feature : lineFeatures) {
+    private LineFeature<?, ?>.Instance itemToLineFeature(final String item) {
+        for (LineFeature<?, ?> feature : lineFeatures) {
             if (feature.canDeserialize(item)) {
                 return feature.deserialize(item);
             }

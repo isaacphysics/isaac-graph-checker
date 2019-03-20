@@ -15,7 +15,6 @@
  */
 package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 
-import com.google.common.collect.ImmutableMap;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.HumanNamedEnum;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point;
@@ -31,7 +30,7 @@ import java.util.stream.Collectors;
 /**
  * A line feature which requires the line to have a specific slope at the start and/or end.
  */
-public class SlopeFeature extends LineFeature<SlopeFeature.Instance> {
+public class SlopeFeature extends LineFeature<SlopeFeature.Instance, SlopeFeature.Settings> {
 
     /**
      * Create a slope feature with specified settings.
@@ -41,24 +40,14 @@ public class SlopeFeature extends LineFeature<SlopeFeature.Instance> {
         super(settings);
     }
 
-    @SuppressWarnings("magicNumber")
-    @Override
-    public Map<String, Castable> defaults() {
-        return ImmutableMap.of(
-            SLOPE_THRESHOLD, Castable.of(4),
-            NUMBER_OF_POINTS_AT_ENDS, Castable.of(5));
-    }
+    interface Settings extends Item.Settings {
+        default double getSlopeThreshold() {
+            return 4;
+        }
 
-
-    private static final String SLOPE_THRESHOLD = "slopeThreshold";
-    private static final String NUMBER_OF_POINTS_AT_ENDS = "numberOfPointsAtEnds";
-
-    private double getSlopeThreshold() {
-        return settings.get(SLOPE_THRESHOLD).asDouble();
-    }
-
-    private int getNumberOfPointsAtEnds() {
-        return settings.get(NUMBER_OF_POINTS_AT_ENDS).asInt();
+        default int getNumberOfPointsAtEnds() {
+            return 5;
+        }
     }
 
     /**
@@ -107,7 +96,7 @@ public class SlopeFeature extends LineFeature<SlopeFeature.Instance> {
     /**
      * An instance of the Slope feature.
      */
-    protected class Instance extends LineFeature<?>.Instance {
+    protected class Instance extends LineFeature<?, ?>.Instance {
 
         private final Map<Position, Slope> expectedSlopes;
 
@@ -171,12 +160,12 @@ public class SlopeFeature extends LineFeature<SlopeFeature.Instance> {
         size = new Point(Math.abs(size.getX()), size.getY());
 
         double highIfFlat = size.getX() / size.getY();
-        if (Math.abs(highIfFlat) > getSlopeThreshold()) {
+         if (Math.abs(highIfFlat) > settings.getSlopeThreshold()) {
             return Slope.FLAT;
         }
 
         double highIfSteep = size.getY() / size.getX();
-        if (Math.abs(highIfSteep) > getSlopeThreshold()) {
+         if (Math.abs(highIfSteep) > settings.getSlopeThreshold()) {
             if (highIfSteep > 0) {
                 return Slope.UP;
             } else {
@@ -196,7 +185,7 @@ public class SlopeFeature extends LineFeature<SlopeFeature.Instance> {
     private Line lineAtPosition(Line line, Position position) {
         List<Point> points = line.getPoints();
         int size = points.size();
-        int desired = Math.min(getNumberOfPointsAtEnds(), size);
+        int desired = Math.min(settings.getNumberOfPointsAtEnds(), size);
         return new Line(position.selectPoints(points, size, desired), Collections.emptyList());
     }
 }

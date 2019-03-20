@@ -26,7 +26,7 @@ import static org.junit.Assert.assertFalse;
 
 public class PointsFeatureTest {
 
-    private final PointsFeature pointsFeature = new PointsFeature(Settings.NONE);
+    private final PointsFeature pointsFeature = new PointsFeature(Item.Settings.NONE);
 
     @Test
     public void simplePointsTest() {

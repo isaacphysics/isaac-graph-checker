@@ -27,7 +27,7 @@ import static uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers.lineOf;
 
 public class CurvesCountFeatureTest {
 
-    private CurvesCountFeature curvesCountFeature = new CurvesCountFeature(Settings.NONE);
+    private CurvesCountFeature curvesCountFeature = new CurvesCountFeature(Item.Settings.NONE);
 
     @Test
     public void simpleCurveCountWorks() {

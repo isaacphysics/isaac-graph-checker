@@ -28,7 +28,7 @@ import static uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers.lineOf;
 
 public class NthLineSelectorTest {
 
-    private NthLineSelector nthLineSelector = new NthLineSelector(Settings.NONE);
+    private NthLineSelector nthLineSelector = new NthLineSelector(Item.Settings.NONE);
 
     @Test
     public void testDeserialize() {

@@ -30,7 +30,7 @@ import static uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers.lineOf;
 
 public class SymmetryFeatureTest {
 
-    private SymmetryFeature symmetryFeature = new SymmetryFeature(Settings.NONE);
+    private SymmetryFeature symmetryFeature = new SymmetryFeature(Item.Settings.NONE);
 
     @Test
     public void noSymmetryIsDetectedCorrectly() {

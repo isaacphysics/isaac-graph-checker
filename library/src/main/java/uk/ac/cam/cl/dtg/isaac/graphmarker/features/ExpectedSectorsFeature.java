@@ -23,6 +23,7 @@ import uk.ac.cam.cl.dtg.isaac.graphmarker.data.IntersectionParams;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.Sector;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.SectorBuilder;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.Segment;
 
 import org.slf4j.Logger;
@@ -32,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 /**
  * An line feature which requires the line to pass exactly through a list of sectors.
  */
-public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.Instance> {
+public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.Instance, ExpectedSectorsFeature.Settings> {
     private static final Logger log = LoggerFactory.getLogger(ExpectedSectorsFeature.class);
 
     /**
@@ -51,27 +51,23 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
         super(settings);
     }
 
-    static final String ORDERED_SECTORS = "orderedSectors";
-
-    @Override
-    public Map<String, Castable> defaults() {
-        return Collections.singletonMap(ORDERED_SECTORS,
-            Castable.of(Joiner.on(",").join(Sector.defaultOrderedSectors)));
+    interface Settings extends Item.Settings {
+        default List<Sector> getOrderedSectors() {
+            return SectorBuilder.getDefaultOrderedSectors();
+        }
     }
+
+    static final String ORDERED_SECTORS = "orderedSectors";
 
     @Override
     public String tag() {
         return "through";
     }
 
-    private List<Sector> getOrderedSectors() {
-        return deserializeSectors(settings.get(ORDERED_SECTORS).asString());
-    }
-
     /**
      * An instance of the ExpectedSectors feature.
      */
-    protected class Instance extends LineFeature<?>.Instance {
+    protected class Instance extends LineFeature<?, ?>.Instance {
         private final List<Sector> expectedSectors;
 
         /**
@@ -142,7 +138,7 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
         return Arrays.stream(sectors.split(","))
                 .map(String::trim)
                 .filter(s -> s.length() > 0)
-                .map(Sector::byName)
+                .map(SectorBuilder::byName)
                 .collect(Collectors.toList());
     }
 
@@ -167,7 +163,7 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
 
         List<Sector> output = new ArrayList<>();
         sectors.stream()
-            .map(set -> getOrderedSectors().stream().filter(set::contains).findFirst().orElse(null))
+            .map(set -> settings.getOrderedSectors().stream().filter(set::contains).findFirst().orElse(null))
             .forEach(sector -> {
                 if (output.isEmpty() || !output.get(output.size() - 1).equals(sector)) {
                     output.add(sector);
@@ -205,12 +201,12 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
     }
 
     private final List<Set<Sector>> invalidSectorSets = ImmutableList.of(
-        ImmutableSet.of(Sector.topRight, Sector.bottomRight),
-        ImmutableSet.of(Sector.topLeft, Sector.bottomLeft),
-        ImmutableSet.of(Sector.topRight, Sector.topLeft),
-        ImmutableSet.of(Sector.bottomRight, Sector.bottomLeft),
-        ImmutableSet.of(Sector.onAxisWithPositiveX, Sector.onAxisWithNegativeX),
-        ImmutableSet.of(Sector.onAxisWithPositiveY, Sector.onAxisWithNegativeY)
+        ImmutableSet.of(SectorBuilder.getTopRight(), SectorBuilder.getBottomRight()),
+        ImmutableSet.of(SectorBuilder.getTopLeft(), SectorBuilder.getBottomLeft()),
+        ImmutableSet.of(SectorBuilder.getTopRight(), SectorBuilder.getTopLeft()),
+        ImmutableSet.of(SectorBuilder.getBottomRight(), SectorBuilder.getBottomLeft()),
+        ImmutableSet.of(SectorBuilder.getOnAxisWithPositiveX(), SectorBuilder.getOnAxisWithNegativeX()),
+        ImmutableSet.of(SectorBuilder.getOnAxisWithPositiveY(), SectorBuilder.getOnAxisWithNegativeY())
     );
 
     /**
@@ -238,7 +234,7 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
      * @return The highest-priority Sector that point is in.
      */
     private Set<Sector> classifyPoint(Point point) {
-        return Sector.classify(point, getOrderedSectors());
+        return Sector.classify(point, settings.getOrderedSectors());
     }
 
     /**
@@ -248,11 +244,11 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
      */
     private void classifyLineSegment(List<Set<Sector>> output, Segment lineSegment) {
         // Calculate when we enter and leave the line segment
-        IntersectionParams[] intersectionParams = getOrderedSectors().stream()
+        IntersectionParams[] intersectionParams = settings.getOrderedSectors().stream()
             .map(sector -> sector.intersectionParams(lineSegment))
             .toArray(IntersectionParams[]::new);
 
-        Boolean[] inside = getOrderedSectors().stream()
+        Boolean[] inside = settings.getOrderedSectors().stream()
             .map(sector -> sector.contains(lineSegment.getStart()))
             .toArray(Boolean[]::new);
 
@@ -272,7 +268,7 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
                 // Record all of the sectors we are currently in
             @SuppressWarnings("checkstyle:avoidInlineConditionals")
             Set<Sector> internalSectors = Streams.zip(
-                getOrderedSectors().stream(),
+                settings.getOrderedSectors().stream(),
                 Arrays.stream(inside),
                 (sector, in) -> in ? sector : null)
                 .filter(Objects::nonNull)

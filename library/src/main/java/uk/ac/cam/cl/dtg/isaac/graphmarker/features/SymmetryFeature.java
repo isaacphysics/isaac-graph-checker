@@ -15,40 +15,31 @@
  */
 package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 
-import com.google.common.collect.ImmutableMap;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.HumanNamedEnum;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.PointOfInterest;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.Lines;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.Sector;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.SectorBuilder;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
  * An line feature which requires the line to have a specific symmetry.
  */
-public class SymmetryFeature extends LineFeature<SymmetryFeature.Instance> {
+public class SymmetryFeature extends LineFeature<SymmetryFeature.Instance, SymmetryFeature.Settings> {
 
     public SymmetryFeature(Settings settings) {
         super(settings);
     }
 
-    @SuppressWarnings("magicNumber")
-    @Override
-    public Map<String, Castable> defaults() {
-        return ImmutableMap.of(
-            SYMMETRY_SIMILARITY, Castable.of(0.4)
-        );
-    }
-
-    private static final String SYMMETRY_SIMILARITY = "similarity";
-
-    private double getSymmetrySimilarity() {
-        return settings.get(SYMMETRY_SIMILARITY).asDouble();
+    interface Settings extends Item.Settings {
+        @SuppressWarnings("magicNumber")
+        default double getSymmetrySimilarity() {
+            return 0.4;
+        }
     }
 
     @Override
@@ -84,7 +75,7 @@ public class SymmetryFeature extends LineFeature<SymmetryFeature.Instance> {
     /**
      * An instance of the Symmetry feature.
      */
-    public class Instance extends LineFeature<?>.Instance {
+    public class Instance extends LineFeature<?, ?>.Instance {
 
         private final SymmetryType symmetryType;
 
@@ -181,8 +172,8 @@ public class SymmetryFeature extends LineFeature<SymmetryFeature.Instance> {
      */
     private SymmetryType getStandardSymmetryType(Line line) {
         // Split line at x = 0
-        Line left = Sector.left.clip(line);
-        Line right = Sector.right.clip(line);
+        Line left = SectorBuilder.getLeft().clip(line);
+        Line right = SectorBuilder.getRight().clip(line);
 
         List<Line> lefts = Lines.splitOnPointsOfInterest(left);
         List<Line> rights = Lines.splitOnPointsOfInterest(right);
@@ -236,14 +227,14 @@ public class SymmetryFeature extends LineFeature<SymmetryFeature.Instance> {
         double yDifferenceOdd = (rightSize.getY() - leftSize.getY()) / rightSize.getY();
         double yDifferenceEven = (rightSize.getY() + leftSize.getY()) / rightSize.getY();
 
-        if (Math.abs(xDifference) < getSymmetrySimilarity()) {
+        if (Math.abs(xDifference) < settings.getSymmetrySimilarity()) {
             if (rightSize.getY() == 0 && leftSize.getY() == 0) {
                 return SymmetryType.EVEN;
             }
-            if (Math.abs(yDifferenceOdd) < getSymmetrySimilarity()) {
+            if (Math.abs(yDifferenceOdd) < settings.getSymmetrySimilarity()) {
                 if (innerMost) {
-                    if (Sector.relaxedOrigin.contains(left.getPoints().get(left.getPoints().size() - 1))
-                        && Sector.relaxedOrigin.contains(right.getPoints().get(0))) {
+                    if (SectorBuilder.getRelaxedOrigin().contains(left.getPoints().get(left.getPoints().size() - 1))
+                        && SectorBuilder.getRelaxedOrigin().contains(right.getPoints().get(0))) {
                         return SymmetryType.ODD;
                     } else {
                         return SymmetryType.NONE;
@@ -252,7 +243,7 @@ public class SymmetryFeature extends LineFeature<SymmetryFeature.Instance> {
                     return SymmetryType.ODD;
                 }
             }
-            if (Math.abs(yDifferenceEven) < getSymmetrySimilarity()) {
+            if (Math.abs(yDifferenceEven) < settings.getSymmetrySimilarity()) {
                 return SymmetryType.EVEN;
             }
         }

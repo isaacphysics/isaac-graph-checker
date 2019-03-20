@@ -20,29 +20,24 @@ import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.Sector;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.PointType;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.SectorBuilder;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
  * A line feature which requires the line to contain points of interest of certain types in certain sectors.
  */
-public class PointsFeature extends LineFeature<PointsFeature.Instance> {
+public class PointsFeature extends LineFeature<PointsFeature.Instance, Item.NoSettings> {
 
     /**
      * Create a points feature with specified settings.
      * @param settings The settings.
      */
-    PointsFeature(Settings settings) {
+    PointsFeature(NoSettings settings) {
         super(settings);
-    }
-
-    @Override
-    public Map<String, Castable> defaults() {
-        return Collections.emptyMap();
     }
 
     @Override
@@ -53,7 +48,7 @@ public class PointsFeature extends LineFeature<PointsFeature.Instance> {
     /**
      * An instance of the PointsOfInterest feature.
      */
-    protected class Instance extends LineFeature<?>.Instance {
+    protected class Instance extends LineFeature<?, ?>.Instance {
 
         private final List<ImmutablePair<PointType, Sector>> expectedPoints;
 
@@ -75,7 +70,7 @@ public class PointsFeature extends LineFeature<PointsFeature.Instance> {
 
             return Streams.zip(expectedPoints.stream(), line.getPointsOfInterest().stream(),
                 (expected, actual) -> expected.getLeft() == actual.getPointType()
-                    && Sector.classify(actual, Sector.defaultOrderedSectors).contains(expected.getRight()))
+                    && Sector.classify(actual, SectorBuilder.getDefaultOrderedSectors()).contains(expected.getRight()))
                 .allMatch(Boolean::booleanValue);
         }
     }
@@ -90,7 +85,7 @@ public class PointsFeature extends LineFeature<PointsFeature.Instance> {
                     throw new IllegalArgumentException("Incorrect number of point parts in: " + item);
                 }
                 PointType expectedType = PointType.valueOf(parts[0].trim().toUpperCase());
-                Sector expectedSector = Sector.byName(parts[1].trim());
+                Sector expectedSector = SectorBuilder.byName(parts[1].trim());
                 return ImmutablePair.of(expectedType, expectedSector);
             })
             .collect(Collectors.toList()));
@@ -105,7 +100,7 @@ public class PointsFeature extends LineFeature<PointsFeature.Instance> {
                 Sector sector = entry.getRight();
                 String sectorName = sector.toString();
                 @SuppressWarnings("checkstyle:avoidInlineConditionals")
-                String preposition = sector == Sector.origin ? "at" : sectorName.matches("[-+].*") ? "on" : "in";
+                String preposition = sector == SectorBuilder.getOrigin() ? "at" : sectorName.matches("[-+].*") ? "on" : "in";
                 return entry.getLeft().humanName() + " " + preposition + " " + sectorName;
             })
             .collect(Collectors.joining(", "))

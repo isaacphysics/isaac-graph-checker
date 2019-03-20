@@ -21,13 +21,19 @@ package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
  * @param <InputType> The type of input this can read.
  * @param <GeneratedType> Some kind of collection of feature specifications this can generate.
  */
-public abstract class Item<Instance extends Item.AbstractInstance, InputType, GeneratedType>
-    implements Settings.HasSettings {
+public abstract class Item<Instance extends Item.AbstractInstance, InputType, GeneratedType, SettingsType extends Item.Settings> {
 
-    final Settings settings;
+    final SettingsType settings;
 
-    public Item(Settings settings) {
-        this.settings = settings.getFor(this);
+    public Item(SettingsType settings) {
+        this.settings = settings;
+    }
+
+    public interface Settings {
+        SettingsWrapper NONE = new SettingsWrapper() {};
+    }
+
+    public interface NoSettings extends Settings {
     }
 
     /**

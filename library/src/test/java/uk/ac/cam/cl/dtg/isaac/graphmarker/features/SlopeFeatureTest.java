@@ -31,7 +31,7 @@ import static uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers.lineOf;
 
 public class SlopeFeatureTest {
 
-    private SlopeFeature slopeFeature = new SlopeFeature(Settings.NONE);
+    private SlopeFeature slopeFeature = new SlopeFeature(Item.Settings.NONE);
 
     @Test
     public void slopeCalculatorIsCorrect() {

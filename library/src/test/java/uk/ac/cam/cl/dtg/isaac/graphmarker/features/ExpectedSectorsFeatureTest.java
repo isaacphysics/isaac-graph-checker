@@ -15,16 +15,14 @@
  */
 package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 
-import com.google.common.base.Joiner;
-import org.junit.Ignore;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers;
 import org.junit.Test;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.Sector;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.SectorBuilder;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -35,7 +33,7 @@ import static uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers.lineOf;
 
 public class ExpectedSectorsFeatureTest {
 
-    private final ExpectedSectorsFeature expectedSectorsFeature = new ExpectedSectorsFeature(Settings.NONE);
+    private final ExpectedSectorsFeature expectedSectorsFeature = new ExpectedSectorsFeature(Item.Settings.NONE);
 
     @Test
     public void basicLineHasCorrectSectorList() {
@@ -92,10 +90,13 @@ public class ExpectedSectorsFeatureTest {
 
     @Test
     public void customSectionListMatches() {
-        Sector[] sectors = {Sector.topLeft, Sector.bottomRight};
-        ExpectedSectorsFeature feature = new ExpectedSectorsFeature(new Settings(Collections.singletonMap(
-            "through:" + ExpectedSectorsFeature.ORDERED_SECTORS,
-            Castable.of(Joiner.on(",").join(sectors)))));
+        Sector[] sectors = {SectorBuilder.getTopLeft(), SectorBuilder.getBottomRight()};
+        ExpectedSectorsFeature feature = new ExpectedSectorsFeature(new ExpectedSectorsFeature.Settings() {
+            @Override
+            public List<Sector> getOrderedSectors() {
+                return Arrays.asList(sectors);
+            }
+        });
 
         Predicate<Line> testFeature = line -> feature.deserializeInternal("topLeft, bottomRight").test(line);
 
