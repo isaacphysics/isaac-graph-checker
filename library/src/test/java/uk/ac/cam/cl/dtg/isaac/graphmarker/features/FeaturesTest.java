@@ -17,8 +17,8 @@ package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 
 import org.junit.Test;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsWrapper;
 
-import java.util.Map;
 import java.util.function.Predicate;
 
 import static org.junit.Assert.*;
@@ -27,7 +27,7 @@ import static uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers.lineOf;
 
 public class FeaturesTest {
 
-    private final ExpectedSectorsFeature expectedSectorsFeature = new ExpectedSectorsFeature(Item.Settings.NONE);
+    private final ExpectedSectorsFeature expectedSectorsFeature = new ExpectedSectorsFeature(SettingsWrapper.DEFAULT);
 
     @Test
     public void testMatcherDesrializesAndWorks() {

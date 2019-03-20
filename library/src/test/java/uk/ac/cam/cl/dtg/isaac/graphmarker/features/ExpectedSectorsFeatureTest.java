@@ -21,6 +21,8 @@ import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.Sector;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.SectorBuilder;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.SectorClassifier;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsWrapper;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,12 +30,11 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
-import static uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.Sector.*;
 import static uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers.lineOf;
 
 public class ExpectedSectorsFeatureTest {
 
-    private final ExpectedSectorsFeature expectedSectorsFeature = new ExpectedSectorsFeature(Item.Settings.NONE);
+    private final ExpectedSectorsFeature expectedSectorsFeature = new ExpectedSectorsFeature(SettingsWrapper.DEFAULT);
 
     @Test
     public void basicLineHasCorrectSectorList() {
@@ -90,13 +91,15 @@ public class ExpectedSectorsFeatureTest {
 
     @Test
     public void customSectionListMatches() {
-        Sector[] sectors = {SectorBuilder.getTopLeft(), SectorBuilder.getBottomRight()};
-        ExpectedSectorsFeature feature = new ExpectedSectorsFeature(new ExpectedSectorsFeature.Settings() {
-            @Override
+        SectorClassifier.Settings settings = new SectorClassifier.Settings() {
             public List<Sector> getOrderedSectors() {
+                SectorBuilder sectorBuilder = getSectorBuilder();
+                Sector[] sectors = {sectorBuilder.getTopLeft(), sectorBuilder.getBottomRight()};
                 return Arrays.asList(sectors);
             }
-        });
+        };
+
+        ExpectedSectorsFeature feature = new ExpectedSectorsFeature(settings);
 
         Predicate<Line> testFeature = line -> feature.deserializeInternal("topLeft, bottomRight").test(line);
 
@@ -146,7 +149,7 @@ public class ExpectedSectorsFeatureTest {
         double minimaY = (minimaX - 1) * (minimaX - 3) * (minimaX - 4);
 
         // But only just going over the axis should still be allowed
-        assertTrue(testFeature.test(TestHelpers.lineOf(x -> (x - 1) * (x - 3) * (x - 4) - minimaY - (AXIS_SLOP / 4), 0.5, 10)));
+        assertTrue(testFeature.test(TestHelpers.lineOf(x -> (x - 1) * (x - 3) * (x - 4) - minimaY - (SettingsWrapper.DEFAULT.getAxisSlop() / 4), 0.5, 10)));
     }
 
 }

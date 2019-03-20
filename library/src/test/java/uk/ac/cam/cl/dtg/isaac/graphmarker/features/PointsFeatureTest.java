@@ -18,6 +18,7 @@ package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers;
 import org.junit.Test;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsWrapper;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ import static org.junit.Assert.assertFalse;
 
 public class PointsFeatureTest {
 
-    private final PointsFeature pointsFeature = new PointsFeature(Item.Settings.NONE);
+    private final PointsFeature pointsFeature = new PointsFeature(SettingsWrapper.DEFAULT);
 
     @Test
     public void simplePointsTest() {

@@ -18,6 +18,7 @@ package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
 import org.junit.Test;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsWrapper;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ import static uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers.lineOf;
 
 public class CurvesCountFeatureTest {
 
-    private CurvesCountFeature curvesCountFeature = new CurvesCountFeature(Item.Settings.NONE);
+    private CurvesCountFeature curvesCountFeature = new CurvesCountFeature(SettingsWrapper.DEFAULT);
 
     @Test
     public void simpleCurveCountWorks() {

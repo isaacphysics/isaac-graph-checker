@@ -17,8 +17,8 @@ package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsInterface;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,13 +29,13 @@ import java.util.regex.Pattern;
 /**
  * A Selector which will test if a particular numbered line in the input matches.
  */
-public class NthLineSelector extends LineSelector<NthLineSelector.Instance, Item.NoSettings> {
+public class NthLineSelector extends LineSelector<NthLineSelector.Instance, SettingsInterface.None> {
 
     /**
      * Create an Nth line selector with specified settings.
      * @param settings The settings.
      */
-    NthLineSelector(Item.NoSettings settings) {
+    NthLineSelector(SettingsInterface.None settings) {
         super(settings);
     }
 

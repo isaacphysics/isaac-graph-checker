@@ -17,16 +17,15 @@ package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsInterface;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A feature which matches against a line.
  * @param <FeatureInstance> The class representing instances of this feature.
  */
-abstract class LineFeature<FeatureInstance extends LineFeature.Instance, SettingsType extends Item.Settings>
+abstract class LineFeature<FeatureInstance extends LineFeature.Instance, SettingsType extends SettingsInterface>
     extends Feature<FeatureInstance, Line, List<String>, SettingsType> {
 
     public LineFeature(SettingsType settings) {
@@ -72,7 +71,7 @@ abstract class LineFeature<FeatureInstance extends LineFeature.Instance, Setting
      */
     class LineFeatureWrapper extends InputFeature.WrapperFeature<LineFeatureWrapper.Instance> {
 
-        public LineFeatureWrapper(Settings settings) {
+        public LineFeatureWrapper(SettingsInterface settings) {
             super(settings);
         }
 

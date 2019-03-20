@@ -15,25 +15,20 @@
  */
 package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 
+import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsInterface;
+
 /**
  * Something that can be parsed, generated, and configured in our feature handling code.
  * @param <Instance> The type of instances of this thing.
  * @param <InputType> The type of input this can read.
  * @param <GeneratedType> Some kind of collection of feature specifications this can generate.
  */
-public abstract class Item<Instance extends Item.AbstractInstance, InputType, GeneratedType, SettingsType extends Item.Settings> {
+public abstract class Item<Instance extends Item.AbstractInstance, InputType, GeneratedType, SettingsType extends SettingsInterface> {
 
     final SettingsType settings;
 
     public Item(SettingsType settings) {
         this.settings = settings;
-    }
-
-    public interface Settings {
-        SettingsWrapper NONE = new SettingsWrapper() {};
-    }
-
-    public interface NoSettings extends Settings {
     }
 
     /**

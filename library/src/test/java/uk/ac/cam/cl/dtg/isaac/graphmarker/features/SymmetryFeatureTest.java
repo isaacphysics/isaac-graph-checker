@@ -21,6 +21,7 @@ import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.junit.Test;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsWrapper;
 
 import java.util.List;
 
@@ -30,7 +31,7 @@ import static uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers.lineOf;
 
 public class SymmetryFeatureTest {
 
-    private SymmetryFeature symmetryFeature = new SymmetryFeature(Item.Settings.NONE);
+    private SymmetryFeature symmetryFeature = new SymmetryFeature(SettingsWrapper.DEFAULT);
 
     @Test
     public void noSymmetryIsDetectedCorrectly() {

@@ -35,7 +35,7 @@ public class SymmetryFeature extends LineFeature<SymmetryFeature.Instance, Symme
         super(settings);
     }
 
-    interface Settings extends Item.Settings {
+    public interface Settings extends SectorBuilder.Settings {
         @SuppressWarnings("magicNumber")
         default double getSymmetrySimilarity() {
             return 0.4;
@@ -168,12 +168,12 @@ public class SymmetryFeature extends LineFeature<SymmetryFeature.Instance, Symme
      * Get the ODD or EVEN symmetry of the line by splitting at x=0.
      *
      * @param line The line.
-     * @return ODD, EVEN, or NONE symmetry.
+     * @return ODD, EVEN, or DEFAULT symmetry.
      */
     private SymmetryType getStandardSymmetryType(Line line) {
         // Split line at x = 0
-        Line left = SectorBuilder.getLeft().clip(line);
-        Line right = SectorBuilder.getRight().clip(line);
+        Line left = settings.getSectorBuilder().getLeft().clip(line);
+        Line right = settings.getSectorBuilder().getRight().clip(line);
 
         List<Line> lefts = Lines.splitOnPointsOfInterest(left);
         List<Line> rights = Lines.splitOnPointsOfInterest(right);
@@ -233,8 +233,8 @@ public class SymmetryFeature extends LineFeature<SymmetryFeature.Instance, Symme
             }
             if (Math.abs(yDifferenceOdd) < settings.getSymmetrySimilarity()) {
                 if (innerMost) {
-                    if (SectorBuilder.getRelaxedOrigin().contains(left.getPoints().get(left.getPoints().size() - 1))
-                        && SectorBuilder.getRelaxedOrigin().contains(right.getPoints().get(0))) {
+                    if (settings.getSectorBuilder().getRelaxedOrigin().contains(left.getPoints().get(left.getPoints().size() - 1))
+                        && settings.getSectorBuilder().getRelaxedOrigin().contains(right.getPoints().get(0))) {
                         return SymmetryType.ODD;
                     } else {
                         return SymmetryType.NONE;

@@ -16,11 +16,12 @@
 package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 
 import org.junit.Test;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsWrapper;
 
 public class InputFeatureTest {
 
     private final LineSelector.LineSelectorWrapperFeature lineSelectorWrapperFeature =
-        new LineSelector.LineSelectorWrapperFeature(Item.Settings.NONE);
+        new LineSelector.LineSelectorWrapperFeature(SettingsWrapper.DEFAULT);
 
     @Test(expected =  UnsupportedOperationException.class)
     @SuppressWarnings("deprecation")

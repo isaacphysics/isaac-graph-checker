@@ -17,8 +17,8 @@ package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsInterface;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -26,7 +26,7 @@ import java.util.function.Predicate;
  * A selector which chooses some lines from the Input and applies a LineFeature to them.
  * @param <SelectorInstance> The class representing instances of this selector.
  */
-abstract class LineSelector<SelectorInstance extends LineSelector.Instance, SettingsType extends Item.Settings>
+abstract class LineSelector<SelectorInstance extends LineSelector.Instance, SettingsType extends SettingsInterface>
     extends Item<SelectorInstance, Input, Map<String, Line>, SettingsType> {
 
     public LineSelector(SettingsType settings) {
@@ -97,7 +97,7 @@ abstract class LineSelector<SelectorInstance extends LineSelector.Instance, Sett
      */
     static class LineSelectorWrapperFeature extends InputFeature.WrapperFeature<LineSelectorWrapperFeature.Instance> {
 
-        LineSelectorWrapperFeature(Settings settings) {
+        LineSelectorWrapperFeature(SettingsInterface settings) {
             super(settings);
         }
 

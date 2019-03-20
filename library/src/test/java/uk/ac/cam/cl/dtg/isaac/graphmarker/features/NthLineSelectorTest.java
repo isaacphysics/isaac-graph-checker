@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers;
 import org.junit.Test;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsWrapper;
 
 import java.util.Map;
 
@@ -28,7 +29,7 @@ import static uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers.lineOf;
 
 public class NthLineSelectorTest {
 
-    private NthLineSelector nthLineSelector = new NthLineSelector(Item.Settings.NONE);
+    private NthLineSelector nthLineSelector = new NthLineSelector(SettingsWrapper.DEFAULT);
 
     @Test
     public void testDeserialize() {

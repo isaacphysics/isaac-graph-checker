@@ -20,6 +20,7 @@ import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.Lines;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsInterface;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,7 +41,7 @@ public class SlopeFeature extends LineFeature<SlopeFeature.Instance, SlopeFeatur
         super(settings);
     }
 
-    interface Settings extends Item.Settings {
+    public interface Settings extends SettingsInterface {
         default double getSlopeThreshold() {
             return 4;
         }

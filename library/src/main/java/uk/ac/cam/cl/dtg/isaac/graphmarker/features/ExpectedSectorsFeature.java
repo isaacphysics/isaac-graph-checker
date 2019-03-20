@@ -24,6 +24,7 @@ import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.Sector;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.SectorBuilder;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.SectorClassifier;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.Segment;
 
 import org.slf4j.Logger;
@@ -40,24 +41,25 @@ import java.util.stream.Collectors;
 /**
  * An line feature which requires the line to pass exactly through a list of sectors.
  */
-public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.Instance, ExpectedSectorsFeature.Settings> {
+public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.Instance, SectorClassifier.Settings> {
     private static final Logger log = LoggerFactory.getLogger(ExpectedSectorsFeature.class);
 
     /**
      * Create a expected sectors feature with specified settings.
      * @param settings The settings.
      */
-    ExpectedSectorsFeature(Settings settings) {
+    ExpectedSectorsFeature(SectorClassifier.Settings settings) {
         super(settings);
+        SectorBuilder sectorBuilder = settings.getSectorBuilder();
+        invalidSectorSets = ImmutableList.of(
+            ImmutableSet.of(sectorBuilder.getTopRight(), sectorBuilder.getBottomRight()),
+            ImmutableSet.of(sectorBuilder.getTopLeft(), sectorBuilder.getBottomLeft()),
+            ImmutableSet.of(sectorBuilder.getTopRight(), sectorBuilder.getTopLeft()),
+            ImmutableSet.of(sectorBuilder.getBottomRight(), sectorBuilder.getBottomLeft()),
+            ImmutableSet.of(sectorBuilder.getOnAxisWithPositiveX(), sectorBuilder.getOnAxisWithNegativeX()),
+            ImmutableSet.of(sectorBuilder.getOnAxisWithPositiveY(), sectorBuilder.getOnAxisWithNegativeY())
+        );
     }
-
-    interface Settings extends Item.Settings {
-        default List<Sector> getOrderedSectors() {
-            return SectorBuilder.getDefaultOrderedSectors();
-        }
-    }
-
-    static final String ORDERED_SECTORS = "orderedSectors";
 
     @Override
     public String tag() {
@@ -138,7 +140,7 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
         return Arrays.stream(sectors.split(","))
                 .map(String::trim)
                 .filter(s -> s.length() > 0)
-                .map(SectorBuilder::byName)
+                .map(settings.getSectorBuilder()::byName)
                 .collect(Collectors.toList());
     }
 
@@ -200,14 +202,7 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
         return output;
     }
 
-    private final List<Set<Sector>> invalidSectorSets = ImmutableList.of(
-        ImmutableSet.of(SectorBuilder.getTopRight(), SectorBuilder.getBottomRight()),
-        ImmutableSet.of(SectorBuilder.getTopLeft(), SectorBuilder.getBottomLeft()),
-        ImmutableSet.of(SectorBuilder.getTopRight(), SectorBuilder.getTopLeft()),
-        ImmutableSet.of(SectorBuilder.getBottomRight(), SectorBuilder.getBottomLeft()),
-        ImmutableSet.of(SectorBuilder.getOnAxisWithPositiveX(), SectorBuilder.getOnAxisWithNegativeX()),
-        ImmutableSet.of(SectorBuilder.getOnAxisWithPositiveY(), SectorBuilder.getOnAxisWithNegativeY())
-    );
+    private final List<Set<Sector>> invalidSectorSets;
 
     /**
      * Add a set of sectors to a list of sets of sectors, removing illegal combinations and de-duplicating.
@@ -234,7 +229,7 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
      * @return The highest-priority Sector that point is in.
      */
     private Set<Sector> classifyPoint(Point point) {
-        return Sector.classify(point, settings.getOrderedSectors());
+        return settings.getSectorClassifier().classifyAll(point);
     }
 
     /**
@@ -265,7 +260,7 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
                 index = lowestIndex(intersectionParams);
             }
 
-                // Record all of the sectors we are currently in
+            // Record all of the sectors we are currently in
             @SuppressWarnings("checkstyle:avoidInlineConditionals")
             Set<Sector> internalSectors = Streams.zip(
                 settings.getOrderedSectors().stream(),

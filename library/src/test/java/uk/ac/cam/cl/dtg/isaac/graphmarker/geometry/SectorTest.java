@@ -19,6 +19,7 @@ import org.junit.Test;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Intersection;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsWrapper;
 
 import java.util.Arrays;
 
@@ -46,10 +47,12 @@ public class SectorTest {
     private static final Point x0y1 = new Point(0, 1);
     private static final Point x0y_1 = new Point(0, -1);
 
+    private final SectorBuilder sectorBuilder = new SectorBuilder(SettingsWrapper.DEFAULT);
+
 
     @Test
     public void topRightWorksOnPoint() {
-        Sector topRight = Sector.topRight;
+        Sector topRight = sectorBuilder.getTopRight();
 
         assertTrue(topRight.contains(x1y1));
         assertFalse(topRight.contains(x_1y1));
@@ -59,49 +62,49 @@ public class SectorTest {
 
     @Test
     public void topRightWorksOnLineFullyInside() {
-        Sector topRight = Sector.topRight;
+        Sector topRight = sectorBuilder.getTopRight();
 
         assertInside(topRight.intersects(TestHelpers.lineOf(x1y1, new Point(2, 1))));
     }
 
     @Test
     public void topRightWorksOnLineFromOrigin() {
-        Sector topRight = Sector.topRight;
+        Sector topRight = sectorBuilder.getTopRight();
 
         assertIntersects(topRight.intersects(TestHelpers.lineOf(x1y1, x0y0)));
     }
 
     @Test
     public void topRightWorksOnLineFromBottomLeft() {
-        Sector topRight = Sector.topRight;
+        Sector topRight = sectorBuilder.getTopRight();
 
         assertIntersects(topRight.intersects(TestHelpers.lineOf(x1y1, x_1y_1)));
     }
 
     @Test
     public void topRightWorksOnLineFromTopLeftToBottomRight() {
-        Sector topRight = Sector.topRight;
+        Sector topRight = sectorBuilder.getTopRight();
 
         assertIntersects(topRight.intersects(TestHelpers.lineOf(x_1y1, new Point(2, -1))));
     }
 
     @Test
     public void topLeftWorks() {
-        Sector topLeft = Sector.topLeft;
+        Sector topLeft = sectorBuilder.getTopLeft();
 
         assertIntersects(topLeft.intersects(TestHelpers.lineOf(x_1y1, x_1y_1)));
     }
 
     @Test
     public void bottomLeftWorks() {
-        Sector bottomLeft = Sector.bottomLeft;
+        Sector bottomLeft = sectorBuilder.getBottomLeft();
 
         assertInside(bottomLeft.intersects(TestHelpers.lineOf(x_1y_1, new Point(-2, -1))));
     }
 
     @Test
     public void bottomRightWorks() {
-        Sector bottomRight = Sector.bottomRight;
+        Sector bottomRight = sectorBuilder.getBottomRight();
 
         assertIntersects(bottomRight.intersects(TestHelpers.lineOf(x_1y_1, new Point(2, 1))));
     }
@@ -109,7 +112,7 @@ public class SectorTest {
 
     @Test
     public void positiveXaxisWorks() {
-        Sector axis = Sector.onAxisWithPositiveY;
+        Sector axis = sectorBuilder.getOnAxisWithPositiveY();
         assertInside(axis.intersects(TestHelpers.lineOf(new Point(0, 0.0001), x0y1)));
 
         assertIntersects(axis.intersects(TestHelpers.lineOf(x_1y1, x1y1)));
@@ -122,10 +125,10 @@ public class SectorTest {
     @Test
     public void axesHaveCorrectPointHandling() {
         Sector[] axes = new Sector[] {
-                Sector.byName("+Yaxis"),
-                Sector.byName("-Xaxis"),
-                Sector.byName("-Yaxis"),
-                Sector.byName("+Xaxis")
+                sectorBuilder.byName("+Yaxis"),
+                sectorBuilder.byName("-Xaxis"),
+                sectorBuilder.byName("-Yaxis"),
+                sectorBuilder.byName("+Xaxis")
         };
 
         Point[] outsidePoints = new Point[] {
@@ -157,7 +160,7 @@ public class SectorTest {
 
     @Test
     public void testOrigin() {
-        Sector origin = Sector.origin;
+        Sector origin = sectorBuilder.getOrigin();
 
         assertTrue(origin.contains(new Point(0.005, -0.005)));
         assertFalse(origin.contains(new Point(-0.1, 0)));
@@ -174,10 +177,10 @@ public class SectorTest {
     @Test
     public void quadrantsHaveCorrectPointHandling() {
         Sector[] quadrants = new Sector[] {
-                Sector.topRight,
-                Sector.topLeft,
-                Sector.bottomLeft,
-                Sector.bottomRight
+            sectorBuilder.getTopRight(),
+            sectorBuilder.getTopLeft(),
+            sectorBuilder.getBottomLeft(),
+            sectorBuilder.getBottomRight()
         };
 
         Point[] outsidePoints = new Point[] {
@@ -209,6 +212,6 @@ public class SectorTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void unknownSectorNameThrowsAnError() {
-        Sector.byName("foo!+~~");
+        sectorBuilder.byName("foo!+~~");
     }
 }

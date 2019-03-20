@@ -21,6 +21,7 @@ import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsWrapper;
 
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,7 @@ import static uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers.lineOf;
 
 public class SlopeFeatureTest {
 
-    private SlopeFeature slopeFeature = new SlopeFeature(Item.Settings.NONE);
+    private SlopeFeature slopeFeature = new SlopeFeature(SettingsWrapper.DEFAULT);
 
     @Test
     public void slopeCalculatorIsCorrect() {

@@ -16,6 +16,7 @@
 package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsInterface;
 
 import java.util.Collections;
 import java.util.List;
@@ -23,13 +24,13 @@ import java.util.List;
 /**
  * An input feature which requires a specific number of lines to be drawn.
  */
-public class CurvesCountFeature extends InputFeature<CurvesCountFeature.Instance, Item.NoSettings> {
+public class CurvesCountFeature extends InputFeature<CurvesCountFeature.Instance, SettingsInterface.None> {
 
     /**
      * Create a curve count feature with specified settings.
      * @param settings The settings.
      */
-    CurvesCountFeature(NoSettings settings) {
+    CurvesCountFeature(SettingsInterface.None settings) {
         super(settings);
     }
 

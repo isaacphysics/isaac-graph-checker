@@ -46,8 +46,8 @@ public class Lines {
         Line remainder = line;
         for (PointOfInterest point : line.getPointsOfInterest()) {
             double x = point.getX();
-            Line left = Sector.leftOfX(x).clip(remainder);
-            remainder = Sector.rightOfX(x).clip(remainder);
+            Line left = SectorBuilder.leftOfX(x).clip(remainder);
+            remainder = SectorBuilder.rightOfX(x).clip(remainder);
             lines.add(left);
         }
         lines.add(remainder);

@@ -16,6 +16,7 @@
 package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsInterface;
 
 import java.util.List;
 
@@ -23,7 +24,7 @@ import java.util.List;
  * A feature which matches against an input.
  * @param <FeatureInstance> The class representing instances of this feature.
  */
-abstract class InputFeature<FeatureInstance extends InputFeature.Instance, SettingsType extends Item.Settings>
+abstract class InputFeature<FeatureInstance extends InputFeature.Instance, SettingsType extends SettingsInterface>
     extends Feature<FeatureInstance, Input, List<String>, SettingsType> {
 
     public InputFeature(SettingsType settings) {
@@ -61,9 +62,9 @@ abstract class InputFeature<FeatureInstance extends InputFeature.Instance, Setti
      * A type of input feature which wraps other features so doesn't have its own parsing or generation or settings.
      * @param <T> The type of instances of this feature.
      */
-    abstract static class WrapperFeature<T extends InputFeature.Instance> extends InputFeature<T, Settings> {
+    abstract static class WrapperFeature<T extends InputFeature.Instance> extends InputFeature<T, SettingsInterface> {
 
-        public WrapperFeature(Settings settings) {
+        public WrapperFeature(SettingsInterface settings) {
             super(settings);
         }
 

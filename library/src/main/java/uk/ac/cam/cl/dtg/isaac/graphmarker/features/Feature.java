@@ -15,6 +15,8 @@
  */
 package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 
+import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsInterface;
+
 import java.util.function.Predicate;
 
 /**
@@ -23,7 +25,7 @@ import java.util.function.Predicate;
  * @param <InputType> The type of input this feature processes.
  * @param <GeneratedType> The type of output this feature can generate. Should be some kind of String collection.
  */
-public abstract class Feature<FeatureInstance extends Feature.AbstractInstance, InputType, GeneratedType, SettingsType extends Item.Settings>
+public abstract class Feature<FeatureInstance extends Feature.AbstractInstance, InputType, GeneratedType, SettingsType extends SettingsInterface>
     extends Item<FeatureInstance, InputType, GeneratedType, SettingsType> {
 
     public Feature(SettingsType settings) {
