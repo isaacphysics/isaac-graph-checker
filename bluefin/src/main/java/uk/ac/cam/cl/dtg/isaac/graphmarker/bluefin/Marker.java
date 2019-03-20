@@ -20,6 +20,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.GraphAnswer;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.features.Features;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsWrapper;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.translation.AnswerToInput;
 
 import java.util.HashMap;
@@ -31,6 +32,11 @@ import java.util.stream.Collectors;
 public class Marker {
 
     private final AnswerToInput answerToInput = new AnswerToInput();
+    private final Features features;
+
+    public Marker(SettingsWrapper settings) {
+        features = new Features(settings);
+    }
 
     public class Context {
         private final Map<String, List<String>> failedFeatures = new HashMap<>();
@@ -44,7 +50,7 @@ public class Marker {
                 .map(entry -> {
                     Input input = answerToInput.apply(entry.getValue());
 
-                    Features.Matcher matcher = new Features().matcher(examples.getSpecification());
+                    Features.Matcher matcher = features.matcher(examples.getSpecification());
 
                     List<String> failures = matcher.getFailingSpecs(input);
                     return Pair.of(entry.getKey(), failures);
@@ -88,6 +94,6 @@ public class Marker {
     public boolean mark(String specification, GraphAnswer graphAnswer) {
         Input input = answerToInput.apply(graphAnswer);
 
-        return new Features().matcher(specification).test(input);
+        return features.matcher(specification).test(input);
     }
 }

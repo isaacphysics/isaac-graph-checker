@@ -56,6 +56,10 @@ public class SectorBuilder {
             return 0.05;
         }
 
+        default double getRelaxedOriginSlop() {
+            return 0.1;
+        }
+
         default SectorBuilder getSectorBuilder() {
             return new SectorBuilder(this);
         }
@@ -261,6 +265,6 @@ public class SectorBuilder {
     }
 
     public Sector getRelaxedOrigin() {
-        return square("relaxedOrigin", 0.1);
+        return square("relaxedOrigin", settings.getRelaxedOriginSlop());
     }
 }

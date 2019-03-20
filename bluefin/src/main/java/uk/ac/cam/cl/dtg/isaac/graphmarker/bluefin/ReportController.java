@@ -16,6 +16,7 @@
 
 package uk.ac.cam.cl.dtg.isaac.graphmarker.bluefin;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.features.Features;
 
@@ -60,7 +61,8 @@ public class ReportController {
     }
 
     @GET
-    public String report(@QueryParam("withoutSuppression") boolean withoutSuppression) {
+    public String report(@QueryParam("withoutSuppression") boolean withoutSuppression,
+                         @QueryParam("settings") String settingsParam) throws JsonProcessingException {
         final StringBuilder response = new StringBuilder();
         response.append(HEADER);
 
@@ -68,7 +70,18 @@ public class ReportController {
 
         List<ExampleSet> examples = Examples.load();
 
-        Marker marker = new Marker();
+        CustomSettings settings;
+        if (settingsParam == null) {
+            settings = new CustomSettings();
+        } else {
+            try {
+                settings = CustomSettings.OBJECT_MAPPER.readValue(settingsParam, CustomSettings.class);
+            } catch (IOException e) {
+                return "I didn't understand those settings";
+            }
+        }
+
+        Marker marker = new Marker(settings);
 
         List<String> fullyCorrectExamples = new ArrayList<>();
 
@@ -153,6 +166,15 @@ public class ReportController {
         response.append("<br><a href=\"/crossValidate\">Cross-validate</a>");
 
         // parameter adjustments
+        response.append("<h1>Settings</h1>");
+        response.append("<form>");
+        response.append("<input type=hidden name=withoutSuppression value=").append(withoutSuppression).append(">");
+
+        response.append("<textarea rows=10 cols=80 name=settings>");
+        response.append(CustomSettings.OBJECT_MAPPER.writeValueAsString(settings));
+        response.append("</textarea>");
+        response.append("<br><input type=submit value='Re-run'>");
+        response.append("</form>");
 
         response.append(FOOTER);
         return response.toString();
