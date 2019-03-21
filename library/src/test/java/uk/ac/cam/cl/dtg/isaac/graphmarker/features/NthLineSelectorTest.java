@@ -38,8 +38,8 @@ public class NthLineSelectorTest {
 
     @Test
     public void testGenerate() {
-        Line line1 = TestHelpers.lineOf(x -> x, -1, 1);
-        Line line2 = TestHelpers.lineOf(x -> -x, -1, 1);
+        Line line1 = TestHelpers.lineOf(x -> x, -1, -0.1);
+        Line line2 = TestHelpers.lineOf(x -> -x, 0.1, 1);
         Map<String, Line> lineMap = nthLineSelector.generate(TestHelpers.inputOf(line1,
             line2));
 

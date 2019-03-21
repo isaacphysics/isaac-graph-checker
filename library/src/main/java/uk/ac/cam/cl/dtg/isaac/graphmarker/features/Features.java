@@ -65,10 +65,12 @@ public class Features {
         );
         curvesCountFeature = new CurvesCountFeature(settings);
         inputFeatures = ImmutableList.of(
-            curvesCountFeature
+            curvesCountFeature,
+            new IntersectionPointsFeature(settings)
         );
         lineSelectors = ImmutableList.of(
-            new NthLineSelector(settings)
+            new NthLineSelector(settings),
+            new MatchingLineSelector(settings)
         );
     }
 
@@ -101,14 +103,6 @@ public class Features {
     public String generate(Input input) {
         List<String> features = new ArrayList<>();
 
-        // Run through input, trying all input features
-        for (InputFeature<?, ?> feature : inputFeatures) {
-            Collection<String> foundFeatures = feature.generate(input);
-            foundFeatures.stream()
-                .map(feature::prefix)
-                .forEach(features::add);
-        }
-
         if (input.getLines().size() == 1) {
             // Don't bother with line selectors
             Line line = input.getLines().get(0);
@@ -123,6 +117,14 @@ public class Features {
                         .collect(Collectors.toList()));
                 });
             }
+        }
+
+        // Run through input, trying all input features
+        for (InputFeature<?, ?> feature : inputFeatures) {
+            Collection<String> foundFeatures = feature.generate(input);
+            foundFeatures.stream()
+                .map(feature::prefix)
+                .forEach(features::add);
         }
 
         return String.join("\r\n", features);
@@ -164,12 +166,14 @@ public class Features {
          */
         public List<String> getFailingSpecs(Input input) {
             List<String> failedPredicates = new ArrayList<>();
+            AssignmentContext.push();
             for (InputFeature<?, ?>.Instance inputPredicate: matchers) {
                 boolean test = inputPredicate.test(input);
                 if (!test) {
                     failedPredicates.add(inputPredicate.getTaggedFeatureData());
                 }
             }
+            AssignmentContext.pop();
             return failedPredicates;
         }
 
@@ -177,7 +181,7 @@ public class Features {
         public boolean test(Input input) {
             List<String> failingSpecs = getFailingSpecs(input);
             if (!failingSpecs.isEmpty()) {
-                log.info("Failed specs: " + String.join("\r\n\t\t", failingSpecs));
+                log.debug("Failed specs: " + String.join("\r\n\t\t", failingSpecs));
             }
             return failingSpecs.isEmpty();
         }

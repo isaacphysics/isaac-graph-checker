@@ -44,6 +44,7 @@ public class SectorBuilder {
     }
 
     private static final Map<Settings, SectorBuilder> SECTOR_BUILDER_CACHE = new HashMap<>();
+
     /**
      * The type of settings for SectorBuilder.
      */
@@ -134,6 +135,15 @@ public class SectorBuilder {
             throw new IllegalArgumentException(s + " is not a valid sector");
         }
     }
+
+    public List<Sector> fromList(String csv) {
+        String[] sectorNames = csv.split(",");
+        return Arrays.stream(sectorNames)
+            .map(String::trim)
+            .map(this::byName)
+            .collect(Collectors.toList());
+    }
+
 
     private final Map<String, Sector> sectorCache = new HashMap<>();
 

@@ -15,13 +15,22 @@
  */
 package uk.ac.cam.cl.dtg.isaac.graphmarker.geometry;
 
+import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang3.tuple.Pair;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.data.IntersectionParams;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.PointOfInterest;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Rect;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Utility class of functions on Line objects.
@@ -64,27 +73,17 @@ public class Lines {
      * @param line The line to be analysed.
      * @return The width and height of the bounding box.
      */
-    @SuppressWarnings({"checkstyle:needBraces", "checkstyle:avoidInlineConditionals"})
+    @SuppressWarnings({"checkstyle:avoidInlineConditionals"})
     public static Point getSize(Line line) {
         if (line.getPoints().isEmpty()) return new Point(0, 0);
 
-        double minX = Double.MAX_VALUE;
-        double minY = Double.MAX_VALUE;
-        double maxX = -Double.MAX_VALUE;
-        double maxY = -Double.MAX_VALUE;
+        Rect bounds = boundingRect(line);
 
-        for (Point p : line.getPoints()) {
-            if (p.getX() < minX) minX = p.getX();
-            if (p.getX() > maxX) maxX = p.getX();
-            if (p.getY() < minY) minY = p.getY();
-            if (p.getY() > maxY) maxY = p.getY();
-        }
+        double centreX = (bounds.getRight() + bounds.getLeft()) / 2;
+        double centreY = (bounds.getTop() + bounds.getBottom()) / 2;
 
-        double centreX = (maxX + minX) / 2;
-        double centreY = (maxY + minY) / 2;
-
-        double diffX = maxX - minX;
-        double diffY = maxY - minY;
+        double diffX = bounds.getRight() - bounds.getLeft();
+        double diffY = bounds.getTop() - bounds.getBottom();
 
         double startX = line.getPoints().get(0).getX();
         double startY = line.getPoints().get(0).getY();
@@ -93,6 +92,26 @@ public class Lines {
         double y = startY < centreY ? diffY : -diffY;
 
         return new Point(x, y);
+    }
+
+    /**
+     * Check if there is no horizontal overlap between a collection of lines.
+     *
+     * @param lines The collection of lines.
+     * @return True if there is no horizontal overlap between the lines; i.e. the set of lines is single-valued.
+     */
+    public static boolean noHorizonalOverlap(Collection<Line> lines) {
+        List<Pair<Double, Double>> runs = new ArrayList<>();
+        for (Line line : lines) {
+            Pair<Double, Double> span = horizontalSpan(line);
+            for (Pair<Double, Double> existing : runs) {
+                if (span.getLeft() <= existing.getRight() && span.getRight() >= existing.getLeft()) {
+                    return false;
+                }
+            }
+            runs.add(span);
+        }
+        return true;
     }
 
     /**
@@ -123,5 +142,91 @@ public class Lines {
         return new Sector("rightOfX=" + x, Collections.singletonList(
             Segment.openBothEnds(new Point(x, 0), UP, Side.RIGHT)
         ));
+    }
+
+    /**
+     * Get the minimum and maximum X co-ordinates of a line.
+     *
+     * @param line The line.
+     * @return A pair of (minimum, maximum) X co-ordinates.
+     */
+    private static Pair<Double, Double> horizontalSpan(Line line) {
+        return Pair.of(line.getPoints().stream().mapToDouble(Point::getX).min().getAsDouble(),
+            line.getPoints().stream().mapToDouble(Point::getX).max().getAsDouble());
+    }
+
+    public static List<Point> findIntersections(Line lineA, Line lineB) {
+        if (lineA.getPoints().size() == 2 && lineB.getPoints().size() == 2) {
+            Segment a = lineToSegment(lineA);
+            Segment b = lineToSegment(lineB);
+            IntersectionParams.IntersectionParam intersectionParam = a.intersectionParam(b);
+            if (intersectionParam != null) {
+                return Collections.singletonList(b.atParameter(intersectionParam.getT()));
+            } else {
+                return Collections.emptyList();
+            }
+        } else {
+            List<Line> splitA = splitInHalf(lineA);
+            List<Line> splitB = splitInHalf(lineB);
+
+            return splitA.stream()
+                .flatMap(subA ->
+                    splitB.stream()
+                        .flatMap(
+                            subB -> {
+                                if (boundingIntersects(subA, subB)) {
+                                    return findIntersections(subA, subB).stream();
+                                } else {
+                                    return Stream.empty();
+                                }
+                            }
+                        ))
+                .distinct()
+                .collect(Collectors.toList());
+        }
+    }
+
+    private static boolean boundingIntersects(Line subA, Line subB) {
+        Rect boundingA = boundingRect(subA);
+        Rect boundingB = boundingRect(subB);
+
+        return boundingA.getLeft() <= boundingB.getRight()
+            && boundingA.getRight() >= boundingB.getLeft()
+            && boundingA.getTop() >= boundingB.getBottom()
+            && boundingA.getBottom() <= boundingB.getTop();
+    }
+
+    @SuppressWarnings({"checkstyle:needBraces"})
+    private static Rect boundingRect(Line line) {
+        double minX = Double.MAX_VALUE;
+        double minY = Double.MAX_VALUE;
+        double maxX = -Double.MAX_VALUE;
+        double maxY = -Double.MAX_VALUE;
+
+        for (Point p : line.getPoints()) {
+            if (p.getX() < minX) minX = p.getX();
+            if (p.getX() > maxX) maxX = p.getX();
+            if (p.getY() < minY) minY = p.getY();
+            if (p.getY() > maxY) maxY = p.getY();
+        }
+
+        return new Rect(minX, maxX, maxY, minY);
+    }
+
+    private static List<Line> splitInHalf(Line line) {
+        List<Point> points = line.getPoints();
+        if (points.size() == 2) {
+            return Collections.singletonList(line);
+        }
+        int half = points.size() / 2;
+        return ImmutableList.of(
+            new Line(points.subList(0, half + 1), Collections.emptyList()),
+            new Line(points.subList(half, points.size()), Collections.emptyList())
+        );
+    }
+
+    private static Segment lineToSegment(Line line) {
+        assert line.getPoints().size() == 2;
+        return Segment.closed(line.getPoints().get(0), line.getPoints().get(1));
     }
 }

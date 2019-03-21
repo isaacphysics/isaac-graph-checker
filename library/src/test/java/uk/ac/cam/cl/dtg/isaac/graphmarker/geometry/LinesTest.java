@@ -18,7 +18,9 @@ package uk.ac.cam.cl.dtg.isaac.graphmarker.geometry;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers;
 import org.junit.Test;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -35,5 +37,55 @@ public class LinesTest {
         assertEquals(TestHelpers.lineOf(-10,0, -5,5), lines.get(0));
         assertEquals(TestHelpers.lineOf(-5,5, 0,0, 5,-5), lines.get(1));
         assertEquals(TestHelpers.lineOf(5,-5, 10, 0), lines.get(2));
+    }
+
+    @Test
+    public void testSimpleIntersections() {
+        Line lineA = TestHelpers.lineOf(0,0, 10,10);
+        Line lineB = TestHelpers.lineOf(10,0, 0,10);
+
+        List<Point> intersections = Lines.findIntersections(lineA, lineB);
+
+        assertEquals(Collections.singletonList(new Point(5, 5)), intersections);
+    }
+
+    @Test
+    public void testParallelNonIntersection() {
+        Line lineA = TestHelpers.lineOf(0,0, 10,10);
+        Line lineB = TestHelpers.lineOf(1,1, 11,11);
+
+        List<Point> intersections = Lines.findIntersections(lineA, lineB);
+
+        assertEquals(Collections.emptyList(), intersections);
+    }
+
+    @Test
+    public void testNonIntersection() {
+        Line lineA = TestHelpers.lineOf(0,20, 10,10);
+        Line lineB = TestHelpers.lineOf(0,-20, 10,-10);
+
+        List<Point> intersections = Lines.findIntersections(lineA, lineB);
+
+        assertEquals(Collections.emptyList(), intersections);
+    }
+
+    @Test
+    public void testMediumIntersections() {
+        Line lineA = TestHelpers.lineOf(0,0, 5,5, 10,10);
+        Line lineB = TestHelpers.lineOf(10,0, 0,10);
+
+        List<Point> intersections = Lines.findIntersections(lineA, lineB);
+
+        assertEquals(Collections.singletonList(new Point(5, 5)), intersections);
+    }
+
+    @Test
+    public void testComplexIntersections() {
+        Line lineA = TestHelpers.lineOf(Math::sin, -10, 10);
+        Line lineB = TestHelpers.lineOf(Math::cos, -10, 10);
+
+        List<Point> intersections = Lines.findIntersections(lineA, lineB);
+
+        assertEquals(6, intersections.size());
     }
 }
