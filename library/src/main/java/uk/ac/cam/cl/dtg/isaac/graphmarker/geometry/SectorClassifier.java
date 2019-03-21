@@ -18,24 +18,51 @@ package uk.ac.cam.cl.dtg.isaac.graphmarker.geometry;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsInterface;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Utility to classify sectors according to the ordered sector list provided by the settings.
+ *
+ * By default, uses a default ordered sector list that makes sense for our problems.
+ */
 public class SectorClassifier {
     private final Settings settings;
 
+    /**
+     * Constructor which stores settings.
+     * @param settings The settings for this builder.
+     */
     SectorClassifier(Settings settings) {
         this.settings = settings;
     }
 
+    private static final Map<Settings, SectorClassifier> SECTOR_CLASSIFIER_CACHE = new HashMap<>();
+
+    /**
+     * The type of settings for SectorClassifier.
+     */
     public interface Settings extends SettingsInterface, SectorBuilder.Settings {
+
+        /**
+         * @return The sectors we classify against, in order of priority.
+         */
         default List<Sector> getOrderedSectors() {
             return getSectorBuilder().getDefaultOrderedSectors();
         }
 
+        /**
+         * Factory method to get a SectorClassifier with these settings.
+         *
+         * SectorClassifier objects are cached by this method for performance.
+         *
+         * @return A SectorClassifier with these settings.
+         */
         default SectorClassifier getSectorClassifier() {
-            return new SectorClassifier(this);
+            return SECTOR_CLASSIFIER_CACHE.computeIfAbsent(this, SectorClassifier::new);
         }
     }
 

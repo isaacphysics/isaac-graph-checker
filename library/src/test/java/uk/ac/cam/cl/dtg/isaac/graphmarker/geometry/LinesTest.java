@@ -22,7 +22,6 @@ import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import static uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers.lineOf;
 
 public class LinesTest {
 

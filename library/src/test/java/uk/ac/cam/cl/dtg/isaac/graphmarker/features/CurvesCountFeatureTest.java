@@ -23,8 +23,6 @@ import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsWrapper;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import static uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers.inputOf;
-import static uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers.lineOf;
 
 public class CurvesCountFeatureTest {
 

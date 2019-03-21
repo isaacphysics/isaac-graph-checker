@@ -26,8 +26,6 @@ import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsWrapper;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers.lineOf;
 
 public class SymmetryFeatureTest {
 
@@ -52,15 +50,15 @@ public class SymmetryFeatureTest {
     public void checkFunctionSymmetry() {
         List<ImmutableTriple<String, Line, SymmetryFeature.SymmetryType>> functions = ImmutableList.<ImmutableTriple<String, Line, SymmetryFeature.SymmetryType>>builder()
             .add(ImmutableTriple.of("10", TestHelpers.lineOf(x -> 10.0, -10, 10), SymmetryFeature.SymmetryType.EVEN))
-            .add(ImmutableTriple.of("|x|", TestHelpers.lineOf(x -> Math.abs(x), -10, 10), SymmetryFeature.SymmetryType.EVEN))
+            .add(ImmutableTriple.of("|x|", TestHelpers.lineOf(Math::abs, -10, 10), SymmetryFeature.SymmetryType.EVEN))
             .add(ImmutableTriple.of("-|x|", TestHelpers.lineOf(x -> -Math.abs(x), -10, 10), SymmetryFeature.SymmetryType.EVEN))
             .add(ImmutableTriple.of("1+sin(x)", TestHelpers.lineOf(x -> 1 + Math.sin(x), -Math.PI * 0.75, Math.PI * 0.75), SymmetryFeature.SymmetryType.ANTISYMMETRIC))
             .add(ImmutableTriple.of("1+x^3-x", TestHelpers.lineOf(x -> 1 + x*x*x - x, -5, 5), SymmetryFeature.SymmetryType.ANTISYMMETRIC))
             .add(ImmutableTriple.of("x", TestHelpers.lineOf(x -> x, -10, 10), SymmetryFeature.SymmetryType.ODD))
             .add(ImmutableTriple.of("x+1", TestHelpers.lineOf(x -> x + 1, -10, 10), SymmetryFeature.SymmetryType.NONE))
             .add(ImmutableTriple.of("1+|x|", TestHelpers.lineOf(x -> 1 + Math.abs(x), -10, 10), SymmetryFeature.SymmetryType.EVEN))
-            .add(ImmutableTriple.of("sin(x)", TestHelpers.lineOf(x -> Math.sin(x), - Math.PI / 2, Math.PI / 2), SymmetryFeature.SymmetryType.ODD))
-            .add(ImmutableTriple.of("cos(x)", TestHelpers.lineOf(x -> Math.cos(x), -10, 10), SymmetryFeature.SymmetryType.EVEN))
+            .add(ImmutableTriple.of("sin(x)", TestHelpers.lineOf(Math::sin, - Math.PI / 2, Math.PI / 2), SymmetryFeature.SymmetryType.ODD))
+            .add(ImmutableTriple.of("cos(x)", TestHelpers.lineOf(Math::cos, -10, 10), SymmetryFeature.SymmetryType.EVEN))
             .add(ImmutableTriple.of("1+cos(x)", TestHelpers.lineOf(x -> 1 + Math.cos(x), -10, 10), SymmetryFeature.SymmetryType.EVEN))
             .add(ImmutableTriple.of("(x-2)(x-2)", TestHelpers.lineOf(x -> (x-2)*(x-2), -8, 12), SymmetryFeature.SymmetryType.SYMMETRIC))
             .build();

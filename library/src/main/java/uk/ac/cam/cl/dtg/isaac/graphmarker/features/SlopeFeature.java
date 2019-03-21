@@ -18,6 +18,7 @@ package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.HumanNamedEnum;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.features.internals.LineFeature;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.Lines;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsInterface;
@@ -41,11 +42,21 @@ public class SlopeFeature extends LineFeature<SlopeFeature.Instance, SlopeFeatur
         super(settings);
     }
 
+    /**
+     * The settings for a SlopeFeature.
+     */
+    @SuppressWarnings("magicNumber")
     public interface Settings extends SettingsInterface {
+        /**
+         * @return The minimum ratio of change in order co-ordinate to the other to be considered steep.
+         */
         default double getSlopeThreshold() {
             return 4;
         }
 
+        /**
+         * @return The number of points to take from either end of the line to check its slope.
+         */
         default int getNumberOfPointsAtEnds() {
             return 5;
         }
@@ -154,19 +165,19 @@ public class SlopeFeature extends LineFeature<SlopeFeature.Instance, SlopeFeatur
      * @param line The line to measure.
      * @return The slope of the line.
      */
-     Slope lineToSlope(Line line) {
+    Slope lineToSlope(Line line) {
         Point size = Lines.getSize(line);
 
         // Negative X is incorrect for our purposes, so force it to be positive.
         size = new Point(Math.abs(size.getX()), size.getY());
 
         double highIfFlat = size.getX() / size.getY();
-         if (Math.abs(highIfFlat) > settings.getSlopeThreshold()) {
+        if (Math.abs(highIfFlat) > settings().getSlopeThreshold()) {
             return Slope.FLAT;
         }
 
         double highIfSteep = size.getY() / size.getX();
-         if (Math.abs(highIfSteep) > settings.getSlopeThreshold()) {
+        if (Math.abs(highIfSteep) > settings().getSlopeThreshold()) {
             if (highIfSteep > 0) {
                 return Slope.UP;
             } else {
@@ -186,7 +197,7 @@ public class SlopeFeature extends LineFeature<SlopeFeature.Instance, SlopeFeatur
     private Line lineAtPosition(Line line, Position position) {
         List<Point> points = line.getPoints();
         int size = points.size();
-        int desired = Math.min(settings.getNumberOfPointsAtEnds(), size);
+        int desired = Math.min(settings().getNumberOfPointsAtEnds(), size);
         return new Line(position.selectPoints(points, size, desired), Collections.emptyList());
     }
 }

@@ -69,7 +69,7 @@ public class ExpectedSectorsFeatureTest {
         Predicate<Line> testFeature = line -> expectedSectorsFeature.deserializeInternal(
             "topLeft, onAxisWithNegativeX, bottomLeft, onAxisWithNegativeX, topLeft, onAxisWithPositiveY, topRight, onAxisWithPositiveX, bottomRight, onAxisWithPositiveX, topRight").test(line);
 
-        assertTrue(testFeature.test(TestHelpers.lineOf(x -> Math.cos(x), -2 * Math.PI, 2 * Math.PI)));
+        assertTrue(testFeature.test(TestHelpers.lineOf(Math::cos, -2 * Math.PI, 2 * Math.PI)));
         assertFalse(testFeature.test(TestHelpers.lineOf(x -> Math.cos(x + Math.PI / 2), -2 * Math.PI, 2 * Math.PI)));
     }
 
@@ -78,8 +78,8 @@ public class ExpectedSectorsFeatureTest {
         Predicate<Line> testFeature = line -> expectedSectorsFeature.deserializeInternal(
             "onAxisWithNegativeX, topLeft, onAxisWithNegativeX, bottomLeft, origin, topRight, onAxisWithPositiveX, bottomRight, onAxisWithPositiveX").test(line);
 
-        assertTrue(testFeature.test(TestHelpers.lineOf(x -> Math.sin(x), -2 * Math.PI, 2 * Math.PI)));
-        assertFalse(testFeature.test(TestHelpers.lineOf(x -> Math.cos(x), -2 * Math.PI, 2 * Math.PI)));
+        assertTrue(testFeature.test(TestHelpers.lineOf(Math::sin, -2 * Math.PI, 2 * Math.PI)));
+        assertFalse(testFeature.test(TestHelpers.lineOf(Math::cos, -2 * Math.PI, 2 * Math.PI)));
     }
 
     @Test
@@ -108,11 +108,11 @@ public class ExpectedSectorsFeatureTest {
 
     @Test
     public void generateMatchesItself() {
-        List<String> data = expectedSectorsFeature.generate((TestHelpers.lineOf(x -> Math.cos(x), -2 * Math.PI, 2 * Math.PI)));
+        List<String> data = expectedSectorsFeature.generate((TestHelpers.lineOf(Math::cos, -2 * Math.PI, 2 * Math.PI)));
 
         Predicate<Line> testFeature = line -> expectedSectorsFeature.deserializeInternal(data.get(0)).test(line);
 
-        assertTrue(testFeature.test(wobbly(TestHelpers.lineOf(x -> Math.cos(x), -2 * Math.PI, 2 * Math.PI))));
+        assertTrue(testFeature.test(wobbly(TestHelpers.lineOf(Math::cos, -2 * Math.PI, 2 * Math.PI))));
     }
 
     private Line wobbly(Line points) {

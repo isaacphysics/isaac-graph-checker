@@ -15,8 +15,14 @@
  */
 package uk.ac.cam.cl.dtg.isaac.graphmarker.settings;
 
+/**
+ * A marker interface for settings objects.
+ */
 public interface SettingsInterface {
 
+    /**
+     * A marker interface to describe something that doesn't have any settings.
+     */
     interface None extends SettingsInterface {
     }
 }

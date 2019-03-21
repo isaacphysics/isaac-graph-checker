@@ -115,24 +115,6 @@ public class Segment {
         return end;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Segment segment = (Segment) o;
-        return openBothEnds == segment.openBothEnds && Objects.equals(start, segment.start)
-            && Objects.equals(end, segment.end) && side == segment.side;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(start, end, side, openBothEnds);
-    }
-
     /**
      * Is this point on the inside of this line segment?
      *

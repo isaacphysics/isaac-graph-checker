@@ -22,7 +22,6 @@ import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -30,18 +29,19 @@ import java.util.stream.Collectors;
  */
 public class Sector {
 
-    private final SectorBuilder.Settings settings;
     private final String name;
     private final List<Segment> segments;
 
     /**
      * Create a sector.
-     * @param settings
+     *
+     * Sectors are tested for equality by identity, so you must cache them when you create them if you want to compare
+     * them.
+     *
      * @param name The name of the sector.
      * @param segments The segments defining the boundaries of this sector.
      */
-    Sector(SectorBuilder.Settings settings, String name, List<Segment> segments) {
-        this.settings = settings;
+    Sector(String name, List<Segment> segments) {
         this.name = name;
         this.segments = segments;
     }
@@ -49,25 +49,6 @@ public class Sector {
     @Override
     public String toString() {
         return name;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Sector sector = (Sector) o;
-        return Objects.equals(settings, sector.settings)
-            && Objects.equals(name, sector.name)
-            && Objects.equals(segments, sector.segments);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(settings, name, segments);
     }
 
     /**

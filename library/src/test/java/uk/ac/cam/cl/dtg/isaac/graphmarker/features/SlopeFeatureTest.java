@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 import static org.junit.Assert.*;
-import static uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers.lineOf;
 
 public class SlopeFeatureTest {
 

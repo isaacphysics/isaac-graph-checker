@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
+package uk.ac.cam.cl.dtg.isaac.graphmarker.features.internals;
 
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
@@ -24,18 +24,23 @@ import java.util.List;
 /**
  * A feature which matches against a line.
  * @param <FeatureInstance> The class representing instances of this feature.
+ * @param <SettingsType> The settings type used for this feature.
  */
-abstract class LineFeature<FeatureInstance extends LineFeature.Instance, SettingsType extends SettingsInterface>
+public abstract class LineFeature<FeatureInstance extends LineFeature.Instance, SettingsType extends SettingsInterface>
     extends Feature<FeatureInstance, Line, List<String>, SettingsType> {
 
-    public LineFeature(SettingsType settings) {
+    /**
+     * Constructor to wire up settings.
+     * @param settings Settings for this feature.
+     */
+    protected LineFeature(SettingsType settings) {
         super(settings);
     }
 
     /**
      * An instance of a LineFeature.
      */
-    abstract class Instance extends AbstractInstance {
+    public abstract class Instance extends AbstractInstance {
         /**
          * Create an instance of this feature; this is wrapped for type purposes.
          * @param item The feature specification.
@@ -49,7 +54,7 @@ abstract class LineFeature<FeatureInstance extends LineFeature.Instance, Setting
          * @return An input feature instance that recognises the line feature in any line.
          */
         public InputFeature.Instance wrapToItemFeature() {
-            return new LineFeatureWrapper(settings).new Instance(this.getTaggedFeatureData(), this);
+            return new LineFeatureWrapper(settings()).new Instance(this.getTaggedFeatureData(), this);
         }
     }
 
@@ -69,9 +74,13 @@ abstract class LineFeature<FeatureInstance extends LineFeature.Instance, Setting
     /**
      * A wrapper that makes an input feature from a line feature. It will match if any line matches.
      */
-    class LineFeatureWrapper extends InputFeature.WrapperFeature<LineFeatureWrapper.Instance> {
+    private class LineFeatureWrapper extends InputFeature.WrapperFeature<LineFeatureWrapper.Instance> {
 
-        public LineFeatureWrapper(SettingsInterface settings) {
+        /**
+         * Constructor to wire up settings.
+         * @param settings Settings for this feature.
+         */
+        private LineFeatureWrapper(SettingsInterface settings) {
             super(settings);
         }
 

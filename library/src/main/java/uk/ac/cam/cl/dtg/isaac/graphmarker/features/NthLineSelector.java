@@ -17,6 +17,7 @@ package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.features.internals.LineSelector;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsInterface;
 
 import java.util.HashMap;
@@ -61,7 +62,7 @@ public class NthLineSelector extends LineSelector<NthLineSelector.Instance, Sett
         }
 
         @Override
-        Predicate<Input> matcher(Predicate<Line> linePredicate) {
+        protected Predicate<Input> matcher(Predicate<Line> linePredicate) {
             return input -> {
                 List<Line> lines = input.getLines();
                 if (n > lines.size()) {

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
+package uk.ac.cam.cl.dtg.isaac.graphmarker.features.internals;
 
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
@@ -25,10 +25,16 @@ import java.util.function.Predicate;
 /**
  * A selector which chooses some lines from the Input and applies a LineFeature to them.
  * @param <SelectorInstance> The class representing instances of this selector.
+ * @param <SettingsType> The settings type used for this feature.
  */
-abstract class LineSelector<SelectorInstance extends LineSelector.Instance, SettingsType extends SettingsInterface>
+public abstract class LineSelector<SelectorInstance extends LineSelector.Instance,
+                                   SettingsType extends SettingsInterface>
     extends Item<SelectorInstance, Input, Map<String, Line>, SettingsType> {
 
+    /**
+     * Constructor to wire up settings.
+     * @param settings Settings for this feature.
+     */
     public LineSelector(SettingsType settings) {
         super(settings);
     }
@@ -36,15 +42,16 @@ abstract class LineSelector<SelectorInstance extends LineSelector.Instance, Sett
     /**
      * An instance of a LineSelector that can be used to test against input.
      */
-    abstract class Instance extends Item.AbstractInstance {
+    public abstract class Instance extends Item.AbstractInstance {
         private final String item;
 
         /**
          * Create an instance of a LineSelector.
          *
+         * @param featureData The configuration of this whole feature.
          * @param item The configuration of the line feature inside this selector.
          */
-        Instance(String featureData, String item) {
+        public Instance(String featureData, String item) {
             super(featureData, true);
             this.item = item;
         }
@@ -67,7 +74,7 @@ abstract class LineSelector<SelectorInstance extends LineSelector.Instance, Sett
          * @param linePredicate The line predicate to be applied.
          * @return An input predicate.
          */
-        abstract Predicate<Input> matcher(Predicate<Line> linePredicate);
+        protected abstract Predicate<Input> matcher(Predicate<Line> linePredicate);
 
         /**
          * Wrap a line feature into an item feature that matches lines selected by this selector.
@@ -75,7 +82,7 @@ abstract class LineSelector<SelectorInstance extends LineSelector.Instance, Sett
          * @return An input feature instance that recognises the line feature in the selected line.
          */
         public InputFeature.Instance wrapToItemFeature(LineFeature<?, ?>.Instance instance) {
-            return new LineSelectorWrapperFeature(settings).new Instance(this, instance);
+            return new LineSelectorWrapperFeature(settings()).new Instance(this, instance);
         }
     }
 
@@ -97,6 +104,10 @@ abstract class LineSelector<SelectorInstance extends LineSelector.Instance, Sett
      */
     static class LineSelectorWrapperFeature extends InputFeature.WrapperFeature<LineSelectorWrapperFeature.Instance> {
 
+        /**
+         * Constructor to wire up settings.
+         * @param settings Settings for this feature.
+         */
         LineSelectorWrapperFeature(SettingsInterface settings) {
             super(settings);
         }

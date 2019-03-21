@@ -33,7 +33,7 @@ public class PointsFeatureTest {
     public void simplePointsTest() {
         List<String> data = pointsFeature.generate(TestHelpers.lineOf(x -> x * x, -5, 5));
 
-        Line passLine = TestHelpers.lineOf(x -> Math.abs(x), -5, 5);
+        Line passLine = TestHelpers.lineOf(Math::abs, -5, 5);
         Line failLine = TestHelpers.lineOf(x -> x, -5, 5);
 
         assertTrue(pointsFeature.deserializeInternal(data.get(0)).test(passLine));

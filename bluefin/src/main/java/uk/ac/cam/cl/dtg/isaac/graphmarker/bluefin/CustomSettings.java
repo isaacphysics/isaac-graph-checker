@@ -19,7 +19,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -53,14 +52,13 @@ public class CustomSettings implements SettingsWrapper {
         }
     }
 
-    public static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     static {
         SimpleModule simpleModule = new SimpleModule();
         simpleModule.addSerializer(Sector.class, new SectorSerializer());
         OBJECT_MAPPER.registerModule(simpleModule);
         OBJECT_MAPPER.enable(SerializationFeature.INDENT_OUTPUT);
     }
-
 
     private final double slopeThreshold;
     private final int numberOfPointsAtEnds;

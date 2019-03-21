@@ -20,11 +20,21 @@ import uk.ac.cam.cl.dtg.isaac.graphmarker.features.SymmetryFeature;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.SectorBuilder;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.SectorClassifier;
 
+/**
+ * Any customised settings must inherit from this wrapper in order to have all the required settings.
+ *
+ * This is basically tying a knot so all of the settings are available in one object, using interfaces with defaults to
+ * allow the necessary multiple-inheritance.
+ */
+@SuppressWarnings("interfaceIsType")
 public interface SettingsWrapper extends SettingsInterface.None,
     SlopeFeature.Settings,
     SymmetryFeature.Settings,
     SectorBuilder.Settings,
     SectorClassifier.Settings {
 
-    static SettingsWrapper DEFAULT = new SettingsWrapper() { };
+    /**
+     * The default set of settings for everything.
+     */
+    SettingsWrapper DEFAULT = new SettingsWrapper() { };
 }

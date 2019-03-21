@@ -16,6 +16,7 @@
 package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.features.internals.InputFeature;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsInterface;
 
 import java.util.Collections;

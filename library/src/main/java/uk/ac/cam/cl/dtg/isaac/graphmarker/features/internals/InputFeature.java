@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
+package uk.ac.cam.cl.dtg.isaac.graphmarker.features.internals;
 
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsInterface;
@@ -23,18 +23,24 @@ import java.util.List;
 /**
  * A feature which matches against an input.
  * @param <FeatureInstance> The class representing instances of this feature.
+ * @param <SettingsType> The settings type used for this feature.
  */
-abstract class InputFeature<FeatureInstance extends InputFeature.Instance, SettingsType extends SettingsInterface>
+public abstract class InputFeature<FeatureInstance extends InputFeature.Instance,
+                                   SettingsType extends SettingsInterface>
     extends Feature<FeatureInstance, Input, List<String>, SettingsType> {
 
-    public InputFeature(SettingsType settings) {
+    /**
+     * Constructor to wire up settings.
+     * @param settings Settings for this feature.
+     */
+    protected InputFeature(SettingsType settings) {
         super(settings);
     }
 
     /**
      * An instance of an InputFeature.
      */
-    abstract class Instance extends AbstractInstance {
+    public abstract class Instance extends AbstractInstance {
         /**
          * Create an instance of this feature; this is wrapped for type purposes.
          * @param item The feature specification.
@@ -64,7 +70,11 @@ abstract class InputFeature<FeatureInstance extends InputFeature.Instance, Setti
      */
     abstract static class WrapperFeature<T extends InputFeature.Instance> extends InputFeature<T, SettingsInterface> {
 
-        public WrapperFeature(SettingsInterface settings) {
+        /**
+         * Constructor to wire up settings.
+         * @param settings Settings for this feature.
+         */
+        WrapperFeature(SettingsInterface settings) {
             super(settings);
         }
 

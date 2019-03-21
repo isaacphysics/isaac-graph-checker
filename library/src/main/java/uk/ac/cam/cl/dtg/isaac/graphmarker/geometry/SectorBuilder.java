@@ -19,21 +19,75 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Streams;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsInterface;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsWrapper;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+/**
+ * Generates and manages settings for Sector, which is more focused just on the geometry.
+ */
 public class SectorBuilder {
     private final Settings settings;
 
+    /**
+     * Constructor which stores settings.
+     * @param settings The settings for this builder.
+     */
     public SectorBuilder(Settings settings) {
         this.settings = settings;
     }
 
+    private static final Map<Settings, SectorBuilder> SECTOR_BUILDER_CACHE = new HashMap<>();
+    /**
+     * The type of settings for SectorBuilder.
+     */
+    @SuppressWarnings("magicNumber")
+    public interface Settings extends SettingsInterface {
+        /**
+         * @return The width either side of the axis that is considered as in the axis sector.
+         */
+        default double getAxisSlop() {
+            return 0.02;
+        }
+
+        /**
+         * @return The half-width of the square centred on the origin that is considered as the origin sector.
+         */
+        default double getOriginSlop() {
+            return 0.05;
+        }
+
+        /**
+         * The relaxed origin sector is used for checking odd/antisymmetric functions pass through the origin/their
+         * centre respectively.
+         *
+         * @return The half-width of the square centred on the origin that is considered as the relaxed origin sector.
+         */
+        default double getRelaxedOriginSlop() {
+            return 0.1;
+        }
+
+        /**
+         * Factory method to get a SectorBuilder with these settings.
+         *
+         * SectorBuilder objects are cached by this method for performance.
+         *
+         * @return A SectorBuilder with these settings.
+         */
+        default SectorBuilder getSectorBuilder() {
+            return SECTOR_BUILDER_CACHE.computeIfAbsent(this, SectorBuilder::new);
+        }
+    }
+
+    /**
+     * @return The default ordered list of sectors.
+     */
     public List<Sector> getDefaultOrderedSectors() {
         return Arrays.asList(
             getOrigin(),
@@ -45,24 +99,6 @@ public class SectorBuilder {
             getTopLeft(),
             getBottomLeft(),
             getBottomRight());
-    }
-
-    public interface Settings extends SettingsInterface {
-        default double getAxisSlop() {
-            return 0.02;
-        }
-
-        default double getOriginSlop() {
-            return 0.05;
-        }
-
-        default double getRelaxedOriginSlop() {
-            return 0.1;
-        }
-
-        default SectorBuilder getSectorBuilder() {
-            return new SectorBuilder(this);
-        }
     }
 
     private static final Point ORIGIN_POINT = new Point(0, 0);
@@ -91,33 +127,25 @@ public class SectorBuilder {
                 case "-Yaxis":
                     return getOnAxisWithNegativeY();
                 default:
-                    return (Sector) SectorBuilder.class.getMethod("get" + s.substring(0, 1).toUpperCase() + s.substring(1)).invoke(this);
+                    String methodName = "get" + s.substring(0, 1).toUpperCase() + s.substring(1);
+                    return (Sector) SectorBuilder.class.getMethod(methodName).invoke(this);
             }
         } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             throw new IllegalArgumentException(s + " is not a valid sector");
         }
     }
 
-    /**
-     * Helper to generate a sector of the half-plane with x co-ordinate less than or equal to X.
-     * @param x The x co-ordinate to split the plane.
-     * @return The half plane.
-     */
-    public static Sector leftOfX(double x) {
-        return new Sector(SettingsWrapper.DEFAULT, "leftOfX=" + x, Collections.singletonList(
-            Segment.openBothEnds(new Point(x, 0), UP, Side.LEFT)
-        ));
-    }
+    private final Map<String, Sector> sectorCache = new HashMap<>();
 
     /**
-     * Helper to generate a sector of the half-plane with x co-ordinate greater than or equal to X.
-     * @param x The x co-ordinate to split the plane.
-     * @return The half plane.
+     * Helper method to create or cache a sector.
+     *
+     * @param name The name of the sector.
+     * @param supplier The function to create the sector if it is not yet cached.
+     * @return The sector.
      */
-    public static Sector rightOfX(double x) {
-        return new Sector(SettingsWrapper.DEFAULT, "rightOfX=" + x, Collections.singletonList(
-            Segment.openBothEnds(new Point(x, 0), UP, Side.RIGHT)
-        ));
+    private Sector cacheIfAbsent(String name, Supplier<List<Segment>> supplier) {
+        return sectorCache.computeIfAbsent(name, name1 -> new Sector(name, supplier.get()));
     }
 
     /**
@@ -133,7 +161,7 @@ public class SectorBuilder {
      * @return The quadrant sector.
      */
     private Sector quadrant(String name, Point origin, Point axis1, Point axis2) {
-        return new Sector(this.settings, name, Arrays.asList(
+        return cacheIfAbsent(name, () -> Arrays.asList(
             Segment.openOneEnd(origin, axis1, axis2),
             Segment.openOneEnd(origin, axis2, axis1)
         ));
@@ -163,12 +191,12 @@ public class SectorBuilder {
      * @return The sloppy axis sector.
      */
     private Sector sloppyAxis(String name, Point left, Point right, Point axis) {
-        left = left.times(settings.getAxisSlop());
-        right = right.times(settings.getAxisSlop());
-        return new Sector(this.settings, name, Arrays.asList(
-                Segment.closed(left, right),
-                Segment.openOneEnd(left, axis, Side.RIGHT),
-                Segment.openOneEnd(right, axis, Side.LEFT)
+        final Point leftScaled = left.times(settings.getAxisSlop());
+        final Point rightScaled = right.times(settings.getAxisSlop());
+        return cacheIfAbsent(name, () -> Arrays.asList(
+                Segment.closed(leftScaled, rightScaled),
+                Segment.openOneEnd(leftScaled, axis, Side.RIGHT),
+                Segment.openOneEnd(rightScaled, axis, Side.LEFT)
         ));
     }
 
@@ -186,7 +214,7 @@ public class SectorBuilder {
 
         Iterable<Point> points = Iterables.cycle(originPoints);
 
-        return new Sector(this.settings, name,
+        return cacheIfAbsent(name, () ->
             Streams.zip(
                 Streams.stream(points),
                 Streams.stream(points).skip(1),
@@ -207,64 +235,92 @@ public class SectorBuilder {
      * @return The half-plane sector.
      */
     private Sector centeredHalf(String name, Point axis) {
-        return new Sector(this.settings, name, Collections.singletonList(
+        return cacheIfAbsent(name, () -> Collections.singletonList(
             Segment.openBothEnds(ORIGIN_POINT, axis, Side.LEFT)
         ));
     }
 
-    public Sector getLeft() {
-        return centeredHalf("left", UP);
-    }
-
-    public Sector getRight() {
-        return centeredHalf("right", DOWN);
-    }
-
-    public Sector getTop() {
-        return centeredHalf("top", RIGHT);
-    }
-
-    public Sector getOnAxisWithPositiveX() {
-        return sloppyAxis("+Xaxis", UP, DOWN, RIGHT);
-    }
-
-    public Sector getBottomRight() {
-        return centeredQuadrant("bottomRight", RIGHT, DOWN);
-    }
-
-    public Sector getTopRight() {
-        return centeredQuadrant("topRight", RIGHT, UP);
-    }
-
-    public Sector getBottom() {
-        return centeredHalf("right", LEFT);
-    }
-
-    public Sector getOnAxisWithNegativeX() {
-        return sloppyAxis("-Xaxis", DOWN, UP, LEFT);
-    }
-
-    public Sector getOnAxisWithNegativeY() {
-        return sloppyAxis("-Yaxis", RIGHT, LEFT, DOWN);
-    }
-
-    public Sector getOnAxisWithPositiveY() {
-        return sloppyAxis("+Yaxis", LEFT, RIGHT, UP);
-    }
-
-    public Sector getBottomLeft() {
-        return centeredQuadrant("bottomLeft", LEFT, DOWN);
-    }
-
-    public Sector getTopLeft() {
-        return centeredQuadrant("topLeft", LEFT, UP);
-    }
-
+    /**
+     * @return The Sector of the origin.
+     */
     public Sector getOrigin() {
         return square("origin", settings.getOriginSlop());
     }
 
+    /**
+     * @return The Sector on the positive X axis.
+     */
+    public Sector getOnAxisWithPositiveX() {
+        return sloppyAxis("+Xaxis", UP, DOWN, RIGHT);
+    }
+
+    /**
+     * @return The Sector on the negative X axis.
+     */
+    public Sector getOnAxisWithNegativeX() {
+        return sloppyAxis("-Xaxis", DOWN, UP, LEFT);
+    }
+
+    /**
+     * @return The Sector on the positive Y axis.
+     */
+    public Sector getOnAxisWithPositiveY() {
+        return sloppyAxis("+Yaxis", LEFT, RIGHT, UP);
+    }
+
+    /**
+     * @return The Sector on the negative Y axis.
+     */
+    public Sector getOnAxisWithNegativeY() {
+        return sloppyAxis("-Yaxis", RIGHT, LEFT, DOWN);
+    }
+
+    /**
+     * @return The Sector of the top left quadrant.
+     */
+    public Sector getTopLeft() {
+        return centeredQuadrant("topLeft", LEFT, UP);
+    }
+
+    /**
+     * @return The Sector of the top right quadrant.
+     */
+    public Sector getTopRight() {
+        return centeredQuadrant("topRight", RIGHT, UP);
+    }
+
+    /**
+     * @return The Sector of bottom top left quadrant.
+     */
+    public Sector getBottomLeft() {
+        return centeredQuadrant("bottomLeft", LEFT, DOWN);
+    }
+
+    /**
+     * @return The Sector of the bottom right quadrant.
+     */
+    public Sector getBottomRight() {
+        return centeredQuadrant("bottomRight", RIGHT, DOWN);
+    }
+
+    /**
+     * @return The Sector of origin with a more relaxed boundary.
+     */
     public Sector getRelaxedOrigin() {
         return square("relaxedOrigin", settings.getRelaxedOriginSlop());
+    }
+
+    /**
+     * @return The Sector left of the Y axis.
+     */
+    public Sector getLeft() {
+        return centeredHalf("left", UP);
+    }
+
+    /**
+     * @return The Sector right of the Y axis.
+     */
+    public Sector getRight() {
+        return centeredHalf("right", DOWN);
     }
 }

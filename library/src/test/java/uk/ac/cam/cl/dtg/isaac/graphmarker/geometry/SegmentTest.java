@@ -22,7 +22,6 @@ import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.*;
-import static uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers.lineOf;
 
 public class SegmentTest {
 
@@ -143,6 +142,8 @@ public class SegmentTest {
         Segment clipSegment = Segment.openBothEnds(new Point(0, 0), new Point(0, 1), Side.LEFT);
 
         Segment clippedSegment = clipSegment.clip(segment);
+
+        assertNotNull(clippedSegment);
 
         assertThat(clippedSegment.getStart().getX(), closeTo(-1, 0.001));
         assertThat(clippedSegment.getStart().getY(), closeTo(-1, 0.001));

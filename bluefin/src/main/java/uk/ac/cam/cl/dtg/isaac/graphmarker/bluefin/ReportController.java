@@ -189,9 +189,7 @@ public class ReportController {
         List<ExampleSet> examples = Examples.load();
 
         response.append("<table border=1><tr><th>");
-        examples.forEach(example -> {
-            response.append("<th>").append(example.getName());
-        });
+        examples.forEach(example -> response.append("<th>").append(example.getName()));
         response.append("</tr>");
 
         examples.forEach(example -> {

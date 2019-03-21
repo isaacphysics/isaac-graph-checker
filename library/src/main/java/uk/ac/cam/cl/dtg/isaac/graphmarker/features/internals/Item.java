@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
+package uk.ac.cam.cl.dtg.isaac.graphmarker.features.internals;
 
 import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsInterface;
 
@@ -22,13 +22,26 @@ import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsInterface;
  * @param <Instance> The type of instances of this thing.
  * @param <InputType> The type of input this can read.
  * @param <GeneratedType> Some kind of collection of feature specifications this can generate.
+ * @param <SettingsType> The settings that are being used in this item.
  */
-public abstract class Item<Instance extends Item.AbstractInstance, InputType, GeneratedType, SettingsType extends SettingsInterface> {
+abstract class Item<Instance extends Item.AbstractInstance, InputType, GeneratedType,
+                    SettingsType extends SettingsInterface> {
 
-    final SettingsType settings;
+    private final SettingsType settings;
 
-    public Item(SettingsType settings) {
+    /**
+     * Constructor to wire up settings.
+     * @param settings Settings for this item.
+     */
+    Item(SettingsType settings) {
         this.settings = settings;
+    }
+
+    /**
+     * @return The settings for this item.
+     */
+    protected SettingsType settings() {
+        return settings;
     }
 
     /**

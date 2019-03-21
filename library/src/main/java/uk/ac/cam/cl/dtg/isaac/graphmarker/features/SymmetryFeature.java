@@ -19,7 +19,9 @@ import uk.ac.cam.cl.dtg.isaac.graphmarker.data.HumanNamedEnum;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.PointOfInterest;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.features.internals.LineFeature;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.Lines;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.Sector;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.SectorBuilder;
 
 import java.util.Collections;
@@ -31,12 +33,23 @@ import java.util.stream.Collectors;
  */
 public class SymmetryFeature extends LineFeature<SymmetryFeature.Instance, SymmetryFeature.Settings> {
 
+    /**
+     * Create a symmetry feature with specified settings.
+     * @param settings The settings.
+     */
     public SymmetryFeature(Settings settings) {
         super(settings);
     }
 
+    /**
+     * The settings for a SymmetryFeature.
+     */
+    @SuppressWarnings("magicNumber")
     public interface Settings extends SectorBuilder.Settings {
-        @SuppressWarnings("magicNumber")
+        /**
+         * @return The maximum proportion of difference between the two sides for a line to be considered to have some
+         *         symmetry.
+         */
         default double getSymmetrySimilarity() {
             return 0.4;
         }
@@ -172,8 +185,8 @@ public class SymmetryFeature extends LineFeature<SymmetryFeature.Instance, Symme
      */
     private SymmetryType getStandardSymmetryType(Line line) {
         // Split line at x = 0
-        Line left = settings.getSectorBuilder().getLeft().clip(line);
-        Line right = settings.getSectorBuilder().getRight().clip(line);
+        Line left = settings().getSectorBuilder().getLeft().clip(line);
+        Line right = settings().getSectorBuilder().getRight().clip(line);
 
         List<Line> lefts = Lines.splitOnPointsOfInterest(left);
         List<Line> rights = Lines.splitOnPointsOfInterest(right);
@@ -227,14 +240,15 @@ public class SymmetryFeature extends LineFeature<SymmetryFeature.Instance, Symme
         double yDifferenceOdd = (rightSize.getY() - leftSize.getY()) / rightSize.getY();
         double yDifferenceEven = (rightSize.getY() + leftSize.getY()) / rightSize.getY();
 
-        if (Math.abs(xDifference) < settings.getSymmetrySimilarity()) {
+        if (Math.abs(xDifference) < settings().getSymmetrySimilarity()) {
             if (rightSize.getY() == 0 && leftSize.getY() == 0) {
                 return SymmetryType.EVEN;
             }
-            if (Math.abs(yDifferenceOdd) < settings.getSymmetrySimilarity()) {
+            if (Math.abs(yDifferenceOdd) < settings().getSymmetrySimilarity()) {
                 if (innerMost) {
-                    if (settings.getSectorBuilder().getRelaxedOrigin().contains(left.getPoints().get(left.getPoints().size() - 1))
-                        && settings.getSectorBuilder().getRelaxedOrigin().contains(right.getPoints().get(0))) {
+                    Sector relaxedOrigin = settings().getSectorBuilder().getRelaxedOrigin();
+                    if (relaxedOrigin.contains(left.getPoints().get(left.getPoints().size() - 1))
+                        && relaxedOrigin.contains(right.getPoints().get(0))) {
                         return SymmetryType.ODD;
                     } else {
                         return SymmetryType.NONE;
@@ -243,7 +257,7 @@ public class SymmetryFeature extends LineFeature<SymmetryFeature.Instance, Symme
                     return SymmetryType.ODD;
                 }
             }
-            if (Math.abs(yDifferenceEven) < settings.getSymmetrySimilarity()) {
+            if (Math.abs(yDifferenceEven) < settings().getSymmetrySimilarity()) {
                 return SymmetryType.EVEN;
             }
         }

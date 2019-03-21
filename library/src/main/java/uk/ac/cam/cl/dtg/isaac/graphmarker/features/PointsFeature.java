@@ -16,11 +16,11 @@
 package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 
 import com.google.common.collect.Streams;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.features.internals.LineFeature;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.Sector;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.PointType;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.SectorBuilder;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.SectorClassifier;
 
 import java.util.Arrays;
@@ -71,7 +71,7 @@ public class PointsFeature extends LineFeature<PointsFeature.Instance, SectorCla
 
             return Streams.zip(expectedPoints.stream(), line.getPointsOfInterest().stream(),
                 (expected, actual) -> expected.getLeft() == actual.getPointType()
-                    && settings.getSectorClassifier().classifyAll(actual).contains(expected.getRight()))
+                    && settings().getSectorClassifier().classifyAll(actual).contains(expected.getRight()))
                 .allMatch(Boolean::booleanValue);
         }
     }
@@ -86,7 +86,7 @@ public class PointsFeature extends LineFeature<PointsFeature.Instance, SectorCla
                     throw new IllegalArgumentException("Incorrect number of point parts in: " + item);
                 }
                 PointType expectedType = PointType.valueOf(parts[0].trim().toUpperCase());
-                Sector expectedSector = settings.getSectorBuilder().byName(parts[1].trim());
+                Sector expectedSector = settings().getSectorBuilder().byName(parts[1].trim());
                 return ImmutablePair.of(expectedType, expectedSector);
             })
             .collect(Collectors.toList()));
@@ -96,12 +96,14 @@ public class PointsFeature extends LineFeature<PointsFeature.Instance, SectorCla
     public List<String> generate(Line expectedLine) {
         return Collections.singletonList(
             expectedLine.getPointsOfInterest().stream()
-            .map(point -> ImmutablePair.of(point.getPointType(), settings.getSectorClassifier().classify(point)))
+            .map(point -> ImmutablePair.of(point.getPointType(), settings().getSectorClassifier().classify(point)))
             .map(entry -> {
                 Sector sector = entry.getRight();
                 String sectorName = sector.toString();
                 @SuppressWarnings("checkstyle:avoidInlineConditionals")
-                String preposition = sector == settings.getSectorBuilder().getOrigin() ? "at" : sectorName.matches("[-+].*") ? "on" : "in";
+                String preposition = sector == settings().getSectorBuilder().getOrigin() ? "at"
+                    : sectorName.matches("[-+].*") ? "on"
+                    : "in";
                 return entry.getLeft().humanName() + " " + preposition + " " + sectorName;
             })
             .collect(Collectors.joining(", "))

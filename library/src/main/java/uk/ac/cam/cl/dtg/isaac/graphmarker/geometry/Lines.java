@@ -20,6 +20,7 @@ import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.PointOfInterest;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -46,8 +47,8 @@ public class Lines {
         Line remainder = line;
         for (PointOfInterest point : line.getPointsOfInterest()) {
             double x = point.getX();
-            Line left = SectorBuilder.leftOfX(x).clip(remainder);
-            remainder = SectorBuilder.rightOfX(x).clip(remainder);
+            Line left = leftOfX(x).clip(remainder);
+            remainder = rightOfX(x).clip(remainder);
             lines.add(left);
         }
         lines.add(remainder);
@@ -98,5 +99,29 @@ public class Lines {
      * This is just a utility class.
      */
     private Lines() {
+    }
+
+    private static final Point UP = new Point(0, 1);
+
+    /**
+     * Helper to generate a sector of the half-plane with x co-ordinate less than or equal to X.
+     * @param x The x co-ordinate to split the plane.
+     * @return The half plane.
+     */
+    private static Sector leftOfX(double x) {
+        return new Sector("leftOfX=" + x, Collections.singletonList(
+            Segment.openBothEnds(new Point(x, 0), UP, Side.LEFT)
+        ));
+    }
+
+    /**
+     * Helper to generate a sector of the half-plane with x co-ordinate greater than or equal to X.
+     * @param x The x co-ordinate to split the plane.
+     * @return The half plane.
+     */
+    private static Sector rightOfX(double x) {
+        return new Sector("rightOfX=" + x, Collections.singletonList(
+            Segment.openBothEnds(new Point(x, 0), UP, Side.RIGHT)
+        ));
     }
 }

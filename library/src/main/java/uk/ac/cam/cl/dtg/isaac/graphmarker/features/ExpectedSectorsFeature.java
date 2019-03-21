@@ -22,6 +22,7 @@ import com.google.common.collect.Streams;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.IntersectionParams;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.features.internals.LineFeature;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.Sector;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.SectorBuilder;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.SectorClassifier;
@@ -140,7 +141,7 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
         return Arrays.stream(sectors.split(","))
                 .map(String::trim)
                 .filter(s -> s.length() > 0)
-                .map(settings.getSectorBuilder()::byName)
+                .map(settings().getSectorBuilder()::byName)
                 .collect(Collectors.toList());
     }
 
@@ -165,7 +166,7 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
 
         List<Sector> output = new ArrayList<>();
         sectors.stream()
-            .map(set -> settings.getOrderedSectors().stream().filter(set::contains).findFirst().orElse(null))
+            .map(set -> settings().getOrderedSectors().stream().filter(set::contains).findFirst().orElse(null))
             .forEach(sector -> {
                 if (output.isEmpty() || !output.get(output.size() - 1).equals(sector)) {
                     output.add(sector);
@@ -229,7 +230,7 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
      * @return The highest-priority Sector that point is in.
      */
     private Set<Sector> classifyPoint(Point point) {
-        return settings.getSectorClassifier().classifyAll(point);
+        return settings().getSectorClassifier().classifyAll(point);
     }
 
     /**
@@ -239,11 +240,11 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
      */
     private void classifyLineSegment(List<Set<Sector>> output, Segment lineSegment) {
         // Calculate when we enter and leave the line segment
-        IntersectionParams[] intersectionParams = settings.getOrderedSectors().stream()
+        IntersectionParams[] intersectionParams = settings().getOrderedSectors().stream()
             .map(sector -> sector.intersectionParams(lineSegment))
             .toArray(IntersectionParams[]::new);
 
-        Boolean[] inside = settings.getOrderedSectors().stream()
+        Boolean[] inside = settings().getOrderedSectors().stream()
             .map(sector -> sector.contains(lineSegment.getStart()))
             .toArray(Boolean[]::new);
 
@@ -263,7 +264,7 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
             // Record all of the sectors we are currently in
             @SuppressWarnings("checkstyle:avoidInlineConditionals")
             Set<Sector> internalSectors = Streams.zip(
-                settings.getOrderedSectors().stream(),
+                settings().getOrderedSectors().stream(),
                 Arrays.stream(inside),
                 (sector, in) -> in ? sector : null)
                 .filter(Objects::nonNull)

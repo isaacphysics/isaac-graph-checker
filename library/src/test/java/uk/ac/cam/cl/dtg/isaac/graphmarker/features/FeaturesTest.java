@@ -33,8 +33,8 @@ public class FeaturesTest {
     public void testMatcherDesrializesAndWorks() {
         Predicate<Input> testFeature = new Features().matcher("through:  onAxisWithNegativeX, topLeft, onAxisWithNegativeX, bottomLeft, origin, topRight, onAxisWithPositiveX, bottomRight, onAxisWithPositiveX");
 
-        assertTrue(testFeature.test(inputOf(x -> Math.sin(x), -2 * Math.PI, 2 * Math.PI)));
-        assertFalse(testFeature.test(inputOf(x -> Math.cos(x), -2 * Math.PI, 2 * Math.PI)));
+        assertTrue(testFeature.test(inputOf(Math::sin, -2 * Math.PI, 2 * Math.PI)));
+        assertFalse(testFeature.test(inputOf(Math::cos, -2 * Math.PI, 2 * Math.PI)));
     }
 
     @Test
