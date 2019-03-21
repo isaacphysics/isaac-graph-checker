@@ -13,15 +13,47 @@ This is useful for setting questions.
 
 ## Project structure
 
-The Marker top-level class provides methods to mark an answer and to generate a set of features.
-The remainder of the project is arranged in the follow subpackages:
+There are three top-level modules:
 
-- **data** Internal classes representing pure data for graphs. No complex computation should be done in here.
+- **library** The library itself.
+- **demo** A demo wiring up of the library to an HTTP endpoint that can be jury-rigged to Isaac.
+- **bluefin** A simple web application for tuning the settings and examining samples.
+
+The demo application writes samples into the top-level samples directory, and the bluefin application reads its samples
+from there.
+
+## Library structure
+
+The features.Features class is the starting point and provides methods to mark an answer and to generate a set of
+features.
+
+The remainder of the library is arranged in the follow subpackages:
+
 - **dos** Classes representing external JSON objects that we input/output. Uses Jackson and should contain no logic.
+- **data** Internal classes representing pure data for graphs. No complex computation should be done in here.
 - **translation** Utility classes to translate between dos and data.
 - **geometry** Any geometric calculations should be in here.
 - **features** The individual features and the overall recogniser lives here.
-- **standalone** A temporary web application for testing purposes.
+- **features.internals** Various bits of internal wiring to abstract shared parts between features.
+- **settings** Wiring for settings. If you want to customise the settings, look at bluefin.CustomSettings to see how.
+
+There are two types of features: InputFeature and LineFeature. An InputFeature receives the whole input and can match
+based on that. Currently, the only InputFeature just counts the number of submitted curves.
+A LineFeature matches an individual line, for example looking for slope or symmetry.
+
+There are also classes called LineSelector. These receive the input and a LineFeature, and can chose to apply the
+LineFeature to any, all or none of the lines in the input and match based on that. Currently, the only LineSelector is
+NthLineSelector, which just matches if the n-th line (ordered left to right by starting x co-ordinate) matches the
+provided LineFeature.
+
+All features are described with a feature specification with the following syntax:
+```
+  <features>    ::= <feature> { CRLF <features> }
+  <feature>     ::= <inputFeatureTag> : <inputFeatureSpec>
+                  | <lineFeature>
+                  | <lineSelectorTag> : <lineSelectorSpec> ; <lineFeature>
+  <lineFeature> ::= <lineFeatureTag> : <lineFeatureSpec>
+```
 
 ## License
 

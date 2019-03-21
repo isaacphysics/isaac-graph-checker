@@ -33,7 +33,7 @@ public class NthLineSelectorTest {
     public void testDeserialize() {
         NthLineSelector.Instance success = nthLineSelector.deserializeInternal("1; foo");
 
-        assertEquals("foo", success.item());
+        assertEquals("foo", success.lineFeatureSpec());
     }
 
     @Test

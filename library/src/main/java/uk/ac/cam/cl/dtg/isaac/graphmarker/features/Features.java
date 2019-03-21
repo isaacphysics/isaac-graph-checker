@@ -49,8 +49,7 @@ public class Features {
      * Create a feature object for matching or generating with the default configuration.
      */
     public Features() {
-        this(new SettingsWrapper() {
-        });
+        this(SettingsWrapper.DEFAULT);
     }
 
     /**
@@ -95,6 +94,7 @@ public class Features {
 
     /**
      * Generate a feature specification from an Input.
+     *
      * @param input The input.
      * @return The feature specification.
      */
@@ -198,7 +198,7 @@ public class Features {
         for (LineSelector<?, ?> selector : lineSelectors) {
             if (selector.canDeserialize(item)) {
                 LineSelector<?, ?>.Instance selectorInstance = selector.deserialize(item);
-                return selectorInstance.wrapToItemFeature(itemToLineFeature(selectorInstance.item()));
+                return selectorInstance.wrapToItemFeature(itemToLineFeature(selectorInstance.lineFeatureSpec()));
             }
         }
 
@@ -207,8 +207,8 @@ public class Features {
     }
 
     /**
-     * Build a line feature instance from this item.
-     * @param item The item.
+     * Build a line feature instance from this lineFeatureSpec.
+     * @param item The lineFeatureSpec.
      * @return The line feature instance.
      */
     private LineFeature<?, ?>.Instance itemToLineFeature(final String item) {
@@ -217,6 +217,6 @@ public class Features {
                 return feature.deserialize(item);
             }
         }
-        throw new IllegalArgumentException("Unknown item: " + item);
+        throw new IllegalArgumentException("Unknown lineFeatureSpec: " + item);
     }
 }

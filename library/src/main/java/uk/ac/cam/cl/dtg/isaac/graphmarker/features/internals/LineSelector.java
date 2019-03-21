@@ -43,17 +43,17 @@ public abstract class LineSelector<SelectorInstance extends LineSelector.Instanc
      * An instance of a LineSelector that can be used to test against input.
      */
     public abstract class Instance extends Item.AbstractInstance {
-        private final String item;
+        private final String lineFeatureSpec;
 
         /**
          * Create an instance of a LineSelector.
          *
          * @param featureData The configuration of this whole feature.
-         * @param item The configuration of the line feature inside this selector.
+         * @param lineFeatureSpec The configuration of the line feature inside this selector.
          */
-        public Instance(String featureData, String item) {
+        public Instance(String featureData, String lineFeatureSpec) {
             super(featureData, true);
-            this.item = item;
+            this.lineFeatureSpec = lineFeatureSpec;
         }
 
         /**
@@ -61,8 +61,8 @@ public abstract class LineSelector<SelectorInstance extends LineSelector.Instanc
          *
          * @return The line feature configuration.
          */
-        public String item() {
-            return item;
+        public String lineFeatureSpec() {
+            return lineFeatureSpec;
         }
 
         /**
@@ -77,7 +77,7 @@ public abstract class LineSelector<SelectorInstance extends LineSelector.Instanc
         protected abstract Predicate<Input> matcher(Predicate<Line> linePredicate);
 
         /**
-         * Wrap a line feature into an item feature that matches lines selected by this selector.
+         * Wrap a line feature into an lineFeatureSpec feature that matches lines selected by this selector.
          * @param instance The line predicate to wrap.
          * @return An input feature instance that recognises the line feature in the selected line.
          */

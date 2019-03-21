@@ -54,7 +54,7 @@ public class NthLineSelector extends LineSelector<NthLineSelector.Instance, Sett
         /**
          * Create an instance of this selector.
          * @param n The number of the line to select (1-based index).
-         * @param item The remainder of this item.
+         * @param item The remainder of this lineFeatureSpec.
          */
         private Instance(int n, String item) {
             super(n + "; ", item);

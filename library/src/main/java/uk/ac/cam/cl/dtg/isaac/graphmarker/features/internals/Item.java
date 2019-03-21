@@ -22,7 +22,7 @@ import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsInterface;
  * @param <Instance> The type of instances of this thing.
  * @param <InputType> The type of input this can read.
  * @param <GeneratedType> Some kind of collection of feature specifications this can generate.
- * @param <SettingsType> The settings that are being used in this item.
+ * @param <SettingsType> The settings that are being used in this lineFeatureSpec.
  */
 abstract class Item<Instance extends Item.AbstractInstance, InputType, GeneratedType,
                     SettingsType extends SettingsInterface> {
@@ -31,21 +31,21 @@ abstract class Item<Instance extends Item.AbstractInstance, InputType, Generated
 
     /**
      * Constructor to wire up settings.
-     * @param settings Settings for this item.
+     * @param settings Settings for this lineFeatureSpec.
      */
     Item(SettingsType settings) {
         this.settings = settings;
     }
 
     /**
-     * @return The settings for this item.
+     * @return The settings for this lineFeatureSpec.
      */
     protected SettingsType settings() {
         return settings;
     }
 
     /**
-     * An instance of an item.
+     * An instance of an lineFeatureSpec.
      */
     abstract class AbstractInstance {
         private final String featureData;
@@ -77,17 +77,17 @@ abstract class Item<Instance extends Item.AbstractInstance, InputType, Generated
     }
 
     /**
-     * Can an instance of this item be created from this specification?.
+     * Can an instance of this lineFeatureSpec be created from this specification?.
      *
      * @param item The specification with tag.
-     * @return True if this item can be deserialized.
+     * @return True if this lineFeatureSpec can be deserialized.
      */
     public boolean canDeserialize(String item) {
         return item.startsWith(tag() + ":");
     }
 
     /**
-     * Create an instance of this item from the specification provided.
+     * Create an instance of this lineFeatureSpec from the specification provided.
      *
      * @param item The specification with tag.
      * @return The feature instance.
@@ -100,26 +100,26 @@ abstract class Item<Instance extends Item.AbstractInstance, InputType, Generated
     }
 
     /**
-     * Put our parsing prefix onto the item.
-     * @param item item to be prefixed.
-     * @return Prefixed item.
+     * Put our parsing prefix onto the lineFeatureSpec.
+     * @param item lineFeatureSpec to be prefixed.
+     * @return Prefixed lineFeatureSpec.
      */
     public String prefix(String item) {
         return tag() + ": " + item;
     }
 
     /**
-     * To identify this item in the specification when parsing.
+     * To identify this lineFeatureSpec in the specification when parsing.
      *
-     * @return The name of this item.
+     * @return The name of this lineFeatureSpec.
      */
     public abstract String tag();
 
     /**
-     * Create an instance of this item from the specification provided.
+     * Create an instance of this lineFeatureSpec from the specification provided.
      *
      * @param featureData The specification with the tag stripped off.
-     * @return The item instance.
+     * @return The lineFeatureSpec instance.
      */
     protected abstract Instance deserializeInternal(String featureData);
 

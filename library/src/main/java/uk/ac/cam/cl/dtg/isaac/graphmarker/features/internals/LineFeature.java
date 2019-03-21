@@ -50,7 +50,7 @@ public abstract class LineFeature<FeatureInstance extends LineFeature.Instance, 
         }
 
         /**
-         * Wrap this line feature into an item feature that matches if any line matches.
+         * Wrap this line feature into an lineFeatureSpec feature that matches if any line matches.
          * @return An input feature instance that recognises the line feature in any line.
          */
         public InputFeature.Instance wrapToItemFeature() {
