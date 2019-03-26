@@ -13,35 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.ac.cam.cl.dtg.isaac.graphmarker.dos;
+package standalone.dos;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class IsaacAnswerResponse {
-    private final boolean correct;
-    private final ResponseExplanation explanation;
+public class IsaacAnswer {
+    private final String type;
+    private final String value;
 
     @JsonCreator
-    public IsaacAnswerResponse(@JsonProperty("correct") boolean correct,
-                               @JsonProperty("explanation") ResponseExplanation explanation) {
-        this.correct = correct;
-        this.explanation = explanation;
+    public IsaacAnswer(@JsonProperty("type") String type, @JsonProperty("value") String value) {
+        this.type = type;
+        this.value = value;
     }
 
-    public boolean isCorrect() {
-        return correct;
+    public String getType() {
+        return type;
     }
 
-    public ResponseExplanation getExplanation() {
-        return explanation;
-    }
-
-    @Override
-    public String toString() {
-        return "IsaacAnswerResponse{" +
-            "correct=" + correct +
-            ", explanation=" + explanation +
-            '}';
+    public String getValue() {
+        return value;
     }
 }

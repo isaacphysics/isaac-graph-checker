@@ -13,27 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.ac.cam.cl.dtg.isaac.graphmarker.dos;
+package standalone.dos;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class GraphSolutionItem {
-    private final String graphDefinition;
-    private final IsaacAnswerResponse response;
+import java.util.List;
+
+public class GraphSolutions {
+    private final List<GraphSolutionItem> answers;
+    private final IsaacAnswerResponse unmatchedResponse;
 
     @JsonCreator
-    public GraphSolutionItem(@JsonProperty("graphDefinition") String graphDefinition,
-                             @JsonProperty("response") IsaacAnswerResponse response) {
-        this.graphDefinition = graphDefinition;
-        this.response = response;
+    public GraphSolutions(@JsonProperty("answers") List<GraphSolutionItem> answers,
+                          @JsonProperty("unmatchedResponse") IsaacAnswerResponse unmatchedResponse) {
+        this.answers = answers;
+        this.unmatchedResponse = unmatchedResponse;
     }
 
-    public String getGraphDefinition() {
-        return graphDefinition;
+    public List<GraphSolutionItem> getAnswers() {
+        return answers;
     }
 
-    public IsaacAnswerResponse getResponse() {
-        return response;
+    public IsaacAnswerResponse getUnmatchedResponse() {
+        return unmatchedResponse;
     }
 }

@@ -22,10 +22,10 @@ import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.PointType;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.Curve;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.GraphAnswer;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.GraphSolutionItem;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.GraphSolutions;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.IsaacAnswerResponse;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.ResponseExplanation;
+import standalone.dos.GraphSolutionItem;
+import standalone.dos.GraphSolutions;
+import standalone.dos.IsaacAnswerResponse;
+import standalone.dos.ResponseExplanation;
 
 import java.util.Arrays;
 import java.util.Collections;

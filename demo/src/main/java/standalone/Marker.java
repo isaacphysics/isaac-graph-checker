@@ -17,9 +17,9 @@ package standalone;
 
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.GraphAnswer;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.GraphSolutionItem;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.GraphSolutions;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.IsaacAnswerResponse;
+import standalone.dos.GraphSolutionItem;
+import standalone.dos.GraphSolutions;
+import standalone.dos.IsaacAnswerResponse;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.features.Features;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.translation.AnswerToInput;
 

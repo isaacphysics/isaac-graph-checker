@@ -20,11 +20,11 @@ import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.GraphAnswer;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.GraphSolutionItem;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.GraphSolutions;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.IsaacAnswer;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.IsaacAnswerResponse;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.ResponseExplanation;
+import standalone.dos.GraphSolutionItem;
+import standalone.dos.GraphSolutions;
+import standalone.dos.IsaacAnswer;
+import standalone.dos.IsaacAnswerResponse;
+import standalone.dos.ResponseExplanation;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -70,25 +70,35 @@ public class MarkerController {
     private final Map<String, GraphSolutions> questionData;
 
     public MarkerController() {
-        questionData = ImmutableMap.of(
-            "48cfddd0-8e66-4e2a-b462-fc27aeb97cee",
-                getSolution("through:bottomLeft,-Xaxis,topLeft,+Yaxis,topRight"),
-            "5b032e4c-e432-455f-925f-8efb8b33c18e",
-                getSolution("through:topLeft, +Yaxis, topRight", "points: minima in topRight"),
-            "96ee3e16-6fa0-46b5-b9d9-f02d0ba4f077",
+        questionData = ImmutableMap.<String, GraphSolutions>builder()
+            .put("48cfddd0-8e66-4e2a-b462-fc27aeb97cee",
+                getSolution("through:bottomLeft,-Xaxis,topLeft,+Yaxis,topRight"))
+            .put("5b032e4c-e432-455f-925f-8efb8b33c18e",
+                getSolution("through:topLeft, +Yaxis, topRight", "points: minima in topRight"))
+            .put("96ee3e16-6fa0-46b5-b9d9-f02d0ba4f077",
                 getSolution(
                     "through:bottomLeft,-Yaxis,bottomRight,+Xaxis,topRight,+Xaxis,bottomRight,+Xaxis,topRight",
                     "points:maxima in topRight, minima in bottomRight"
-                ),
-            "f5e5d9ea-8bc9-4adc-8073-a599b0eb3d58",
+                ))
+            .put("f5e5d9ea-8bc9-4adc-8073-a599b0eb3d58",
                 getSolution("curves:2",
                     "line: 1; through:  bottomLeft",
                     "line: 1; slope: start=flat, end=down",
                     "line: 2; through: topRight",
-                    "line: 2; slope: start=down, end=flat"),
-            "afaaf16b-2415-4662-98bf-306c55cc72d0",
-                getSolution("through: topLeft, +Yaxis, topRight", "slope: start=flat, end=up")
-        );
+                    "line: 2; slope: start=down, end=flat"))
+            .put("afaaf16b-2415-4662-98bf-306c55cc72d0",
+                getSolution("through: topLeft, +Yaxis, topRight", "slope: start=flat, end=up"))
+            .put("wibbly-boo",
+                getSolution("curves:3",
+                "match: a; through:  bottomLeft",
+                "match: a; slope: start=flat, end=down",
+                "match: b; through: topRight",
+                "match: b; slope: start=down, end=flat",
+                "match: c; through: topLeft, origin, bottomRight",
+                "intersects: a to b nowhere",
+                "intersects: a to c nowhere",
+                "intersects: b to c nowhere"))
+            .build();
     }
 
     @POST
