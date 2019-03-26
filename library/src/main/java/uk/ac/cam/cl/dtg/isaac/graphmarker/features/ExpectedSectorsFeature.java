@@ -110,10 +110,6 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
                 return false;
             }
 
-            if (actual.get(j).isEmpty()) {
-                return match(expected, i, actual, j + 1);
-            }
-
             // TODO: There is probably a dynamic programming algorithm for this with much better worst-case performance.
             if (actual.get(j).contains(expected.get(i))) {
                 if (match(expected, i, actual, j + 1)) {
@@ -138,11 +134,7 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
      * @return A list of Sectors.
      */
     private List<Sector> deserializeSectors(String sectors) {
-        return Arrays.stream(sectors.split(","))
-                .map(String::trim)
-                .filter(s -> s.length() > 0)
-                .map(settings().getSectorBuilder()::byName)
-                .collect(Collectors.toList());
+        return settings().getSectorBuilder().fromList(sectors);
     }
 
     @Override
@@ -219,7 +211,7 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
             .collect(Collectors.toList());
         sectorsToRemove.forEach(sectors::removeAll);
 
-        if (output.size() == 0 || !output.get(output.size() - 1).equals(sectors)) {
+        if (output.size() == 0 || !output.get(output.size() - 1).equals(sectors) && !sectors.isEmpty()) {
             output.add(sectors);
         }
     }

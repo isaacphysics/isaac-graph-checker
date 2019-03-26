@@ -39,16 +39,12 @@ public class Point {
         return "(" + x + ", " + y + ")";
     }
 
-    /**
-     * @return The X co-ordinate.
-     */
+    @SuppressWarnings("javadocMethod")
     public double getX() {
         return x;
     }
 
-    /**
-     * @return The Y co-ordinate.
-     */
+    @SuppressWarnings("javadocMethod")
     public double getY() {
         return y;
     }

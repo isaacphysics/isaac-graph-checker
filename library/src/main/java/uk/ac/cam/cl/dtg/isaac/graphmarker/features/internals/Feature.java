@@ -15,9 +15,8 @@
  */
 package uk.ac.cam.cl.dtg.isaac.graphmarker.features.internals;
 
+import uk.ac.cam.cl.dtg.isaac.graphmarker.features.Context;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsInterface;
-
-import java.util.function.Predicate;
 
 /**
  * A feature which matches against some kind of input or generates feature specifications based on some input.
@@ -42,8 +41,7 @@ abstract class Feature<FeatureInstance extends Feature.AbstractInstance, InputTy
      * An instance of a feature.
      */
     abstract class AbstractInstance
-        extends Item<FeatureInstance, InputType, GeneratedType, SettingsType>.AbstractInstance
-        implements Predicate<InputType> {
+        extends Item<FeatureInstance, InputType, GeneratedType, SettingsType>.AbstractInstance {
         /**
          * Create an instance of a feature.
          * @param featureData The specification for this feature.
@@ -52,5 +50,14 @@ abstract class Feature<FeatureInstance extends Feature.AbstractInstance, InputTy
         AbstractInstance(String featureData, boolean lineAware) {
             super(featureData, lineAware);
         }
+
+        /**
+         * Test if the given input matches this feature instance. If it does match, the context can be mutated.
+         *
+         * @param inputType The input.
+         * @param context The context of this input.
+         * @return True if this feature instance matches that input.
+         */
+        public abstract boolean test(InputType inputType, Context context);
     }
 }

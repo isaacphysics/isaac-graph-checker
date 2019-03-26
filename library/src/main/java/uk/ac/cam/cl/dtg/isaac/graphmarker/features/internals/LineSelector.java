@@ -17,10 +17,10 @@ package uk.ac.cam.cl.dtg.isaac.graphmarker.features.internals;
 
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.features.Context;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsInterface;
 
 import java.util.Map;
-import java.util.function.Predicate;
 
 /**
  * A selector which chooses some lines from the Input and applies a LineFeature to them.
@@ -66,15 +66,17 @@ public abstract class LineSelector<SelectorInstance extends LineSelector.Instanc
         }
 
         /**
-         * Create an input predicate which will be based on a line predicate.
+         * Test an input with this selector and a line feature instance.
          *
          * This selector will select zero or more lines from the input, apply the line predicate to some or all of them,
          * and then combine the output of the predicates in some way to give an overall test.
          *
-         * @param linePredicate The line predicate to be applied.
-         * @return An input predicate.
+         * @param input The input  to be tested.
+         * @param instance The line predicate to be applied.
+         * @param context The context for this test.
+         * @return True if the input matches the line predicate under this selector.
          */
-        protected abstract Predicate<Input> matcher(Predicate<Line> linePredicate);
+        protected abstract boolean test(Input input, LineFeature<?, ?>.Instance instance, Context context);
 
         /**
          * Wrap a line feature into an lineFeatureSpec feature that matches lines selected by this selector.
@@ -133,8 +135,8 @@ public abstract class LineSelector<SelectorInstance extends LineSelector.Instanc
             }
 
             @Override
-            public boolean test(Input input) {
-                return selectorInstance.matcher(lineFeatureInstance).test(input);
+            public boolean test(Input input, Context context) {
+                return selectorInstance.test(input, lineFeatureInstance, context);
             }
         }
     }

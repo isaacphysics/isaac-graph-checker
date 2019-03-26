@@ -166,14 +166,13 @@ public class Features {
          */
         public List<String> getFailingSpecs(Input input) {
             List<String> failedPredicates = new ArrayList<>();
-            AssignmentContext.push();
+            Context context = new Context(input);
             for (InputFeature<?, ?>.Instance inputPredicate: matchers) {
-                boolean test = inputPredicate.test(input);
+                boolean test = inputPredicate.test(input, context);
                 if (!test) {
                     failedPredicates.add(inputPredicate.getTaggedFeatureData());
                 }
             }
-            AssignmentContext.pop();
             return failedPredicates;
         }
 

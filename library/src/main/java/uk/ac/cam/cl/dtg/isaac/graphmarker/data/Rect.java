@@ -15,12 +15,22 @@
  */
 package uk.ac.cam.cl.dtg.isaac.graphmarker.data;
 
+/**
+ * Represents a rectangular region.
+ */
 public class Rect {
     private final double left;
     private final double right;
     private final double top;
     private final double bottom;
 
+    /**
+     * Create a rectangle.
+     * @param left The low x co-ordinate.
+     * @param right The high x co-ordinate.
+     * @param top The high y co-ordinate.
+     * @param bottom The low y co-ordinate.
+     */
     public Rect(double left, double right, double top, double bottom) {
         this.left = left;
         this.right = right;
@@ -28,18 +38,22 @@ public class Rect {
         this.bottom = bottom;
     }
 
+    @SuppressWarnings("javadocMethod")
     public double getLeft() {
         return left;
     }
 
+    @SuppressWarnings("javadocMethod")
     public double getRight() {
         return right;
     }
 
+    @SuppressWarnings("javadocMethod")
     public double getTop() {
         return top;
     }
 
+    @SuppressWarnings("javadocMethod")
     public double getBottom() {
         return bottom;
     }

@@ -17,9 +17,11 @@ package uk.ac.cam.cl.dtg.isaac.graphmarker.features.internals;
 
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.features.Context;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsInterface;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * A feature which matches against a line.
@@ -40,7 +42,7 @@ public abstract class LineFeature<FeatureInstance extends LineFeature.Instance, 
     /**
      * An instance of a LineFeature.
      */
-    public abstract class Instance extends AbstractInstance {
+    public abstract class Instance extends AbstractInstance implements Predicate<Line> {
         /**
          * Create an instance of this feature; this is wrapped for type purposes.
          * @param item The feature specification.
@@ -56,6 +58,18 @@ public abstract class LineFeature<FeatureInstance extends LineFeature.Instance, 
         public InputFeature.Instance wrapToItemFeature() {
             return new LineFeatureWrapper(settings()).new Instance(this.getTaggedFeatureData(), this);
         }
+
+        @Override
+        public final boolean test(Line line, Context context) {
+            return test(line);
+        }
+
+        /**
+         * Test if this line feature matches this line. Line features cannot have context which is ensured by the above.
+         * @param line The line to test.
+         * @return True if this line matches this feature.
+         */
+        public abstract boolean test(Line line);
     }
 
     /**
@@ -101,7 +115,7 @@ public abstract class LineFeature<FeatureInstance extends LineFeature.Instance, 
             }
 
             @Override
-            public boolean test(Input input) {
+            public boolean test(Input input, Context context) {
                 return input.getLines().stream()
                     .anyMatch(lineFeatureInstance);
             }

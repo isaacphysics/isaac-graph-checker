@@ -65,7 +65,7 @@ public class CurvesCountFeature extends InputFeature<CurvesCountFeature.Instance
         }
 
         @Override
-        public boolean test(Input input) {
+        public boolean test(Input input, Context context) {
             return input.getLines().size() == count;
         }
     }

@@ -156,7 +156,7 @@ public class SymmetryFeature extends LineFeature<SymmetryFeature.Instance, Symme
             } else {
                 PointOfInterest center1 = points.get(points.size() / 2 - 1);
                 PointOfInterest center2 = points.get(points.size() / 2);
-                @SuppressWarnings("checkstyle:magicNumber")
+                @SuppressWarnings("magicNumber")
                 Point center = center1.add(center2).times(0.5);
 
                 Line newLine = new Line(

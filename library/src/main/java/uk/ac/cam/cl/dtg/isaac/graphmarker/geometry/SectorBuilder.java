@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Generates and manages settings for Sector, which is more focused just on the geometry.
@@ -136,12 +137,26 @@ public class SectorBuilder {
         }
     }
 
-    public List<Sector> fromList(String csv) {
-        String[] sectorNames = csv.split(",");
-        return Arrays.stream(sectorNames)
-            .map(String::trim)
+    /**
+     * Create a list of sectors from a stream of sector name strings.
+     * @param sectors The stream of sector names.
+     * @return The list of sectors.
+     */
+    public List<Sector> fromList(Stream<String> sectors) {
+        return sectors
             .map(this::byName)
             .collect(Collectors.toList());
+    }
+
+    /**
+     * Create a list of sectors from a comma-separated list of sector names with optional spaces.
+     * @param csv The comma-separated sectors.
+     * @return The list of sectors.
+     */
+    public List<Sector> fromList(String csv) {
+        String[] sectorNames = csv.split(",");
+        return fromList(Arrays.stream(sectorNames)
+            .map(String::trim));
     }
 
 
@@ -250,65 +265,47 @@ public class SectorBuilder {
         ));
     }
 
-    /**
-     * @return The Sector of the origin.
-     */
+    @SuppressWarnings("javadocMethod")
     public Sector getOrigin() {
         return square("origin", settings.getOriginSlop());
     }
 
-    /**
-     * @return The Sector on the positive X axis.
-     */
+    @SuppressWarnings("javadocMethod")
     public Sector getOnAxisWithPositiveX() {
         return sloppyAxis("+Xaxis", UP, DOWN, RIGHT);
     }
 
-    /**
-     * @return The Sector on the negative X axis.
-     */
+    @SuppressWarnings("javadocMethod")
     public Sector getOnAxisWithNegativeX() {
         return sloppyAxis("-Xaxis", DOWN, UP, LEFT);
     }
 
-    /**
-     * @return The Sector on the positive Y axis.
-     */
+    @SuppressWarnings("javadocMethod")
     public Sector getOnAxisWithPositiveY() {
         return sloppyAxis("+Yaxis", LEFT, RIGHT, UP);
     }
 
-    /**
-     * @return The Sector on the negative Y axis.
-     */
+    @SuppressWarnings("javadocMethod")
     public Sector getOnAxisWithNegativeY() {
         return sloppyAxis("-Yaxis", RIGHT, LEFT, DOWN);
     }
 
-    /**
-     * @return The Sector of the top left quadrant.
-     */
+    @SuppressWarnings("javadocMethod")
     public Sector getTopLeft() {
         return centeredQuadrant("topLeft", LEFT, UP);
     }
 
-    /**
-     * @return The Sector of the top right quadrant.
-     */
+    @SuppressWarnings("javadocMethod")
     public Sector getTopRight() {
         return centeredQuadrant("topRight", RIGHT, UP);
     }
 
-    /**
-     * @return The Sector of bottom top left quadrant.
-     */
+    @SuppressWarnings("javadocMethod")
     public Sector getBottomLeft() {
         return centeredQuadrant("bottomLeft", LEFT, DOWN);
     }
 
-    /**
-     * @return The Sector of the bottom right quadrant.
-     */
+    @SuppressWarnings("javadocMethod")
     public Sector getBottomRight() {
         return centeredQuadrant("bottomRight", RIGHT, DOWN);
     }
@@ -320,16 +317,12 @@ public class SectorBuilder {
         return square("relaxedOrigin", settings.getRelaxedOriginSlop());
     }
 
-    /**
-     * @return The Sector left of the Y axis.
-     */
+    @SuppressWarnings("javadocMethod")
     public Sector getLeft() {
         return centeredHalf("left", UP);
     }
 
-    /**
-     * @return The Sector right of the Y axis.
-     */
+    @SuppressWarnings("javadocMethod")
     public Sector getRight() {
         return centeredHalf("right", DOWN);
     }

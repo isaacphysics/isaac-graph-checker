@@ -56,4 +56,14 @@ public class NthLineSelectorTest {
         nthLineSelector.deserializeInternal("a; foo");
     }
 
+    @Test
+    public void testDoesntGenerateForOverlappingLines() {
+        Line line1 = TestHelpers.lineOf(x -> x, -10, 10);
+        Line line2 = TestHelpers.lineOf(x -> -x, -10, 10);
+        Map<String, Line> lineMap = nthLineSelector.generate(TestHelpers.inputOf(line1,
+            line2));
+
+        assertEquals(0, lineMap.size());
+    }
+
 }

@@ -16,24 +16,20 @@
 package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.features.internals.LineFeature;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.features.internals.LineSelector;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.Lines;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsInterface;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
-import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * A Selector which will match lines in a Prolog-fashion.
@@ -70,15 +66,18 @@ public class MatchingLineSelector extends LineSelector<MatchingLineSelector.Inst
         }
 
         @Override
-        protected Predicate<Input> matcher(Predicate<Line> linePredicate) {
-            return input -> {
-                AssignmentContext.Current().putIfAbsent(name, input.getLines());
-                Set<ImmutableMap<String, Line>> assignments = AssignmentContext.Current().getAssignments();
+        protected boolean test(Input input, LineFeature<?, ?>.Instance lineInstance, Context context) {
+            context.putIfAbsent(name);
+            Set<ImmutableMap<String, Line>> assignments = context.getAssignmentsCopy();
 
-                assignments.removeIf(assignment -> !linePredicate.test(assignment.get(name)));
+            assignments.removeIf(assignment -> !lineInstance.test(assignment.get(name), context));
 
-                return !assignments.isEmpty();
-            };
+            if (assignments.isEmpty()) {
+                return false;
+            } else {
+                context.setFulfilledAssignments(assignments);
+                return true;
+            }
         }
     }
 
@@ -101,7 +100,7 @@ public class MatchingLineSelector extends LineSelector<MatchingLineSelector.Inst
 
         Map<String, Line> map = new HashMap<>();
         for (int i = 0; i < lines.size(); i++) {
-            map.put(AssignmentContext.standardLineName(i) + "; ", lines.get(i));
+            map.put(Context.standardLineName(i) + "; ", lines.get(i));
         }
         return map;
     }

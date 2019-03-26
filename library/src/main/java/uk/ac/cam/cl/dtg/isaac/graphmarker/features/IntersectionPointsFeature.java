@@ -39,7 +39,7 @@ public class IntersectionPointsFeature extends InputFeature<IntersectionPointsFe
     SectorClassifier.Settings> {
 
     /**
-     * Create a curve count feature with specified settings.
+     * Create an intersection points feature with specified settings.
      * @param settings The settings.
      */
     IntersectionPointsFeature(SectorClassifier.Settings settings) {
@@ -52,7 +52,7 @@ public class IntersectionPointsFeature extends InputFeature<IntersectionPointsFe
     }
 
     /**
-     * An instance of the CurvesCount feature.
+     * An instance of the intersection points feature.
      */
     public class Instance extends InputFeature<?, ?>.Instance {
 
@@ -61,7 +61,10 @@ public class IntersectionPointsFeature extends InputFeature<IntersectionPointsFe
         private final List<Sector> sectors;
 
         /**
-         * Create a curve count feature.
+         * Create an intersection points feature.
+         * @param lineA The name of the first line.
+         * @param lineB The name of the second line.
+         * @param sectors The sectors these lines must intersect, left to right.
          */
         private Instance(String lineA, String lineB, List<Sector> sectors) {
             super(serialize(lineA, lineB, sectors), true);
@@ -72,11 +75,11 @@ public class IntersectionPointsFeature extends InputFeature<IntersectionPointsFe
         }
 
         @Override
-        public boolean test(Input input) {
-            AssignmentContext.Current().putIfAbsent(lineA, input.getLines());
-            AssignmentContext.Current().putIfAbsent(lineB, input.getLines());
+        public boolean test(Input input, Context context) {
+            context.putIfAbsent(lineA);
+            context.putIfAbsent(lineB);
 
-            Set<ImmutableMap<String, Line>> assignments = AssignmentContext.Current().getAssignments();
+            Set<ImmutableMap<String, Line>> assignments = context.getAssignmentsCopy();
 
             Iterator<ImmutableMap<String, Line>> iterator = assignments.iterator();
             while (iterator.hasNext()) {
@@ -86,8 +89,7 @@ public class IntersectionPointsFeature extends InputFeature<IntersectionPointsFe
                 Line theLineB = mapping.get(lineB);
                 if (theLineA == theLineB) {
                     // This shouldn't be possible.
-                    assert false;
-                    continue;
+                    throw new IllegalArgumentException("Context has same line assigned to two mappings");
                 }
                 List<Sector> matches = getIntersectionSectors(theLineA, theLineB);
 
@@ -96,12 +98,24 @@ public class IntersectionPointsFeature extends InputFeature<IntersectionPointsFe
                 }
             }
 
-            return !assignments.isEmpty();
+            if (assignments.isEmpty()) {
+                return false;
+            } else {
+                context.setFulfilledAssignments(assignments);
+                return true;
+            }
         }
     }
 
-    private final Pattern syntaxPattern = Pattern.compile("([a-zA-Z]+)\\s+to\\s([a-zA-Z]+)\\s+at(.*)");
+    private final Pattern syntaxPattern = Pattern.compile("([a-zA-Z]+)\\s+to\\s([a-zA-Z]+)\\s+(?:at|in|on)(.*)");
 
+    /**
+     * Convert a intersection points features to a string.
+     * @param lineA The name of the first line.
+     * @param lineB The name of the second line.
+     * @param sectors The sectors where they intersect.
+     * @return The feature specification.
+     */
     private static String serialize(String lineA, String lineB, List<Sector> sectors) {
         return lineA + " to " + lineB + " at " + Joiner.on(", ").join(sectors);
     }
@@ -110,8 +124,9 @@ public class IntersectionPointsFeature extends InputFeature<IntersectionPointsFe
     protected Instance deserializeInternal(String featureData) {
         Matcher m = syntaxPattern.matcher(featureData);
         if (m.find()) {
-            return new Instance(m.group(1).trim(), m.group(2).trim(),
-                settings().getSectorBuilder().fromList(m.group(3)));
+            @SuppressWarnings("magicNumber")
+            List<Sector> sectors = settings().getSectorBuilder().fromList(m.group(3));
+            return new Instance(m.group(1).trim(), m.group(2).trim(), sectors);
         } else {
             throw new IllegalArgumentException("Not a intersection points feature: " + featureData);
         }
@@ -130,8 +145,8 @@ public class IntersectionPointsFeature extends InputFeature<IntersectionPointsFe
 
                 List<Sector> intersections = getIntersectionSectors(lineA, lineB);
                 if (!intersections.isEmpty()) {
-                    output.add(serialize(AssignmentContext.standardLineName(i),
-                        AssignmentContext.standardLineName(j),
+                    output.add(serialize(Context.standardLineName(i),
+                        Context.standardLineName(j),
                         intersections));
                 }
             }
@@ -140,6 +155,13 @@ public class IntersectionPointsFeature extends InputFeature<IntersectionPointsFe
         return output;
     }
 
+    /**
+     * Get a list of the sectors of intersections between two lines.
+     *
+     * @param lineA The first line.
+     * @param lineB The second line.
+     * @return The list of sectors where an intersection occurs.
+     */
     private List<Sector> getIntersectionSectors(Line lineA, Line lineB) {
         return Lines.findIntersections(lineA, lineB).stream()
             .map(p -> settings().getSectorClassifier().classify(p))

@@ -24,11 +24,9 @@ import uk.ac.cam.cl.dtg.isaac.graphmarker.data.PointOfInterest;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Rect;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -75,7 +73,9 @@ public class Lines {
      */
     @SuppressWarnings({"checkstyle:avoidInlineConditionals"})
     public static Point getSize(Line line) {
-        if (line.getPoints().isEmpty()) return new Point(0, 0);
+        if (line.getPoints().isEmpty()) {
+            return new Point(0, 0);
+        }
 
         Rect bounds = boundingRect(line);
 
@@ -155,6 +155,12 @@ public class Lines {
             line.getPoints().stream().mapToDouble(Point::getX).max().getAsDouble());
     }
 
+    /**
+     * Find all the intersecting points between two lines.
+     * @param lineA The first line.
+     * @param lineB The second line.
+     * @return The list of intersections between the lines.
+     */
     public static List<Point> findIntersections(Line lineA, Line lineB) {
         if (lineA.getPoints().size() == 2 && lineB.getPoints().size() == 2) {
             Segment a = lineToSegment(lineA);
@@ -186,6 +192,12 @@ public class Lines {
         }
     }
 
+    /**
+     * Check if the bounding boxes of two lines intersects.
+     * @param subA The first line.
+     * @param subB The second line.
+     * @return True if their bounding boxes intersect.
+     */
     private static boolean boundingIntersects(Line subA, Line subB) {
         Rect boundingA = boundingRect(subA);
         Rect boundingB = boundingRect(subB);
@@ -196,6 +208,11 @@ public class Lines {
             && boundingA.getBottom() <= boundingB.getTop();
     }
 
+    /**
+     * Get the bounding rectangle of a line.
+     * @param line The line.
+     * @return The bounding rectangle.
+     */
     @SuppressWarnings({"checkstyle:needBraces"})
     private static Rect boundingRect(Line line) {
         double minX = Double.MAX_VALUE;
@@ -213,6 +230,11 @@ public class Lines {
         return new Rect(minX, maxX, maxY, minY);
     }
 
+    /**
+     * Split a line in half, discarding any points of interest. If the line only has two points, it is not split.
+     * @param line The line to split.
+     * @return A list containing two new lines that share a point, or one line of just two points.
+     */
     private static List<Line> splitInHalf(Line line) {
         List<Point> points = line.getPoints();
         if (points.size() == 2) {
@@ -225,6 +247,11 @@ public class Lines {
         );
     }
 
+    /**
+     * Convert a line of two points to a closed segment.
+     * @param line The line.
+     * @return A segment representing the first part of that line.
+     */
     private static Segment lineToSegment(Line line) {
         assert line.getPoints().size() == 2;
         return Segment.closed(line.getPoints().get(0), line.getPoints().get(1));

@@ -125,7 +125,7 @@ public class FeaturesTest {
     }
 
     @Test
-    public void testGenerate() {
+    public void testGenerateNonOverlappingLines() {
         String features = new Features().generate(inputOf(
             lineOf(x -> 1 / x, -10, -0.01),
             lineOf(x -> 1 / x, 0.01, 10)
@@ -135,5 +135,42 @@ public class FeaturesTest {
         assertTrue(features.contains("start=flat"));
         assertTrue(features.contains("bottomLeft"));
         assertTrue(features.contains("topRight"));
+    }
+
+    @Test
+    public void testGenerateOverlappingLines() {
+        String features = new Features().generate(inputOf(
+            lineOf(x -> x, -10, 10),
+            lineOf(x -> -x, -10, 10)
+        ));
+        assertTrue(features.contains("match: A;"));
+        assertTrue(features.contains("match: B;"));
+        assertTrue(features.contains("intersects: A to B at origin"));
+    }
+
+    @Test
+    public void testThreeOverlappingLines() {
+        Predicate<Input> testFeature = new Features().matcher(String.join("\r\n",
+            "curves:3",
+            "match: a; through:  topLeft, +Yaxis, topRight",
+            "match: a; slope: start=flat, end=flat",
+            "match: b; through:  bottomLeft, origin, topRight",
+            "match: c; through:  topLeft, origin, bottomRight",
+            "curves: 3",
+            "intersects: a to b at topRight",
+            "intersects: a to c at topLeft",
+            "intersects: b to c at origin"));
+
+        assertTrue(testFeature.test(inputOf(
+            lineOf(x -> x, -10, 10),
+            lineOf(x -> -x, -10, 10),
+            lineOf(x -> 3.0, -10, 10)
+        )));
+
+        assertFalse(testFeature.test(inputOf(
+            lineOf(x -> x, -10, 10),
+            lineOf(x -> -x, -10, 10),
+            lineOf(x -> 0.0, -10, 10)
+        )));
     }
 }
