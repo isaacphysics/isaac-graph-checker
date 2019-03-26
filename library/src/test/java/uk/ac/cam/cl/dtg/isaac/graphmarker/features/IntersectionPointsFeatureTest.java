@@ -1,5 +1,6 @@
 package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 
+import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
@@ -28,9 +29,11 @@ public class IntersectionPointsFeatureTest {
 
         Context context = new Context(input);
 
-        assertTrue(instance.test(input, context));
+        Context match = instance.test(input, context);
 
-        assertEquals(6, context.getAssignmentsCopy().size());
+        assertNotNull(match);
+
+        assertEquals(6, match.getAssignmentsCopy().size());
     }
 
     @Test
@@ -41,26 +44,6 @@ public class IntersectionPointsFeatureTest {
 
         assertEquals(1, lines.size());
         assertEquals("A to B at origin", lines.get(0));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testFailsWithDodgyContext() {
-        IntersectionPointsFeature.Instance instance = intersectionPointsFeature.deserializeInternal("a to b at origin");
-
-        Line line1 = TestHelpers.lineOf(x -> x, -10, 10);
-        Line line2 = TestHelpers.lineOf(x -> -x, -10, 10);
-        Input input = TestHelpers.inputOf(line1, line2);
-
-        Context context = new Context(input);
-        context.putIfAbsent("a");
-        context.putIfAbsent("b");
-
-        // Set up an illegal state
-        context.setFulfilledAssignments(ImmutableSet.of(
-            ImmutableMap.of("a", line1,"b", line1)
-        ));
-
-        instance.test(input, context);
     }
 
 

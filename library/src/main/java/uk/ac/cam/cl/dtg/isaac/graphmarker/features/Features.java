@@ -168,9 +168,11 @@ public class Features {
             List<String> failedPredicates = new ArrayList<>();
             Context context = new Context(input);
             for (InputFeature<?, ?>.Instance inputPredicate: matchers) {
-                boolean test = inputPredicate.test(input, context);
-                if (!test) {
+                Context newContext = inputPredicate.test(input, context);
+                if (newContext == null) {
                     failedPredicates.add(inputPredicate.getTaggedFeatureData());
+                } else {
+                    context = newContext;
                 }
             }
             return failedPredicates;

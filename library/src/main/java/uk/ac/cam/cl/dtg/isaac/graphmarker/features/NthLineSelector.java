@@ -64,7 +64,7 @@ public class NthLineSelector extends LineSelector<NthLineSelector.Instance, Sett
         }
 
         @Override
-        protected boolean test(Input input, LineFeature<?, ?>.Instance lineInstance, Context context) {
+        protected boolean test(Input input, LineFeature<?, ?>.Instance lineInstance) {
             List<Line> lines = input.getLines();
             if (n > lines.size()) {
                 return false; // Not enough lines

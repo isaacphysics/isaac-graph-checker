@@ -59,11 +59,6 @@ public abstract class LineFeature<FeatureInstance extends LineFeature.Instance, 
             return new LineFeatureWrapper(settings()).new Instance(this.getTaggedFeatureData(), this);
         }
 
-        @Override
-        public final boolean test(Line line, Context context) {
-            return test(line);
-        }
-
         /**
          * Test if this line feature matches this line. Line features cannot have context which is ensured by the above.
          * @param line The line to test.
@@ -115,9 +110,12 @@ public abstract class LineFeature<FeatureInstance extends LineFeature.Instance, 
             }
 
             @Override
-            public boolean test(Input input, Context context) {
-                return input.getLines().stream()
-                    .anyMatch(lineFeatureInstance);
+            public Context test(Input input, Context context) {
+                if (input.getLines().stream().anyMatch(lineFeatureInstance)) {
+                    return context;
+                } else {
+                    return null;
+                }
             }
         }
     }

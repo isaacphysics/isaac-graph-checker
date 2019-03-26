@@ -15,6 +15,7 @@
  */
 package uk.ac.cam.cl.dtg.isaac.graphmarker.features.internals;
 
+import org.apache.commons.lang3.NotImplementedException;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.features.Context;
@@ -74,9 +75,29 @@ public abstract class LineSelector<SelectorInstance extends LineSelector.Instanc
          * @param input The input  to be tested.
          * @param instance The line predicate to be applied.
          * @param context The context for this test.
-         * @return True if the input matches the line predicate under this selector.
+         * @return New or existing context if there is a match, null if there is no match.
          */
-        protected abstract boolean test(Input input, LineFeature<?, ?>.Instance instance, Context context);
+        protected Context test(Input input, LineFeature<?, ?>.Instance instance, Context context) {
+            if (test(input, instance)) {
+                return context;
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Test an input with this selector and a line feature instance without a context.
+         *
+         * This selector will select zero or more lines from the input, apply the line predicate to some or all of them,
+         * and then combine the output of the predicates in some way to give an overall test.
+         *
+         * @param input The input  to be tested.
+         * @param instance The line predicate to be applied.
+         * @return True if there is a match.
+         */
+        protected boolean test(Input input, LineFeature<?, ?>.Instance instance) {
+            throw new NotImplementedException("A derived type must implement this or the function above.");
+        }
 
         /**
          * Wrap a line feature into an lineFeatureSpec feature that matches lines selected by this selector.
@@ -135,7 +156,7 @@ public abstract class LineSelector<SelectorInstance extends LineSelector.Instanc
             }
 
             @Override
-            public boolean test(Input input, Context context) {
+            public Context test(Input input, Context context) {
                 return selectorInstance.test(input, lineFeatureInstance, context);
             }
         }

@@ -37,7 +37,7 @@ public class CurvesCountFeatureTest {
 
         Input input = TestHelpers.inputOf(TestHelpers.lineOf(x -> 1.0, -10, 10), TestHelpers.lineOf(x -> 0.0, -10, 10));
 
-        assertTrue(curvesCountFeature.deserializeInternal(data.get(0)).test(input, new Context(input)));
+        assertNotNull(curvesCountFeature.deserializeInternal(data.get(0)).test(input, new Context(input)));
     }
 
     @Test

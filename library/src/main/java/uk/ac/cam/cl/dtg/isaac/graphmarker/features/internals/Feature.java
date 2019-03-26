@@ -15,8 +15,11 @@
  */
 package uk.ac.cam.cl.dtg.isaac.graphmarker.features.internals;
 
+import org.apache.commons.lang3.NotImplementedException;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.features.Context;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsInterface;
+
+import javax.annotation.Nullable;
 
 /**
  * A feature which matches against some kind of input or generates feature specifications based on some input.
@@ -52,12 +55,29 @@ abstract class Feature<FeatureInstance extends Feature.AbstractInstance, InputTy
         }
 
         /**
-         * Test if the given input matches this feature instance. If it does match, the context can be mutated.
+         * Test if the given input matches this feature instance. If it does match, a new context can be returned.
          *
          * @param inputType The input.
          * @param context The context of this input.
-         * @return True if this feature instance matches that input.
+         * @return The existing or new context if there is a match, null if there is no match.
          */
-        public abstract boolean test(InputType inputType, Context context);
+        @Nullable
+        public Context test(InputType inputType, Context context) {
+            if (test(inputType)) {
+                return context;
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Test if the given input matches this feature instance without looking at context.
+         *
+         * @param inputType The input.
+         * @return True if there is a match.
+         */
+        protected boolean test(InputType inputType) {
+            throw new NotImplementedException("A derived type must overide this or the function above.");
+        }
     }
 }

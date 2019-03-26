@@ -56,6 +56,14 @@ public class FeaturesTest {
     }
 
     @Test
+    public void testLineFeatureWrapperFunctionWorks() {
+        Predicate<Input> testFeature = new Features().matcher("through:  topLeft, +Yaxis, topRight\r\nsymmetry: even ");
+
+        assertTrue(testFeature.test(inputOf(x -> x * x + 3, -10, 10)));
+        assertFalse(testFeature.test(inputOf(x -> x > 0 ? x + 3 : x * x + 3, -10, 10)));
+    }
+
+    @Test
     public void testLineRecognitionWorks() {
         Predicate<Input> testFeature = new Features().matcher("line: 1; through:  bottomLeft\r\nline: 2; through: topRight");
 

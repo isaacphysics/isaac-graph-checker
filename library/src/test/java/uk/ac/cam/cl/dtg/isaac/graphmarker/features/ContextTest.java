@@ -1,5 +1,6 @@
 package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 
+import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.TestHelpers;
@@ -16,7 +17,7 @@ public class ContextTest {
 
         Context context = new Context(input);
 
-        context.setFulfilledAssignments(Collections.emptySet());
+        context.withFulfilledAssignments(Collections.emptySet());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -26,7 +27,7 @@ public class ContextTest {
 
         Context context = new Context(input);
 
-        context.setFulfilledAssignments(Collections.singleton(ImmutableMap.of("a", line1)));
+        context.withFulfilledAssignments(Collections.singleton(ImmutableBiMap.of("a", line1)));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -37,8 +38,8 @@ public class ContextTest {
 
         Context context = new Context(input);
 
-        context.putIfAbsent("a");
+        context = context.putIfAbsent("a");
 
-        context.setFulfilledAssignments(Collections.singleton(ImmutableMap.of("a", line2missing)));
+        context = context.withFulfilledAssignments(Collections.singleton(ImmutableBiMap.of("a", line2missing)));
     }
 }

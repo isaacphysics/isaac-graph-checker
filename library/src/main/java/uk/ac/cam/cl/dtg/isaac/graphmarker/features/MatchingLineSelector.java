@@ -15,7 +15,7 @@
  */
 package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableBiMap;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.features.internals.LineFeature;
@@ -66,17 +66,16 @@ public class MatchingLineSelector extends LineSelector<MatchingLineSelector.Inst
         }
 
         @Override
-        protected boolean test(Input input, LineFeature<?, ?>.Instance lineInstance, Context context) {
-            context.putIfAbsent(name);
-            Set<ImmutableMap<String, Line>> assignments = context.getAssignmentsCopy();
+        protected Context test(Input input, LineFeature<?, ?>.Instance lineInstance, Context context) {
+            context = context.putIfAbsent(name);
+            Set<ImmutableBiMap<String, Line>> assignments = context.getAssignmentsCopy();
 
-            assignments.removeIf(assignment -> !lineInstance.test(assignment.get(name), context));
+            assignments.removeIf(assignment -> !lineInstance.test(assignment.get(name)));
 
             if (assignments.isEmpty()) {
-                return false;
+                return null;
             } else {
-                context.setFulfilledAssignments(assignments);
-                return true;
+                return context.withFulfilledAssignments(assignments);
             }
         }
     }

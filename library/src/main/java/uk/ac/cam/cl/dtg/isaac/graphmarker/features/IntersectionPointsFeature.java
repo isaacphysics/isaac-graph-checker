@@ -16,7 +16,7 @@
 package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableBiMap;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.features.internals.InputFeature;
@@ -75,22 +75,18 @@ public class IntersectionPointsFeature extends InputFeature<IntersectionPointsFe
         }
 
         @Override
-        public boolean test(Input input, Context context) {
-            context.putIfAbsent(lineA);
-            context.putIfAbsent(lineB);
+        public Context test(Input input, Context context) {
+            context = context.putIfAbsent(lineA);
+            context = context.putIfAbsent(lineB);
 
-            Set<ImmutableMap<String, Line>> assignments = context.getAssignmentsCopy();
+            Set<ImmutableBiMap<String, Line>> assignments = context.getAssignmentsCopy();
 
-            Iterator<ImmutableMap<String, Line>> iterator = assignments.iterator();
+            Iterator<ImmutableBiMap<String, Line>> iterator = assignments.iterator();
             while (iterator.hasNext()) {
-                ImmutableMap<String, Line> mapping = iterator.next();
+                ImmutableBiMap<String, Line> mapping = iterator.next();
 
                 Line theLineA = mapping.get(lineA);
                 Line theLineB = mapping.get(lineB);
-                if (theLineA == theLineB) {
-                    // This shouldn't be possible.
-                    throw new IllegalArgumentException("Context has same line assigned to two mappings");
-                }
                 List<Sector> matches = getIntersectionSectors(theLineA, theLineB);
 
                 if (!matches.equals(sectors)) {
@@ -99,10 +95,9 @@ public class IntersectionPointsFeature extends InputFeature<IntersectionPointsFe
             }
 
             if (assignments.isEmpty()) {
-                return false;
+                return null;
             } else {
-                context.setFulfilledAssignments(assignments);
-                return true;
+                return context.withFulfilledAssignments(assignments);
             }
         }
     }
