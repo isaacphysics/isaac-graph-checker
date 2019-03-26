@@ -95,7 +95,7 @@ public class CustomSettings implements SettingsWrapper {
         this.originSlop = originSlop;
         this.relaxedOriginSlop = relaxedOriginSlop;
         SectorBuilder sectorBuilder = this.getSectorBuilder();
-        this.orderedSectors = orderedSectors.stream().map(sectorBuilder::byName).collect(Collectors.toList());
+        this.orderedSectors = sectorBuilder.fromList(orderedSectors.stream());
     }
 
     @Override
