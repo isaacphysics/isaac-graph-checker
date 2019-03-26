@@ -33,7 +33,7 @@ public class IntersectionPointsFeatureTest {
     private IntersectionPointsFeature intersectionPointsFeature = new IntersectionPointsFeature(SettingsWrapper.DEFAULT);
 
     @Test
-    public void testDeserialize() {
+    public void testMatchIntersection() {
         IntersectionPointsFeature.Instance instance = intersectionPointsFeature.deserializeInternal("a to b at origin");
 
         Line line1 = TestHelpers.lineOf(x -> x, -10, 10);
@@ -52,6 +52,24 @@ public class IntersectionPointsFeatureTest {
     }
 
     @Test
+    public void testMatchNonIntersection() {
+        IntersectionPointsFeature.Instance instance = intersectionPointsFeature.deserializeInternal("a to b nowhere");
+
+        Line line1 = TestHelpers.lineOf(x -> x, -10, 10);
+        Line line2 = TestHelpers.lineOf(x -> -x, -10, 10);
+        Line line3 = TestHelpers.lineOf(x -> 0.0, -10, 10);
+        Line line4 = TestHelpers.lineOf(x -> 3.0, -10, 10);
+        Input input = TestHelpers.inputOf(line1, line2, line3, line4);
+
+        Context context = new Context(input);
+
+        Context match = instance.test(input, context);
+
+        assertNotNull(match);
+
+        assertEquals(2, match.getAssignmentsCopy().size());
+    }
+    @Test
     public void testGenerate() {
         Line line1 = TestHelpers.lineOf(x -> x, -10, 10);
         Line line2 = TestHelpers.lineOf(x -> -x, -10, 10);
@@ -61,6 +79,15 @@ public class IntersectionPointsFeatureTest {
         assertEquals("A to B at origin", lines.get(0));
     }
 
+    @Test
+    public void testGenerateNonIntersection() {
+        Line line1 = TestHelpers.lineOf(x -> x, -10, 10);
+        Line line2 = TestHelpers.lineOf(x -> x + 1, -10, 10);
+        List<String> lines = intersectionPointsFeature.generate(TestHelpers.inputOf(line1, line2));
+
+        assertEquals(1, lines.size());
+        assertEquals("A to B nowhere", lines.get(0));
+    }
 
     @Test(expected = IllegalArgumentException.class)
     public void testParseFailureWithNumberedLine() {

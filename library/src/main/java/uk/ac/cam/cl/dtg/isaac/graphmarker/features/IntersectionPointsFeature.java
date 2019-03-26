@@ -25,6 +25,7 @@ import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.Sector;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.SectorClassifier;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -102,7 +103,7 @@ public class IntersectionPointsFeature extends InputFeature<IntersectionPointsFe
         }
     }
 
-    private final Pattern syntaxPattern = Pattern.compile("([a-zA-Z]+)\\s+to\\s([a-zA-Z]+)\\s+(?:at|in|on)(.*)");
+    private final Pattern syntaxPattern = Pattern.compile("([a-zA-Z]+)\\s+to\\s([a-zA-Z]+)\\s+((?:at|in|on)(.*)|nowhere)");
 
     /**
      * Convert a intersection points features to a string.
@@ -112,15 +113,25 @@ public class IntersectionPointsFeature extends InputFeature<IntersectionPointsFe
      * @return The feature specification.
      */
     private static String serialize(String lineA, String lineB, List<Sector> sectors) {
-        return lineA + " to " + lineB + " at " + Joiner.on(", ").join(sectors);
+        String lines = lineA + " to " + lineB;
+        if (sectors.isEmpty()) {
+            return lines + " nowhere";
+        } else {
+            return lines + " at " + Joiner.on(", ").join(sectors);
+        }
     }
 
     @Override
+    @SuppressWarnings("magicNumber")
     protected Instance deserializeInternal(String featureData) {
         Matcher m = syntaxPattern.matcher(featureData);
         if (m.find()) {
-            @SuppressWarnings("magicNumber")
-            List<Sector> sectors = settings().getSectorBuilder().fromList(m.group(3));
+            List<Sector> sectors;
+            if (m.group(4) == null) {
+                sectors = Collections.emptyList();
+            } else {
+                sectors = settings().getSectorBuilder().fromList(m.group(4));
+            }
             return new Instance(m.group(1).trim(), m.group(2).trim(), sectors);
         } else {
             throw new IllegalArgumentException("Not a intersection points feature: " + featureData);
@@ -139,11 +150,9 @@ public class IntersectionPointsFeature extends InputFeature<IntersectionPointsFe
                 Line lineB = lines.get(j);
 
                 List<Sector> intersections = getIntersectionSectors(lineA, lineB);
-                if (!intersections.isEmpty()) {
-                    output.add(serialize(Context.standardLineName(i),
-                        Context.standardLineName(j),
-                        intersections));
-                }
+                output.add(serialize(Context.standardLineName(i),
+                    Context.standardLineName(j),
+                    intersections));
             }
         }
 
