@@ -83,7 +83,7 @@ public class Features {
     public Matcher matcher(String feature) {
         String[] features = feature.split("\n");
         List<InputFeature<?, ?>.Instance> matchers = Arrays.stream(features)
-                .map(this::itemToFeatureInstance)
+                .map(item -> itemToFeatureInstance(item.trim()))
                 .collect(Collectors.toList());
 
         if (matchers.stream().noneMatch(InputFeature.Instance::isLineAware)) {
