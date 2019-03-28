@@ -31,6 +31,10 @@ import java.util.stream.Collectors;
 
 /**
  * A line feature which requires the line to have a specific slope at the start and/or end.
+ *
+ * The slope is calculated by taking a certain number of points at the start/end of the line and then computing the
+ * bounding box of those lines. If the aspect ratio of the box is greater than getSlopeThreshold, the line has an
+ * interesting slope.
  */
 public class SlopeFeature extends LineFeature<SlopeFeature.Instance, SlopeFeature.Settings> {
 
@@ -143,11 +147,11 @@ public class SlopeFeature extends LineFeature<SlopeFeature.Instance, SlopeFeatur
                 if (parts.length != 2) {
                     throw new IllegalArgumentException("Incorrect number of slope parts in: " + item);
                 }
-                Position expectedPosition = Position.valueOf(parts[0].trim().toUpperCase());
-                Slope expectedSlope = Slope.valueOf(parts[1].trim().toUpperCase());
-                return ImmutablePair.of(expectedPosition, expectedSlope);
-            })
-            .collect(Collectors.toMap(ImmutablePair::getLeft, ImmutablePair::getRight)));
+                return parts;
+            }).collect(Collectors.toMap(
+                parts -> Position.valueOf(parts[0].trim().toUpperCase()),
+                parts -> Slope.valueOf(parts[1].trim().toUpperCase())
+            )));
     }
 
     @Override

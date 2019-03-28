@@ -92,7 +92,7 @@ abstract class Item<Instance extends Item.AbstractInstance, InputType, Generated
      * @param item The specification with tag.
      * @return The feature instance.
      */
-    public Instance deserialize(String item) {
+    Instance deserialize(String item) {
         if (!canDeserialize(item)) {
             throw new IllegalArgumentException("Feature deserialized with wrong tag");
         }

@@ -16,7 +16,6 @@
 package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableBiMap;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.features.internals.InputFeature;
@@ -26,15 +25,16 @@ import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.SectorClassifier;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
  * An input feature which matches an intersection between two lines.
+ *
+ * We match by putting the two named lines into the Context, and then checking if any of the pairs of lines have the
+ * required intersections.
  */
 public class IntersectionPointsFeature extends InputFeature<IntersectionPointsFeature.Instance,
     SectorClassifier.Settings> {

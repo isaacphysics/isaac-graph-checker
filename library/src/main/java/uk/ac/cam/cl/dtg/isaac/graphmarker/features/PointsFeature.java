@@ -30,7 +30,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * A line feature which requires the line to contain points of interest of certain types in certain sectors.
+ * A line feature which requires the line to contain points of interest of certain types in an order, and each of those
+ * points to be in a particular sector.
  */
 public class PointsFeature extends LineFeature<PointsFeature.Instance, SectorClassifier.Settings> {
 

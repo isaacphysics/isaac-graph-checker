@@ -57,8 +57,7 @@ public class AnswerToInput implements Function<GraphAnswer, Input> {
             .collect(Collectors.toList());
 
         if (points.size() > 2) {
-            final int last = points.size() - 1;
-            if (points.get(0).getX() > points.get(last).getX()) {
+            if (points.get(0).getX() > points.get(points.size() - 1).getX()) {
                 Collections.reverse(points);
             }
         }

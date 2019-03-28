@@ -23,7 +23,6 @@ import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 
 import javax.annotation.Nullable;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -65,8 +64,7 @@ public class Context {
      * @param lines The lines in this context.
      * @param assignments The assignments in this context.
      */
-    @VisibleForTesting
-    Context(ImmutableSet<String> names, ImmutableSet<Line> lines,
+    private Context(ImmutableSet<String> names, ImmutableSet<Line> lines,
                     ImmutableSet<ImmutableBiMap<String, Line>> assignments) {
         this.names = names;
         this.lines = lines;

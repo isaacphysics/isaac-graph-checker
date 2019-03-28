@@ -15,7 +15,6 @@
  */
 package uk.ac.cam.cl.dtg.isaac.graphmarker.features;
 
-import com.google.common.collect.ImmutableBiMap;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.features.internals.LineFeature;
@@ -27,7 +26,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -86,6 +84,8 @@ public class MatchingLineSelector extends LineSelector<MatchingLineSelector.Inst
     @Override
     public Map<String, Line> generate(Input input) {
         List<Line> lines = input.getLines();
+
+        // Only generate match lines if the lines overlap horizontally.
         if (Lines.noHorizonalOverlap(lines)) {
             return Collections.emptyMap();
         }

@@ -86,6 +86,7 @@ public class NthLineSelector extends LineSelector<NthLineSelector.Instance, Sett
     @Override
     public Map<String, Line> generate(Input input) {
         List<Line> lines = input.getLines();
+        // Only generate numbered lines if the lines do not overlap horizontally.
         if (!Lines.noHorizonalOverlap(lines)) {
             return Collections.emptyMap();
         }

@@ -36,7 +36,7 @@ public abstract class LineSelector<SelectorInstance extends LineSelector.Instanc
      * Constructor to wire up settings.
      * @param settings Settings for this feature.
      */
-    public LineSelector(SettingsType settings) {
+    protected LineSelector(SettingsType settings) {
         super(settings);
     }
 
