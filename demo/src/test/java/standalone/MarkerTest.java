@@ -17,11 +17,11 @@ package standalone;
 
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.data.PointType;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.Curve;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.GraphAnswer;
+import org.isaacphysics.graphchecker.data.Line;
+import org.isaacphysics.graphchecker.data.Point;
+import org.isaacphysics.graphchecker.data.PointType;
+import org.isaacphysics.graphchecker.dos.Curve;
+import org.isaacphysics.graphchecker.dos.GraphAnswer;
 import standalone.dos.GraphSolutionItem;
 import standalone.dos.GraphSolutions;
 import standalone.dos.IsaacAnswerResponse;
@@ -56,8 +56,8 @@ public class MarkerTest {
             failedResponse);
     }
 
-    private uk.ac.cam.cl.dtg.isaac.graphmarker.dos.Point toPoint(Point p) {
-        return new uk.ac.cam.cl.dtg.isaac.graphmarker.dos.Point(
+    private org.isaacphysics.graphchecker.dos.Point toPoint(Point p) {
+        return new org.isaacphysics.graphchecker.dos.Point(
             p.getX(),
             p.getY()
         );

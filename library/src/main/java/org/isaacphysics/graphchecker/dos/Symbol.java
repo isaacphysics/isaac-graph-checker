@@ -13,35 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package standalone;
+package org.isaacphysics.graphchecker.dos;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.isaacphysics.graphchecker.dos.GraphAnswer;
 
-class StubExampleSet {
-    private final String name;
-    private final String specification;
-    private final GraphAnswer canonical;
+class Symbol {
+    private final String text;
+    private final double x;
+    private final double y;
 
     @JsonCreator
-    public StubExampleSet(@JsonProperty("name") String name,
-                          @JsonProperty("specification") String specification,
-                          @JsonProperty("canonical") GraphAnswer canonical) {
-        this.name = name;
-        this.specification = specification;
-        this.canonical = canonical;
+    public Symbol(@JsonProperty("text") String text,
+                  @JsonProperty("x") double x,
+                  @JsonProperty("y") double y) {
+        this.text = text;
+        this.x = x;
+        this.y = y;
     }
 
-    public String getName() {
-        return name;
+    public String getText() {
+        return text;
     }
 
-    public String getSpecification() {
-        return specification;
+    public double getX() {
+        return x;
     }
 
-    public GraphAnswer getCanonical() {
-        return canonical;
+    public double getY() {
+        return y;
     }
 }

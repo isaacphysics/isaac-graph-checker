@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package standalone;
+package org.isaacphysics.graphchecker;
 
 import org.isaacphysics.graphchecker.data.Input;
-import org.isaacphysics.graphchecker.data.Line;
 import org.isaacphysics.graphchecker.data.Point;
+import org.isaacphysics.graphchecker.data.Line;
 import org.isaacphysics.graphchecker.data.PointOfInterest;
 import org.isaacphysics.graphchecker.data.PointType;
 

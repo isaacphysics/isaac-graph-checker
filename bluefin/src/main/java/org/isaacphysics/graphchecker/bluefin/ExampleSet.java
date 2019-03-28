@@ -13,24 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package standalone;
+package org.isaacphysics.graphchecker.bluefin;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.isaacphysics.graphchecker.dos.GraphAnswer;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.GraphAnswer;
 
-class StubExampleSet {
+import java.util.HashMap;
+import java.util.Map;
+
+public class ExampleSet {
     private final String name;
     private final String specification;
     private final GraphAnswer canonical;
 
+    private String id;
+
+    private final Map<String, GraphAnswer> answers;
+
+    private final Map<String, AnswerStatus> results;
+
     @JsonCreator
-    public StubExampleSet(@JsonProperty("name") String name,
-                          @JsonProperty("specification") String specification,
-                          @JsonProperty("canonical") GraphAnswer canonical) {
+    public ExampleSet(@JsonProperty("name") String name,
+                      @JsonProperty("specification") String specification,
+                      @JsonProperty("canonical") GraphAnswer canonical) {
         this.name = name;
         this.specification = specification;
         this.canonical = canonical;
+
+        this.answers = new HashMap<>();
+        this.results = new HashMap<>();
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getName() {
@@ -43,5 +60,19 @@ class StubExampleSet {
 
     public GraphAnswer getCanonical() {
         return canonical;
+    }
+
+    @JsonIgnore
+    public Map<String, GraphAnswer> getAnswers() {
+        return answers;
+    }
+
+    @JsonIgnore
+    public Map<String, AnswerStatus> getResults() {
+        return results;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

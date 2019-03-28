@@ -15,13 +15,13 @@
  */
 package standalone;
 
-import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.GraphAnswer;
+import org.isaacphysics.graphchecker.data.Input;
+import org.isaacphysics.graphchecker.dos.GraphAnswer;
 import standalone.dos.GraphSolutionItem;
 import standalone.dos.GraphSolutions;
 import standalone.dos.IsaacAnswerResponse;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.features.Features;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.translation.AnswerToInput;
+import org.isaacphysics.graphchecker.features.Features;
+import org.isaacphysics.graphchecker.translation.AnswerToInput;
 
 /**
  * Wrapper of Features to take input in the Isaac JSON format and return it in an acceptable format.

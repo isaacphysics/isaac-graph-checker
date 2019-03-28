@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.GraphAnswer;
+import org.isaacphysics.graphchecker.dos.GraphAnswer;
 import standalone.dos.GraphSolutionItem;
 import standalone.dos.GraphSolutions;
 import standalone.dos.IsaacAnswer;
