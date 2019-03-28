@@ -260,12 +260,11 @@ public class Lines {
 
     /**
      * Find the centre point of a line (averaging the middle two points if the line has an even number of points).
-     * @param line The line.
+     * @param points The list of points.
      * @return The median point.
      */
     @SuppressWarnings("magicNumber")
-    public static Point getCentreOfLine(Line line) {
-        List<Point> points = line.getPoints();
+    public static Point getCentreOfPoints(List<Point> points) {
         if ((points.size() % 2) == 0) {
             Point center1 = points.get(points.size() / 2 - 1);
             Point center2 = points.get(points.size() / 2);

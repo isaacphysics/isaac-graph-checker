@@ -43,7 +43,7 @@ public class LinesTest {
     public void getMedianCentreOfLine() {
         Line line = TestHelpers.lineOf(-10,0, -5,5, 5,-5, 10,0);
 
-        Point centre = Lines.getCentreOfLine(line);
+        Point centre = Lines.getCentreOfPoints(line.getPoints());
 
         assertEquals(new Point(0, 0), centre);
     }

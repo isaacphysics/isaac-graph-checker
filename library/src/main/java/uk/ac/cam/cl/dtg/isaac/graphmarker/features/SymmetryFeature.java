@@ -33,7 +33,7 @@ import java.util.List;
  *
  * The symmetry is defined by:
  * - Splitting the line into lines between the start point, each point of interest, and the end point.
- *   - if there are an even number of points of interest, we add a split point in the middle of the line.
+ *   - if there are an even number of points of interest, we add a split point in the middle of the points of interest.
  * - Calculating the bounding box sizes of each of the lines.
  * - Working from the centre, checking each box is similar in size to the corresponding box on the other side.
  *
@@ -142,8 +142,13 @@ public class SymmetryFeature extends LineFeature<SymmetryFeature.Instance, Symme
 
         List<PointOfInterest> points = new ArrayList<>(line.getPointsOfInterest());
         if ((points.size() % 2) == 0) {
-            @SuppressWarnings("magicNumber") Point center = Lines.getCentreOfLine(line);
-            PointOfInterest virtualCenter = new PointOfInterest(center, PointType.VIRTUAL_CENTRE);
+            Point centre;
+            if (points.size() == 0) {
+                centre = Lines.getCentreOfPoints(line.getPoints());
+            } else {
+                centre = Lines.getCentreOfPoints(new ArrayList<>(points));
+            }
+            PointOfInterest virtualCenter = new PointOfInterest(centre, PointType.VIRTUAL_CENTRE);
             points.add(points.size() / 2, virtualCenter);
         }
 
@@ -185,7 +190,7 @@ public class SymmetryFeature extends LineFeature<SymmetryFeature.Instance, Symme
         PointOfInterest centerPoint = points.get(points.size() / 2);
         if (antisymmetric && settings().getSectorBuilder().byName(SectorBuilder.RELAXED_ORIGIN).contains(centerPoint)) {
             return SymmetryType.ODD;
-        } else if (symmetric && Math.abs(centerPoint.getX()) < settings().getRelaxedOriginSlop()) {
+        } else if (symmetric && Math.abs(centerPoint.getX()) < settings().getAxisSlop()) {
             return SymmetryType.EVEN;
         } else if (symmetric) {
             return SymmetryType.SYMMETRIC;

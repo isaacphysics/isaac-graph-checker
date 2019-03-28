@@ -62,7 +62,8 @@ public class ReportController {
 
     @GET
     public String report(@QueryParam("withoutSuppression") boolean withoutSuppression,
-                         @QueryParam("settings") String settingsParam) throws JsonProcessingException {
+                         @QueryParam("settings") String settingsParam,
+                         @QueryParam("only") String only) throws JsonProcessingException {
         final StringBuilder response = new StringBuilder();
         response.append(HEADER);
 
@@ -86,6 +87,10 @@ public class ReportController {
         List<String> fullyCorrectExamples = new ArrayList<>();
 
         examples.forEach(example -> {
+            if (only != null && !only.equals(example.getId())) {
+                // Skip other examples
+                return;
+            }
             String fullName = example.getName();
             if (!fullName.equals(example.getId())) {
                 fullName += " <small>(" + example.getId() + ")</small>";
