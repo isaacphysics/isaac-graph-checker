@@ -77,29 +77,13 @@ public class IntersectionPointsFeature extends InputFeature<IntersectionPointsFe
 
         @Override
         public Context test(Input input, Context context) {
-            context = context.putIfAbsent(lineA);
-            context = context.putIfAbsent(lineB);
-
-            Set<ImmutableBiMap<String, Line>> assignments = context.getAssignmentsCopy();
-
-            Iterator<ImmutableBiMap<String, Line>> iterator = assignments.iterator();
-            while (iterator.hasNext()) {
-                ImmutableBiMap<String, Line> mapping = iterator.next();
-
+            return context.makeNewContext(mapping -> {
                 Line theLineA = mapping.get(lineA);
                 Line theLineB = mapping.get(lineB);
                 List<Sector> matches = getIntersectionSectors(theLineA, theLineB);
 
-                if (!matches.equals(sectors)) {
-                    iterator.remove();
-                }
-            }
-
-            if (assignments.isEmpty()) {
-                return null;
-            } else {
-                return context.withFulfilledAssignments(assignments);
-            }
+                return matches.equals(sectors);
+            }, lineA, lineB);
         }
     }
 

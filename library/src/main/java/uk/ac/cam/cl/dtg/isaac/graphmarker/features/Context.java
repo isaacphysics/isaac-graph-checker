@@ -21,11 +21,17 @@ import com.google.common.collect.ImmutableSet;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 
+import javax.annotation.Nullable;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * An immutable set of possible mappings from names to lines.
+ *
+ * The idea of a context is keep making new contexts as we try and match each feature, and if we have a Context left at
+ * the end, then there is one or more valid mappings between names and lines.
  */
 public class Context {
 
@@ -41,7 +47,6 @@ public class Context {
     private ImmutableSet<ImmutableBiMap<String, Line>> assignments;
     private final ImmutableSet<String> names;
     private final ImmutableSet<Line> lines;
-
 
     /**
      * Create an empty assignment context.
@@ -69,9 +74,34 @@ public class Context {
     }
 
     /**
+     * Try to create a new Context based on an existing context and a predicate if a mapping is valid.
+     *
+     * @param isValidAssignment Returns true if this is a valid mapping of names to lines.
+     * @param names Any new names to add.
+     * @return A new context if the predicate returns true for any mapping, or null if no mappings are valid.
+     */
+    @Nullable
+    public Context makeNewContext(Predicate<ImmutableBiMap<String, Line>> isValidAssignment, String... names) {
+        Context context = this;
+        for (String name : names) {
+            context = context.putIfAbsent(name);
+        }
+
+        Set<ImmutableBiMap<String, Line>> assignments = context.getAssignmentsCopy();
+
+        assignments.removeIf(isValidAssignment.negate());
+
+        if (assignments.isEmpty()) {
+            return null;
+        } else {
+            return context.withFulfilledAssignments(assignments);
+        }
+    }
+
+    /**
      * @return A copy of the possible assignments from names to lines.
      */
-    public Set<ImmutableBiMap<String, Line>> getAssignmentsCopy() {
+    Set<ImmutableBiMap<String, Line>> getAssignmentsCopy() {
         return new HashSet<>(assignments);
     }
 
@@ -81,7 +111,8 @@ public class Context {
      * @return A new context with these assignmnets.
      * @throws IllegalArgumentException If the new assignments are empty or any names are unknown or lines are unknown.
      */
-    public Context withFulfilledAssignments(Set<ImmutableBiMap<String, Line>> fulfilledAssignments) {
+    @VisibleForTesting
+    Context withFulfilledAssignments(Set<ImmutableBiMap<String, Line>> fulfilledAssignments) {
         if (fulfilledAssignments.isEmpty()) {
             throw new IllegalArgumentException("Fulfilled assignments must be non-empty.");
         }
@@ -98,7 +129,8 @@ public class Context {
      * @param name The name to add.
      * @return The new context.
      */
-    public Context putIfAbsent(String name) {
+    @VisibleForTesting
+    Context putIfAbsent(String name) {
         if (!names.contains(name)) {
             // Spread all possible assignments for name
             ImmutableSet<ImmutableBiMap<String, Line>> newAssignments = assignments.stream()

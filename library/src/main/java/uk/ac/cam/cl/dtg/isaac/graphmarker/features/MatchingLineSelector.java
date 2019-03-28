@@ -33,6 +33,8 @@ import java.util.regex.Pattern;
 
 /**
  * A Selector which will match lines in a Prolog-fashion.
+ *
+ * We create a name for this line if that name doesn't exist, and then filter the Context based on our LineFeature.
  */
 public class MatchingLineSelector extends LineSelector<MatchingLineSelector.Instance, SettingsInterface.None> {
 
@@ -67,16 +69,7 @@ public class MatchingLineSelector extends LineSelector<MatchingLineSelector.Inst
 
         @Override
         protected Context test(Input input, LineFeature<?, ?>.Instance lineInstance, Context context) {
-            context = context.putIfAbsent(name);
-            Set<ImmutableBiMap<String, Line>> assignments = context.getAssignmentsCopy();
-
-            assignments.removeIf(assignment -> !lineInstance.test(assignment.get(name)));
-
-            if (assignments.isEmpty()) {
-                return null;
-            } else {
-                return context.withFulfilledAssignments(assignments);
-            }
+            return context.makeNewContext(mapping -> lineInstance.test(mapping.get(name)), name);
         }
     }
 
