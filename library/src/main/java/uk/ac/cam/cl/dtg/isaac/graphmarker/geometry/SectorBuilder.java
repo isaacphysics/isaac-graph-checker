@@ -215,22 +215,22 @@ public class SectorBuilder {
     }
 
     /**
-     * Helper to create a Sector which represents a square of a certain size, centred on the origin.
+     * Helper to create a Sector which represents a diamond of a certain size, centred on the origin.
      *
-     * @param size The radius (half-width) of the square.
-     * @return The square sector.
+     * @param size The radius (half of the diagonal) of the diamond. Note it is smaller than the square.
+     * @return The diamond sector.
      */
-    private List<Segment> square(double size) {
+    private List<Segment> diamond(double size) {
         Point[] originPoints = new Point[] {
-            new Point(size, size), new Point(-size, size),
-            new Point(-size, -size), new Point(size, -size)};
+            new Point(size, 0), new Point(0, size),
+            new Point(-size, 0), new Point(0, -size)};
 
         Iterable<Point> points = Iterables.cycle(originPoints);
 
         return Streams.zip(
-                Streams.stream(points),
-                Streams.stream(points).skip(1),
-                Segment::closed)
+            Streams.stream(points),
+            Streams.stream(points).skip(1),
+            Segment::closed)
             .limit(originPoints.length)
             .collect(Collectors.toList());
     }
@@ -261,8 +261,8 @@ public class SectorBuilder {
 
     private static final ImmutableMap<String, Function<SectorBuilder, List<Segment>>> SECTOR_SHAPES =
         ImmutableMap.<String, Function<SectorBuilder, List<Segment>>>builder()
-            .put(ORIGIN, builder -> builder.square(builder.settings.getOriginSlop()))
-            .put(RELAXED_ORIGIN, builder -> builder.square(builder.settings.getRelaxedOriginSlop()))
+            .put(ORIGIN, builder -> builder.diamond(builder.settings.getOriginSlop()))
+            .put(RELAXED_ORIGIN, builder -> builder.diamond(builder.settings.getRelaxedOriginSlop()))
 
             .put(POSITIVE_X_AXIS, builder -> builder.sloppyAxis(UP, DOWN, RIGHT))
             .put(NEGATIVE_X_AXIS, builder -> builder.sloppyAxis(DOWN, UP, LEFT))
