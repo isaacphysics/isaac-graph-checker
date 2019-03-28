@@ -21,6 +21,7 @@ import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.Sector;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.PointType;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.SectorBuilder;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.SectorClassifier;
 
 import java.util.Arrays;
@@ -101,7 +102,7 @@ public class PointsFeature extends LineFeature<PointsFeature.Instance, SectorCla
                 Sector sector = entry.getRight();
                 String sectorName = sector.toString();
                 @SuppressWarnings("checkstyle:avoidInlineConditionals")
-                String preposition = sector == settings().getSectorBuilder().getOrigin() ? "at"
+                String preposition = sector == settings().getSectorBuilder().byName(SectorBuilder.ORIGIN) ? "at"
                     : sectorName.matches("[-+].*") ? "on"
                     : "in";
                 return entry.getLeft().humanName() + " " + preposition + " " + sectorName;

@@ -185,8 +185,8 @@ public class SymmetryFeature extends LineFeature<SymmetryFeature.Instance, Symme
      */
     private SymmetryType getStandardSymmetryType(Line line) {
         // Split line at x = 0
-        Line left = settings().getSectorBuilder().getLeft().clip(line);
-        Line right = settings().getSectorBuilder().getRight().clip(line);
+        Line left = settings().getSectorBuilder().byName(SectorBuilder.LEFT_HALF).clip(line);
+        Line right = settings().getSectorBuilder().byName(SectorBuilder.RIGHT_HALF).clip(line);
 
         List<Line> lefts = Lines.splitOnPointsOfInterest(left);
         List<Line> rights = Lines.splitOnPointsOfInterest(right);
@@ -246,7 +246,7 @@ public class SymmetryFeature extends LineFeature<SymmetryFeature.Instance, Symme
             }
             if (Math.abs(yDifferenceOdd) < settings().getSymmetrySimilarity()) {
                 if (innerMost) {
-                    Sector relaxedOrigin = settings().getSectorBuilder().getRelaxedOrigin();
+                    Sector relaxedOrigin = settings().getSectorBuilder().byName(SectorBuilder.RELAXED_ORIGIN);
                     if (relaxedOrigin.contains(left.getPoints().get(left.getPoints().size() - 1))
                         && relaxedOrigin.contains(right.getPoints().get(0))) {
                         return SymmetryType.ODD;

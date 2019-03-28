@@ -39,6 +39,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.SectorBuilder.*;
+
 /**
  * An line feature which requires the line to pass exactly through a list of sectors.
  */
@@ -53,12 +55,12 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
         super(settings);
         SectorBuilder sectorBuilder = settings.getSectorBuilder();
         invalidSectorSets = ImmutableList.of(
-            ImmutableSet.of(sectorBuilder.getTopRight(), sectorBuilder.getBottomRight()),
-            ImmutableSet.of(sectorBuilder.getTopLeft(), sectorBuilder.getBottomLeft()),
-            ImmutableSet.of(sectorBuilder.getTopRight(), sectorBuilder.getTopLeft()),
-            ImmutableSet.of(sectorBuilder.getBottomRight(), sectorBuilder.getBottomLeft()),
-            ImmutableSet.of(sectorBuilder.getOnAxisWithPositiveX(), sectorBuilder.getOnAxisWithNegativeX()),
-            ImmutableSet.of(sectorBuilder.getOnAxisWithPositiveY(), sectorBuilder.getOnAxisWithNegativeY())
+            ImmutableSet.of(sectorBuilder.byName(TOP_RIGHT), sectorBuilder.byName(BOTTOM_RIGHT)),
+            ImmutableSet.of(sectorBuilder.byName(TOP_LEFT), sectorBuilder.byName(BOTTOM_LEFT)),
+            ImmutableSet.of(sectorBuilder.byName(TOP_RIGHT), sectorBuilder.byName(TOP_LEFT)),
+            ImmutableSet.of(sectorBuilder.byName(BOTTOM_RIGHT), sectorBuilder.byName(BOTTOM_LEFT)),
+            ImmutableSet.of(sectorBuilder.byName(POSITIVE_X_AXIS), sectorBuilder.byName(NEGATIVE_X_AXIS)),
+            ImmutableSet.of(sectorBuilder.byName(POSITIVE_Y_AXIS), sectorBuilder.byName(NEGATIVE_Y_AXIS))
         );
     }
 

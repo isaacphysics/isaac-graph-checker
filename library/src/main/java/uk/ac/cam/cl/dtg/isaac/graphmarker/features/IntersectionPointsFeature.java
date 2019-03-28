@@ -103,7 +103,8 @@ public class IntersectionPointsFeature extends InputFeature<IntersectionPointsFe
         }
     }
 
-    private final Pattern syntaxPattern = Pattern.compile("([a-zA-Z]+)\\s+to\\s([a-zA-Z]+)\\s+((?:at|in|on)(.*)|nowhere)");
+    private final Pattern syntaxPattern = Pattern.compile(
+        "([a-zA-Z]+)\\s+to\\s([a-zA-Z]+)\\s+((?:at|in|on)(.*)|nowhere)");
 
     /**
      * Convert a intersection points features to a string.

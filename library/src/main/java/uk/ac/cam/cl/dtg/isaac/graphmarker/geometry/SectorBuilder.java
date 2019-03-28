@@ -15,18 +15,18 @@
  */
 package uk.ac.cam.cl.dtg.isaac.graphmarker.geometry;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Streams;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsInterface;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -92,16 +92,32 @@ public class SectorBuilder {
      */
     public List<Sector> getDefaultOrderedSectors() {
         return Arrays.asList(
-            getOrigin(),
-            getOnAxisWithPositiveX(),
-            getOnAxisWithPositiveY(),
-            getOnAxisWithNegativeX(),
-            getOnAxisWithNegativeY(),
-            getTopRight(),
-            getTopLeft(),
-            getBottomLeft(),
-            getBottomRight());
+            byName(ORIGIN),
+            byName(POSITIVE_X_AXIS),
+            byName(POSITIVE_Y_AXIS),
+            byName(NEGATIVE_X_AXIS),
+            byName(NEGATIVE_Y_AXIS),
+            byName(TOP_RIGHT),
+            byName(TOP_LEFT),
+            byName(BOTTOM_LEFT),
+            byName(BOTTOM_RIGHT));
     }
+
+    public static final String ORIGIN = "origin";
+    public static final String RELAXED_ORIGIN = "relaxedOrigin";
+    public static final String POSITIVE_X_AXIS = "+Xaxis";
+    public static final String NEGATIVE_X_AXIS = "-Xaxis";
+    public static final String POSITIVE_Y_AXIS = "+Yaxis";
+    public static final String NEGATIVE_Y_AXIS = "-Yaxis";
+    public static final String TOP_LEFT = "topLeft";
+    public static final String TOP_RIGHT = "topRight";
+    public static final String BOTTOM_LEFT = "bottomLeft";
+    public static final String BOTTOM_RIGHT = "bottomRight";
+    public static final String LEFT_HALF = "left";
+    public static final String RIGHT_HALF = "right";
+    public static final String TOP_HALF = "top";
+    public static final String BOTTOM_HALF = "bottom";
+    public static final String ANY = "any";
 
     private static final Point ORIGIN_POINT = new Point(0, 0);
     private static final Point LEFT = new Point(-1, 0);
@@ -118,23 +134,10 @@ public class SectorBuilder {
      * @return The sector.
      */
     public Sector byName(String s) {
-        try {
-            switch (s) {
-                case "+Xaxis":
-                    return getOnAxisWithPositiveX();
-                case "-Xaxis":
-                    return getOnAxisWithNegativeX();
-                case "+Yaxis":
-                    return getOnAxisWithPositiveY();
-                case "-Yaxis":
-                    return getOnAxisWithNegativeY();
-                default:
-                    String methodName = "get" + s.substring(0, 1).toUpperCase() + s.substring(1);
-                    return (Sector) SectorBuilder.class.getMethod(methodName).invoke(this);
-            }
-        } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            throw new IllegalArgumentException(s + " is not a valid sector");
+        if (SECTOR_SHAPES.containsKey(s)) {
+            return sectorCache.computeIfAbsent(s, name -> new Sector(name, SECTOR_SHAPES.get(name).apply(this)));
         }
+        throw new IllegalArgumentException(s + " is not a valid sector");
     }
 
     /**
@@ -163,44 +166,31 @@ public class SectorBuilder {
     private final Map<String, Sector> sectorCache = new HashMap<>();
 
     /**
-     * Helper method to create or cache a sector.
-     *
-     * @param name The name of the sector.
-     * @param supplier The function to create the sector if it is not yet cached.
-     * @return The sector.
-     */
-    private Sector cacheIfAbsent(String name, Supplier<List<Segment>> supplier) {
-        return sectorCache.computeIfAbsent(name, name1 -> new Sector(name, supplier.get()));
-    }
-
-    /**
      * Helper method to create a quadrant sector.
      *
      * Technically, this could make shapes other than a quadrant. It is really an infinite sector from origin between
      * axis1 and axis2.
      *
-     * @param name The name of the sector.
      * @param origin The origin of the quadrant
      * @param axis1 The direction of one side of the quadrant.
      * @param axis2 The direction of the other side of the quadrant.
-     * @return The quadrant sector.
+     * @return The quadrant segments.
      */
-    private Sector quadrant(String name, Point origin, Point axis1, Point axis2) {
-        return cacheIfAbsent(name, () -> Arrays.asList(
+    private List<Segment> quadrant(Point origin, Point axis1, Point axis2) {
+        return Arrays.asList(
             Segment.openOneEnd(origin, axis1, axis2),
             Segment.openOneEnd(origin, axis2, axis1)
-        ));
+        );
     }
 
     /**
      * Helper method to create a quadrant sector centred on the origin.
-     * @param name The name of the sector.
      * @param axis1 The direction of one side of the quadrant.
      * @param axis2 The direction of the other side of the quadrant.
-     * @return The sector.
+     * @return The segments.
      */
-    private Sector centeredQuadrant(String name, Point axis1, Point axis2) {
-        return quadrant(name, ORIGIN_POINT, axis1, axis2);
+    private List<Segment> centeredQuadrant(Point axis1, Point axis2) {
+        return quadrant(ORIGIN_POINT, axis1, axis2);
     }
 
     /**
@@ -209,44 +199,40 @@ public class SectorBuilder {
      * The area is defined as between the points left and right, scaled by AXIS_SLOP, extending out to infinity in the
      * direction of axis.
      *
-     * @param name The name of this sector.
      * @param left The left-hand side of the strip.
      * @param right The right-hand side of the strip.
      * @param axis The direction the strip extends in.
      * @return The sloppy axis sector.
      */
-    private Sector sloppyAxis(String name, Point left, Point right, Point axis) {
+    private List<Segment> sloppyAxis(Point left, Point right, Point axis) {
         final Point leftScaled = left.times(settings.getAxisSlop());
         final Point rightScaled = right.times(settings.getAxisSlop());
-        return cacheIfAbsent(name, () -> Arrays.asList(
-                Segment.closed(leftScaled, rightScaled),
-                Segment.openOneEnd(leftScaled, axis, Side.RIGHT),
-                Segment.openOneEnd(rightScaled, axis, Side.LEFT)
-        ));
+        return Arrays.asList(
+            Segment.closed(leftScaled, rightScaled),
+            Segment.openOneEnd(leftScaled, axis, Side.RIGHT),
+            Segment.openOneEnd(rightScaled, axis, Side.LEFT)
+        );
     }
 
     /**
      * Helper to create a Sector which represents a square of a certain size, centred on the origin.
      *
-     * @param name The name of this sector.
      * @param size The radius (half-width) of the square.
      * @return The square sector.
      */
-    private Sector square(String name, double size) {
+    private List<Segment> square(double size) {
         Point[] originPoints = new Point[] {
             new Point(size, size), new Point(-size, size),
             new Point(-size, -size), new Point(size, -size)};
 
         Iterable<Point> points = Iterables.cycle(originPoints);
 
-        return cacheIfAbsent(name, () ->
-            Streams.zip(
+        return Streams.zip(
                 Streams.stream(points),
                 Streams.stream(points).skip(1),
                 Segment::closed)
             .limit(originPoints.length)
-            .collect(Collectors.toList())
-        );
+            .collect(Collectors.toList());
     }
 
     /**
@@ -255,75 +241,47 @@ public class SectorBuilder {
      * Note this is the trickiest one in terms of side. It is always the left, so if you want points to the right of the
      * origin, you need the axis to point down, because the left of the a line pointing downwards is positive X.
      *
-     * @param name The name of this sector.
      * @param axis The direction of the line defining this sector.
-     * @return The half-plane sector.
+     * @return The half-plane segments.
      */
-    private Sector centeredHalf(String name, Point axis) {
-        return cacheIfAbsent(name, () -> Collections.singletonList(
+    private List<Segment> centeredHalf(Point axis) {
+        return Collections.singletonList(
             Segment.openBothEnds(ORIGIN_POINT, axis, Side.LEFT)
-        ));
-    }
-
-    @SuppressWarnings("javadocMethod")
-    public Sector getOrigin() {
-        return square("origin", settings.getOriginSlop());
-    }
-
-    @SuppressWarnings("javadocMethod")
-    public Sector getOnAxisWithPositiveX() {
-        return sloppyAxis("+Xaxis", UP, DOWN, RIGHT);
-    }
-
-    @SuppressWarnings("javadocMethod")
-    public Sector getOnAxisWithNegativeX() {
-        return sloppyAxis("-Xaxis", DOWN, UP, LEFT);
-    }
-
-    @SuppressWarnings("javadocMethod")
-    public Sector getOnAxisWithPositiveY() {
-        return sloppyAxis("+Yaxis", LEFT, RIGHT, UP);
-    }
-
-    @SuppressWarnings("javadocMethod")
-    public Sector getOnAxisWithNegativeY() {
-        return sloppyAxis("-Yaxis", RIGHT, LEFT, DOWN);
-    }
-
-    @SuppressWarnings("javadocMethod")
-    public Sector getTopLeft() {
-        return centeredQuadrant("topLeft", LEFT, UP);
-    }
-
-    @SuppressWarnings("javadocMethod")
-    public Sector getTopRight() {
-        return centeredQuadrant("topRight", RIGHT, UP);
-    }
-
-    @SuppressWarnings("javadocMethod")
-    public Sector getBottomLeft() {
-        return centeredQuadrant("bottomLeft", LEFT, DOWN);
-    }
-
-    @SuppressWarnings("javadocMethod")
-    public Sector getBottomRight() {
-        return centeredQuadrant("bottomRight", RIGHT, DOWN);
+        );
     }
 
     /**
-     * @return The Sector of origin with a more relaxed boundary.
+     * Helper to create an empty list of segments, representing anywhere.
+     *
+     * @return Segments representing any location.
      */
-    public Sector getRelaxedOrigin() {
-        return square("relaxedOrigin", settings.getRelaxedOriginSlop());
+    private List<Segment> anywhere() {
+        return Collections.emptyList();
     }
 
-    @SuppressWarnings("javadocMethod")
-    public Sector getLeft() {
-        return centeredHalf("left", UP);
-    }
+    private static final ImmutableMap<String, Function<SectorBuilder, List<Segment>>> SECTOR_SHAPES =
+        ImmutableMap.<String, Function<SectorBuilder, List<Segment>>>builder()
+            .put(ORIGIN, builder -> builder.square(builder.settings.getOriginSlop()))
+            .put(RELAXED_ORIGIN, builder -> builder.square(builder.settings.getRelaxedOriginSlop()))
 
-    @SuppressWarnings("javadocMethod")
-    public Sector getRight() {
-        return centeredHalf("right", DOWN);
-    }
+            .put(POSITIVE_X_AXIS, builder -> builder.sloppyAxis(UP, DOWN, RIGHT))
+            .put(NEGATIVE_X_AXIS, builder -> builder.sloppyAxis(DOWN, UP, LEFT))
+            .put(POSITIVE_Y_AXIS, builder -> builder.sloppyAxis(LEFT, RIGHT, UP))
+            .put(NEGATIVE_Y_AXIS, builder -> builder.sloppyAxis(RIGHT, LEFT, DOWN))
+
+            .put(TOP_LEFT, builder -> builder.centeredQuadrant(LEFT, UP))
+            .put(TOP_RIGHT, builder -> builder.centeredQuadrant(RIGHT, UP))
+            .put(BOTTOM_LEFT, builder -> builder.centeredQuadrant(LEFT, DOWN))
+            .put(BOTTOM_RIGHT, builder -> builder.centeredQuadrant(RIGHT, DOWN))
+
+            .put(LEFT_HALF, builder -> builder.centeredHalf(UP))
+            .put(RIGHT_HALF, builder -> builder.centeredHalf(DOWN))
+
+            .put(TOP_HALF, builder -> builder.centeredHalf(RIGHT))
+            .put(BOTTOM_HALF, builder -> builder.centeredHalf(LEFT))
+
+            .put(ANY, SectorBuilder::anywhere)
+
+            .build();
+
 }

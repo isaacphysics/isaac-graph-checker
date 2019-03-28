@@ -46,13 +46,13 @@ public class SectorTest {
     private static final Point x0y0 = new Point(0, 0);
     private static final Point x0y1 = new Point(0, 1);
     private static final Point x0y_1 = new Point(0, -1);
+    private static final Point x_1y0 = new Point(-1, 0);
 
     private final SectorBuilder sectorBuilder = new SectorBuilder(SettingsWrapper.DEFAULT);
 
-
     @Test
     public void topRightWorksOnPoint() {
-        Sector topRight = sectorBuilder.getTopRight();
+        Sector topRight = sectorBuilder.byName(SectorBuilder.TOP_RIGHT);
 
         assertTrue(topRight.contains(x1y1));
         assertFalse(topRight.contains(x_1y1));
@@ -62,49 +62,49 @@ public class SectorTest {
 
     @Test
     public void topRightWorksOnLineFullyInside() {
-        Sector topRight = sectorBuilder.getTopRight();
+        Sector topRight = sectorBuilder.byName(SectorBuilder.TOP_RIGHT);
 
         assertInside(topRight.intersects(TestHelpers.lineOf(x1y1, new Point(2, 1))));
     }
 
     @Test
     public void topRightWorksOnLineFromOrigin() {
-        Sector topRight = sectorBuilder.getTopRight();
+        Sector topRight = sectorBuilder.byName(SectorBuilder.TOP_RIGHT);
 
         assertIntersects(topRight.intersects(TestHelpers.lineOf(x1y1, x0y0)));
     }
 
     @Test
     public void topRightWorksOnLineFromBottomLeft() {
-        Sector topRight = sectorBuilder.getTopRight();
+        Sector topRight = sectorBuilder.byName(SectorBuilder.TOP_RIGHT);
 
         assertIntersects(topRight.intersects(TestHelpers.lineOf(x1y1, x_1y_1)));
     }
 
     @Test
     public void topRightWorksOnLineFromTopLeftToBottomRight() {
-        Sector topRight = sectorBuilder.getTopRight();
+        Sector topRight = sectorBuilder.byName(SectorBuilder.TOP_RIGHT);
 
         assertIntersects(topRight.intersects(TestHelpers.lineOf(x_1y1, new Point(2, -1))));
     }
 
     @Test
     public void topLeftWorks() {
-        Sector topLeft = sectorBuilder.getTopLeft();
+        Sector topLeft = sectorBuilder.byName(SectorBuilder.TOP_LEFT);
 
         assertIntersects(topLeft.intersects(TestHelpers.lineOf(x_1y1, x_1y_1)));
     }
 
     @Test
     public void bottomLeftWorks() {
-        Sector bottomLeft = sectorBuilder.getBottomLeft();
+        Sector bottomLeft = sectorBuilder.byName(SectorBuilder.BOTTOM_LEFT);
 
         assertInside(bottomLeft.intersects(TestHelpers.lineOf(x_1y_1, new Point(-2, -1))));
     }
 
     @Test
     public void bottomRightWorks() {
-        Sector bottomRight = sectorBuilder.getBottomRight();
+        Sector bottomRight = sectorBuilder.byName(SectorBuilder.BOTTOM_RIGHT);
 
         assertIntersects(bottomRight.intersects(TestHelpers.lineOf(x_1y_1, new Point(2, 1))));
     }
@@ -112,7 +112,7 @@ public class SectorTest {
 
     @Test
     public void positiveXaxisWorks() {
-        Sector axis = sectorBuilder.getOnAxisWithPositiveY();
+        Sector axis = sectorBuilder.byName(SectorBuilder.POSITIVE_Y_AXIS);
         assertInside(axis.intersects(TestHelpers.lineOf(new Point(0, 0.0001), x0y1)));
 
         assertIntersects(axis.intersects(TestHelpers.lineOf(x_1y1, x1y1)));
@@ -160,7 +160,7 @@ public class SectorTest {
 
     @Test
     public void testOrigin() {
-        Sector origin = sectorBuilder.getOrigin();
+        Sector origin = sectorBuilder.byName(SectorBuilder.ORIGIN);
 
         assertTrue(origin.contains(new Point(0.005, -0.005)));
         assertFalse(origin.contains(new Point(-0.1, 0)));
@@ -177,10 +177,10 @@ public class SectorTest {
     @Test
     public void quadrantsHaveCorrectPointHandling() {
         Sector[] quadrants = new Sector[] {
-            sectorBuilder.getTopRight(),
-            sectorBuilder.getTopLeft(),
-            sectorBuilder.getBottomLeft(),
-            sectorBuilder.getBottomRight()
+            sectorBuilder.byName(SectorBuilder.TOP_RIGHT),
+            sectorBuilder.byName(SectorBuilder.TOP_LEFT),
+            sectorBuilder.byName(SectorBuilder.BOTTOM_LEFT),
+            sectorBuilder.byName(SectorBuilder.BOTTOM_RIGHT)
         };
 
         Point[] outsidePoints = new Point[] {
@@ -208,6 +208,56 @@ public class SectorTest {
             outsidePoints = Arrays.stream(outsidePoints).map(p -> new Point(-p.getY(), p.getX())).toArray(Point[]::new);
             insidePoints = Arrays.stream(insidePoints).map(p -> new Point(-p.getY(), p.getX())).toArray(Point[]::new);
         }
+    }
+
+    @Test
+    public void halvesHaveCorrectPointHandling() {
+        Sector[] halves = new Sector[] {
+            sectorBuilder.byName(SectorBuilder.RIGHT_HALF),
+            sectorBuilder.byName(SectorBuilder.TOP_HALF),
+            sectorBuilder.byName(SectorBuilder.LEFT_HALF),
+            sectorBuilder.byName(SectorBuilder.BOTTOM_HALF)
+        };
+
+        Point[] outsidePoints = new Point[] {
+            x_1y1,
+            x_1y_1,
+            x_1y0,
+            new Point(-0.0001, 0),
+        };
+
+        Point[] insidePoints = new Point[] {
+            x1y1,
+            x1y_1,
+            new Point(+0.005, 0.0001),
+            new Point(+0.005, -10),
+            new Point(100, 0.01),
+            x0y0,
+            x0y1,
+            x0y_1
+        };
+
+        for (Sector half : halves) {
+            for (Point p : outsidePoints) {
+                assertFalse(half + " should not contain " + p, half.contains(p));
+            }
+            for (Point p : insidePoints) {
+                assertTrue(half + " should contain " + p, half.contains(p));
+            }
+            // Rotate points by 90 degrees
+            outsidePoints = Arrays.stream(outsidePoints).map(p -> new Point(-p.getY(), p.getX())).toArray(Point[]::new);
+            insidePoints = Arrays.stream(insidePoints).map(p -> new Point(-p.getY(), p.getX())).toArray(Point[]::new);
+        }
+    }
+    @Test
+    public void anyWorksOnAnyPoint() {
+        Sector any = sectorBuilder.byName(SectorBuilder.ANY);
+
+        assertTrue(any.contains(x1y1));
+        assertTrue(any.contains(x_1y1));
+        assertTrue(any.contains(x_1y_1));
+        assertTrue(any.contains(x1y_1));
+        assertTrue(any.contains(x0y0));
     }
 
     @Test(expected = IllegalArgumentException.class)

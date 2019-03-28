@@ -49,7 +49,7 @@ public class ExpectedSectorsFeatureTest {
     @Test
     public void xSquaredMinusTwoHasCorrectSectorList() {
         Predicate<Line> testFeature = line -> expectedSectorsFeature.deserializeInternal(
-            "topLeft, onAxisWithNegativeX, bottomLeft, onAxisWithNegativeY, bottomRight, onAxisWithPositiveX, topRight").test(line);
+            "topLeft, -Xaxis, bottomLeft, -Yaxis, bottomRight, +Xaxis, topRight").test(line);
 
         assertTrue(testFeature.test(TestHelpers.lineOf(x -> x*x - 2, -5, 5)));
         assertFalse(testFeature.test(TestHelpers.lineOf(x -> x*x + 2, -5, 5)));
@@ -58,7 +58,7 @@ public class ExpectedSectorsFeatureTest {
     @Test
     public void xCubedPlusSquaredMinusTwoHasCorrectSectorList() {
         Predicate<Line> testFeature = line -> expectedSectorsFeature.deserializeInternal(
-            "bottomLeft, onAxisWithNegativeX, topLeft, onAxisWithPositiveY, topRight, onAxisWithPositiveX, bottomRight, onAxisWithPositiveX, topRight").test(line);
+            "bottomLeft, -Xaxis, topLeft, +Yaxis, topRight, +Xaxis, bottomRight, +Xaxis, topRight").test(line);
 
         assertTrue(testFeature.test(TestHelpers.lineOf(x -> x*x*x - 3*x*x + 2, -10, 10)));
         assertFalse(testFeature.test(TestHelpers.lineOf(x -> x*x - 3*x*x + 2, -10, 10)));
@@ -67,7 +67,7 @@ public class ExpectedSectorsFeatureTest {
     @Test
     public void cosXFromMinus2PiTo2Pi() {
         Predicate<Line> testFeature = line -> expectedSectorsFeature.deserializeInternal(
-            "topLeft, onAxisWithNegativeX, bottomLeft, onAxisWithNegativeX, topLeft, onAxisWithPositiveY, topRight, onAxisWithPositiveX, bottomRight, onAxisWithPositiveX, topRight").test(line);
+            "topLeft, -Xaxis, bottomLeft, -Xaxis, topLeft, +Yaxis, topRight, +Xaxis, bottomRight, +Xaxis, topRight").test(line);
 
         assertTrue(testFeature.test(TestHelpers.lineOf(Math::cos, -2 * Math.PI, 2 * Math.PI)));
         assertFalse(testFeature.test(TestHelpers.lineOf(x -> Math.cos(x + Math.PI / 2), -2 * Math.PI, 2 * Math.PI)));
@@ -76,7 +76,7 @@ public class ExpectedSectorsFeatureTest {
     @Test
     public void sinXFromMinus2PiTo2Pi() {
         Predicate<Line> testFeature = line -> expectedSectorsFeature.deserializeInternal(
-            "onAxisWithNegativeX, topLeft, onAxisWithNegativeX, bottomLeft, origin, topRight, onAxisWithPositiveX, bottomRight, onAxisWithPositiveX").test(line);
+            "-Xaxis, topLeft, -Xaxis, bottomLeft, origin, topRight, +Xaxis, bottomRight, +Xaxis").test(line);
 
         assertTrue(testFeature.test(TestHelpers.lineOf(Math::sin, -2 * Math.PI, 2 * Math.PI)));
         assertFalse(testFeature.test(TestHelpers.lineOf(Math::cos, -2 * Math.PI, 2 * Math.PI)));
@@ -94,7 +94,7 @@ public class ExpectedSectorsFeatureTest {
         SectorClassifier.Settings settings = new SectorClassifier.Settings() {
             public List<Sector> getOrderedSectors() {
                 SectorBuilder sectorBuilder = getSectorBuilder();
-                Sector[] sectors = {sectorBuilder.getTopLeft(), sectorBuilder.getBottomRight()};
+                Sector[] sectors = {sectorBuilder.byName(SectorBuilder.TOP_LEFT), sectorBuilder.byName(SectorBuilder.BOTTOM_RIGHT)};
                 return Arrays.asList(sectors);
             }
         };
