@@ -259,7 +259,7 @@ public class Lines {
     }
 
     /**
-     * Find the centre point of a line (averaging the middle two points if the line has an even number of points.)
+     * Find the centre point of a line (averaging the middle two points if the line has an even number of points).
      * @param line The line.
      * @return The median point.
      */
