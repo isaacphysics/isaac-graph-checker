@@ -25,7 +25,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * Represents a region of the graph, e.g. above the x axis, or on the y axis with y < 0
+ * Represents a region of the graph, e.g. above the x axis, or on the y axis with y less than 0
  */
 public class Sector {
 
