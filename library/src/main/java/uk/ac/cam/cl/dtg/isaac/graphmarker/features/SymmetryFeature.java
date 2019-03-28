@@ -19,17 +19,36 @@ import uk.ac.cam.cl.dtg.isaac.graphmarker.data.HumanNamedEnum;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Line;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.data.PointOfInterest;
+import uk.ac.cam.cl.dtg.isaac.graphmarker.data.PointType;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.features.internals.LineFeature;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.Lines;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.Sector;
 import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.SectorBuilder;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * An line feature which requires the line to have a specific symmetry.
+ *
+ * The symmetry is defined by:
+ * - Splitting the line into lines between the start point, each point of interest, and the end point.
+ *   - if there are an even number of points of interest, we add a split point in the middle of the line.
+ * - Calculating the bounding box sizes of each of the lines.
+ * - Working from the centre, checking each box is similar in size to the corresponding box on the other side.
+ *
+ * - For even symmetry, the boxes must be the same size and there must be a turning point near the Y axis.
+ * - For odd symmetry, the boxes must have opposite heights and the middle point must be at or near the origin.
+ * - For symmetric symmetry, the boxes must be the same sizes.
+ * - For anti-symmetric symmetry, the boxes must be opposite sizes.
+ *
+ * (Note symmetric and anti-symmetric are just even and odd but not aligned to the axis.)
+ *
+ * So, for example, x^2 has even symmetry because it has one point of interest, so it will be split into two boxes,
+ * which will have similar sizes and the point of interest is on the Y axis.
+ *
+ * (x - 1)(x - 3)(x - 4) will have anti-symmetric symmetry because the boxes are opposite in size but the middle point
+ * is not at the origin.
  */
 public class SymmetryFeature extends LineFeature<SymmetryFeature.Instance, SymmetryFeature.Settings> {
 
@@ -37,7 +56,7 @@ public class SymmetryFeature extends LineFeature<SymmetryFeature.Instance, Symme
      * Create a symmetry feature with specified settings.
      * @param settings The settings.
      */
-    public SymmetryFeature(Settings settings) {
+    SymmetryFeature(Settings settings) {
         super(settings);
     }
 
@@ -68,21 +87,7 @@ public class SymmetryFeature extends LineFeature<SymmetryFeature.Instance, Symme
         ODD,
         EVEN,
         SYMMETRIC,
-        ANTISYMMETRIC;
-
-        /**
-         * @return The type of this symmetric if it is not aligned on the x=0 axis.
-         */
-        SymmetryType convertToNonAxialSymmetry() {
-            switch (this) {
-                case EVEN:
-                    return SYMMETRIC;
-                case ODD:
-                    return ANTISYMMETRIC;
-                default:
-                    return this;
-            }
-        }
+        ANTISYMMETRIC
     }
 
     /**
@@ -123,144 +128,71 @@ public class SymmetryFeature extends LineFeature<SymmetryFeature.Instance, Symme
         }
     }
 
+
     /**
      * Calculate the symmetry of a line.
-     *
-     * First, we look for ODD or EVEN symmetry. If those are not found, we find the centre of the line and reposition it
-     * so that centre is at the origin. Then we look for symmetry again, and if found, report it in the non-axis aligned
-     * form.
      *
      * @param line The line to calculate.
      * @return The type of symmetry of this line.
      */
     SymmetryType getSymmetryOfLine(Line line) {
-        SymmetryType standardSymmetryType = getStandardSymmetryType(line);
-        if (standardSymmetryType != SymmetryType.NONE) {
-            return standardSymmetryType;
-        }
-        if (line.getPointsOfInterest().size() > 0) {
-            List<PointOfInterest> points = line.getPointsOfInterest();
-            if ((points.size() % 2) == 1) {
-                PointOfInterest center = points.get(points.size() / 2);
-                Line newLine = new Line(
-                    line.getPoints().stream()
-                        .map(p -> p.minus(center))
-                        .collect(Collectors.toList()),
-                    line.getPointsOfInterest().stream()
-                        .map(p -> p.minus(center))
-                        .collect(Collectors.toList())
-                );
-
-                SymmetryType newSymmetryType = getStandardSymmetryType(newLine);
-                return newSymmetryType.convertToNonAxialSymmetry();
-            } else {
-                PointOfInterest center1 = points.get(points.size() / 2 - 1);
-                PointOfInterest center2 = points.get(points.size() / 2);
-                @SuppressWarnings("magicNumber")
-                Point center = center1.add(center2).times(0.5);
-
-                Line newLine = new Line(
-                    line.getPoints().stream()
-                        .map(p -> p.minus(center))
-                        .collect(Collectors.toList()),
-                    line.getPointsOfInterest().stream()
-                        .map(p -> p.minus(center))
-                        .collect(Collectors.toList())
-                );
-
-                SymmetryType newSymmetryType = getStandardSymmetryType(newLine);
-                return newSymmetryType.convertToNonAxialSymmetry();
-            }
-        }
-        // Not odd or even and has no turning points, so the line is either curved and has no symmetry, or
-        // straight-ish. A straight line has anti-symmetry, but it is kind of boring, so we'll ignore it.
-        return standardSymmetryType;
-    }
-
-    /**
-     * Get the ODD or EVEN symmetry of the line by splitting at x=0.
-     *
-     * @param line The line.
-     * @return ODD, EVEN, or DEFAULT symmetry.
-     */
-    private SymmetryType getStandardSymmetryType(Line line) {
-        // Split line at x = 0
-        Line left = settings().getSectorBuilder().byName(SectorBuilder.LEFT_HALF).clip(line);
-        Line right = settings().getSectorBuilder().byName(SectorBuilder.RIGHT_HALF).clip(line);
-
-        List<Line> lefts = Lines.splitOnPointsOfInterest(left);
-        List<Line> rights = Lines.splitOnPointsOfInterest(right);
-
-        if (lefts.size() != rights.size()) {
+        if (line.getPoints().isEmpty()) {
             return SymmetryType.NONE;
         }
 
-        Collections.reverse(lefts);
-
-        SymmetryType symmetryType = null;
-        boolean innerMost = true;
-        for (int i = 0; i < lefts.size(); i++) {
-            SymmetryType nextSymmetryType = getSectionSymmetry(lefts.get(i), rights.get(i), innerMost);
-            if (nextSymmetryType == null) {
-                continue;
-            }
-            if (innerMost) {
-                symmetryType = nextSymmetryType;
-                innerMost = false;
-            }
-            if (symmetryType != nextSymmetryType) {
-                return SymmetryType.NONE;
-            }
+        List<PointOfInterest> points = new ArrayList<>(line.getPointsOfInterest());
+        if ((points.size() % 2) == 0) {
+            @SuppressWarnings("magicNumber") Point center = Lines.getCentreOfLine(line);
+            PointOfInterest virtualCenter = new PointOfInterest(center, PointType.VIRTUAL_CENTRE);
+            points.add(points.size() / 2, virtualCenter);
         }
 
-        if (symmetryType == null) {
-            return SymmetryType.NONE;
-        }
+        List<Line> subLines = Lines.splitOnPoints(line, points);
 
-        return symmetryType;
-    }
+        boolean symmetric = true;
+        boolean antisymmetric = true;
 
-    /**
-     * Check if these sections of the left and right hand side of the split are symmetrical.
-     *
-     * @param left The section of the left-hand side of the line.
-     * @param right The section of the right-hand side of the line.
-     * @param innerMost True if these are the sections that touch on the split.
-     * @return The symmetry shown by these sections.
-     */
-    private SymmetryType getSectionSymmetry(Line left, Line right, boolean innerMost) {
-        Point leftSize = Lines.getSize(left);
-        Point rightSize = Lines.getSize(right);
+        int size = subLines.size() / 2;
+        for (int i = 0; i  < size; i++) {
+            Line left = subLines.get(size - i - 1);
+            Line right = subLines.get(size + i);
 
-        if (leftSize.getX() == 0 && leftSize.getY() == 0 && rightSize.getX() == 0 && rightSize.getY() == 0) {
-            return null;
-        }
+            Point leftSize = Lines.getSize(left);
+            Point rightSize = Lines.getSize(right);
 
-        double xDifference = (rightSize.getX() - leftSize.getX()) / rightSize.getX();
-        double yDifferenceOdd = (rightSize.getY() - leftSize.getY()) / rightSize.getY();
-        double yDifferenceEven = (rightSize.getY() + leftSize.getY()) / rightSize.getY();
+            double xDifference = (rightSize.getX() - leftSize.getX()) / rightSize.getX();
+            double yDifferenceOdd = (rightSize.getY() - leftSize.getY()) / rightSize.getY();
+            double yDifferenceEven = (rightSize.getY() + leftSize.getY()) / rightSize.getY();
 
-        if (Math.abs(xDifference) < settings().getSymmetrySimilarity()) {
-            if (rightSize.getY() == 0 && leftSize.getY() == 0) {
-                return SymmetryType.EVEN;
-            }
-            if (Math.abs(yDifferenceOdd) < settings().getSymmetrySimilarity()) {
-                if (innerMost) {
-                    Sector relaxedOrigin = settings().getSectorBuilder().byName(SectorBuilder.RELAXED_ORIGIN);
-                    if (relaxedOrigin.contains(left.getPoints().get(left.getPoints().size() - 1))
-                        && relaxedOrigin.contains(right.getPoints().get(0))) {
-                        return SymmetryType.ODD;
-                    } else {
-                        return SymmetryType.NONE;
-                    }
-                } else {
-                    return SymmetryType.ODD;
+            if (Math.abs(xDifference) < settings().getSymmetrySimilarity()) {
+                if (rightSize.getY() == 0 && leftSize.getY() == 0) {
+                    continue;
+                }
+                if (Math.abs(yDifferenceOdd) < settings().getSymmetrySimilarity()) {
+                    symmetric = false;
+                    continue;
+                }
+                if (Math.abs(yDifferenceEven) < settings().getSymmetrySimilarity()) {
+                    antisymmetric = false;
+                    continue;
                 }
             }
-            if (Math.abs(yDifferenceEven) < settings().getSymmetrySimilarity()) {
-                return SymmetryType.EVEN;
-            }
+            symmetric = false;
+            antisymmetric = false;
+            break;
+        }
+
+        PointOfInterest centerPoint = points.get(points.size() / 2);
+        if (antisymmetric && settings().getSectorBuilder().byName(SectorBuilder.RELAXED_ORIGIN).contains(centerPoint)) {
+            return SymmetryType.ODD;
+        } else if (symmetric && Math.abs(centerPoint.getX()) < settings().getRelaxedOriginSlop()) {
+            return SymmetryType.EVEN;
+        } else if (symmetric) {
+            return SymmetryType.SYMMETRIC;
+        } else if (antisymmetric) {
+            return SymmetryType.ANTISYMMETRIC;
         }
         return SymmetryType.NONE;
     }
+
 }

@@ -59,7 +59,7 @@ public class SectorBuilder {
         }
 
         /**
-         * @return The half-width of the square centred on the origin that is considered as the origin sector.
+         * @return The half-diagonal of the diamond centred on the origin that is considered as the origin sector.
          */
         default double getOriginSlop() {
             return 0.05;

@@ -31,7 +31,7 @@ public class LinesTest {
     public void splitOnPointsOfInterest() {
         Line line = TestHelpers.lineOf(-10,0, -5,5, 0,0, 5,-5, 10,0);
 
-        List<Line> lines = Lines.splitOnPointsOfInterest(line);
+        List<Line> lines = Lines.splitOnPoints(line, line.getPointsOfInterest());
 
         assertEquals(3, lines.size());
         assertEquals(TestHelpers.lineOf(-10,0, -5,5), lines.get(0));
@@ -39,6 +39,23 @@ public class LinesTest {
         assertEquals(TestHelpers.lineOf(5,-5, 10, 0), lines.get(2));
     }
 
+    @Test
+    public void getMedianCentreOfLine() {
+        Line line = TestHelpers.lineOf(-10,0, -5,5, 5,-5, 10,0);
+
+        Point centre = Lines.getCentreOfLine(line);
+
+        assertEquals(new Point(0, 0), centre);
+    }
+
+    @Test
+    public void getSizeOfEmptyLine() {
+        Line line = TestHelpers.lineOf(new Point[]{});
+
+        Point size = Lines.getSize(line);
+
+        assertEquals(new Point(0, 0), size);
+    }
     @Test
     public void testSimpleIntersections() {
         Line lineA = TestHelpers.lineOf(0,0, 10,10);

@@ -35,11 +35,11 @@ import java.util.stream.Stream;
  */
 public class Lines {
     /**
-     * Split a line into a list of lines on the x-coordinates of the points of interest.
+     * Split a line into a list of lines on the x-coordinates of the supplied points.
      *
      * There will be an overlapping point between each line.
      *
-     * For example, 1--2--A--3--B--4--C---5 (where numbers are points and letters are points of interest) will split to:
+     * For example, 1--2--A--3--B--4--C---5 (where numbers are points and letters are the splitPoints) will split to:
      *
      * - 1--2--A
      * - A--3--B
@@ -47,12 +47,13 @@ public class Lines {
      * - C---5
      *
      * @param line The line to be split.
+     * @param splitPoints The points to split on.
      * @return A list of lines.
      */
-    public static List<Line> splitOnPointsOfInterest(Line line) {
-        List<Line> lines = new ArrayList<>(line.getPointsOfInterest().size() + 1);
+    public static List<Line> splitOnPoints(Line line, List<PointOfInterest> splitPoints) {
+        List<Line> lines = new ArrayList<>(splitPoints.size() + 1);
         Line remainder = line;
-        for (PointOfInterest point : line.getPointsOfInterest()) {
+        for (PointOfInterest point : splitPoints) {
             double x = point.getX();
             Line left = leftOfX(x).clip(remainder);
             remainder = rightOfX(x).clip(remainder);
@@ -255,5 +256,22 @@ public class Lines {
     private static Segment lineToSegment(Line line) {
         assert line.getPoints().size() == 2;
         return Segment.closed(line.getPoints().get(0), line.getPoints().get(1));
+    }
+
+    /**
+     * Find the centre point of a line (averaging the middle two points if the line has an even number of points.)
+     * @param line The line.
+     * @return The median point.
+     */
+    @SuppressWarnings("magicNumber")
+    public static Point getCentreOfLine(Line line) {
+        List<Point> points = line.getPoints();
+        if ((points.size() % 2) == 0) {
+            Point center1 = points.get(points.size() / 2 - 1);
+            Point center2 = points.get(points.size() / 2);
+            return center1.add(center2).times(0.5);
+        } else {
+            return points.get(points.size() / 2);
+        }
     }
 }

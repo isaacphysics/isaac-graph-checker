@@ -55,7 +55,7 @@ public class SymmetryFeatureTest {
             .add(ImmutableTriple.of("1+sin(x)", TestHelpers.lineOf(x -> 1 + Math.sin(x), -Math.PI * 0.75, Math.PI * 0.75), SymmetryFeature.SymmetryType.ANTISYMMETRIC))
             .add(ImmutableTriple.of("1+x^3-x", TestHelpers.lineOf(x -> 1 + x*x*x - x, -5, 5), SymmetryFeature.SymmetryType.ANTISYMMETRIC))
             .add(ImmutableTriple.of("x", TestHelpers.lineOf(x -> x, -10, 10), SymmetryFeature.SymmetryType.ODD))
-            .add(ImmutableTriple.of("x+1", TestHelpers.lineOf(x -> x + 1, -10, 10), SymmetryFeature.SymmetryType.NONE))
+            .add(ImmutableTriple.of("x+1", TestHelpers.lineOf(x -> x + 1, -10, 10), SymmetryFeature.SymmetryType.ANTISYMMETRIC))
             .add(ImmutableTriple.of("1+|x|", TestHelpers.lineOf(x -> 1 + Math.abs(x), -10, 10), SymmetryFeature.SymmetryType.EVEN))
             .add(ImmutableTriple.of("sin(x)", TestHelpers.lineOf(Math::sin, - Math.PI / 2, Math.PI / 2), SymmetryFeature.SymmetryType.ODD))
             .add(ImmutableTriple.of("cos(x)", TestHelpers.lineOf(Math::cos, -10, 10), SymmetryFeature.SymmetryType.EVEN))
@@ -67,9 +67,9 @@ public class SymmetryFeatureTest {
     }
 
     @Test
-    public void curveOnlyOnRightOfYaxisHasNoSymmetry() {
-        assertEquals(SymmetryFeature.SymmetryType.NONE, symmetryFeature.getSymmetryOfLine(TestHelpers.lineOf(x -> x*x + 2 * x + 3, 0, 10)));
-        assertEquals(SymmetryFeature.SymmetryType.NONE, symmetryFeature.getSymmetryOfLine(TestHelpers.lineOf(x -> x, 0, 10)));
+    public void curveOnlyOnRightOfYaxisCanStillHaveSymmetry() {
+        assertEquals(SymmetryFeature.SymmetryType.SYMMETRIC, symmetryFeature.getSymmetryOfLine(TestHelpers.lineOf(x -> x*x - 2 * x + 3, 0, 2)));
+        assertEquals(SymmetryFeature.SymmetryType.ANTISYMMETRIC, symmetryFeature.getSymmetryOfLine(TestHelpers.lineOf(x -> x, 0, 10)));
     }
 
     @Test

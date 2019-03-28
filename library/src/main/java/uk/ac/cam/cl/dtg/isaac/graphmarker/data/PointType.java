@@ -20,5 +20,6 @@ package uk.ac.cam.cl.dtg.isaac.graphmarker.data;
  */
 public enum PointType implements HumanNamedEnum {
     MAXIMA,
-    MINIMA
+    MINIMA,
+    VIRTUAL_CENTRE
 }
