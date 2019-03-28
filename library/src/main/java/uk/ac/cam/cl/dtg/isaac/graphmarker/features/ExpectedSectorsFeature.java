@@ -89,44 +89,56 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
         public boolean test(Line line) {
             List<Set<Sector>> actualSectors = convertLineToSectorSetList(line);
             log.debug("User line passed through sectors: " + actualSectors);
-            return match(expectedSectors, 0, actualSectors, 0);
+            return match(actualSectors);
         }
 
         /**
-         * Recursive function to test an expected sector list against a list of sector sets.
+         * Check if a list of actual possible sectors matches a list of expected sectors.
          *
-         * @param expected The list of expected sectors.
-         * @param i The matched position so far in the expected sector list.
-         * @param actual The list of sets of sectors to be matched.
-         * @param j The matched position so far in the actual set of sectors list.
-         * @return If there is a test.
+         * This method uses dynamic programming to match the sectors. Imagine first a grid of matches between actual
+         * sector sets and expected sectors:
+         *
+         * e   actual
+         * x   0 1 2 3 4
+         * p 0 x     x
+         * e 1 x   x
+         * c 2   x x x
+         * t 3 x   x x x
+         *
+         * We need to find a path that connects the top left to the bottom right, either straight or diagonally, without
+         * doubling back to the left. That is, a path that only moves down, right, or diagonally down and right.
+         * In this case, actual sector set 0 matches expected sectors 0 and 1, then actual 1 and 2 could match expected
+         * 2, and finally actual sets 3 and 4 could match expected 3.
+         *
+         * In order to find the path, we could imagine building the grid above, and then replacing each true with a true
+         * if and only if there is a true above or left of it (working downwards).
+         *
+         * And finally, we can make the standard dynamic programming optimisation and keep just the last row and the row
+         * we're building up from the top.
+         *
+         * @param actual The sectors we possibly pass through, in order.
+         * @return True if there is a match.
          */
-        @SuppressWarnings("RedundantIfStatement")
-        private boolean match(List<Sector> expected, int i, List<Set<Sector>> actual, int j) {
-            boolean expectedFinished = i >= expected.size();
-            boolean actualFinished = j >= actual.size();
-            if (expectedFinished) {
-                return actualFinished;
-            }
-            if (actualFinished) {
-                return false;
+        private boolean match(List<Set<Sector>> actual) {
+
+            // This has a phantom left-half column to avoid a test in the loop below
+            // The phantom column will always be false except above the first row to anchor the beginning.
+            int matchArraySize = actual.size() + 1;
+
+            boolean[] matches = new boolean[matchArraySize];
+            matches[0] = true; // This is the fake match to anchor things to the beginning.
+
+            for (Sector expectedSector : expectedSectors) {
+                boolean[] nextMatches = new boolean[matchArraySize];
+                for (int j = 0; j < actual.size(); j++) {
+                    if (actual.get(j).contains(expectedSector)) {
+                        nextMatches[j + 1] = matches[j] || matches[j + 1] || nextMatches[j];
+                    }
+                }
+                matches = nextMatches;
             }
 
-            // TODO: There is probably a dynamic programming algorithm for this with much better worst-case performance.
-            if (actual.get(j).contains(expected.get(i))) {
-                if (match(expected, i, actual, j + 1)) {
-                    return true;
-                }
-
-                if (match(expected, i + 1, actual, j)) {
-                    return true;
-                }
-                if (match(expected, i + 1, actual, j + 1)) {
-                    return true;
-                }
-            }
-            return false;
-
+            return matches[matchArraySize - 1];
         }
     }
 

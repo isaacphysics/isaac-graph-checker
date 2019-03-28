@@ -48,8 +48,8 @@ public class ExpectedSectorsFeatureTest {
 
     @Test
     public void xSquaredMinusTwoHasCorrectSectorList() {
-        Predicate<Line> testFeature = line -> expectedSectorsFeature.deserializeInternal(
-            "topLeft, -Xaxis, bottomLeft, -Yaxis, bottomRight, +Xaxis, topRight").test(line);
+        Predicate<Line> testFeature = expectedSectorsFeature.deserializeInternal(
+            "topLeft, -Xaxis, bottomLeft, -Yaxis, bottomRight, +Xaxis, topRight");
 
         assertTrue(testFeature.test(TestHelpers.lineOf(x -> x*x - 2, -5, 5)));
         assertFalse(testFeature.test(TestHelpers.lineOf(x -> x*x + 2, -5, 5)));
@@ -57,8 +57,8 @@ public class ExpectedSectorsFeatureTest {
 
     @Test
     public void xCubedPlusSquaredMinusTwoHasCorrectSectorList() {
-        Predicate<Line> testFeature = line -> expectedSectorsFeature.deserializeInternal(
-            "bottomLeft, -Xaxis, topLeft, +Yaxis, topRight, +Xaxis, bottomRight, +Xaxis, topRight").test(line);
+        Predicate<Line> testFeature = expectedSectorsFeature.deserializeInternal(
+            "bottomLeft, -Xaxis, topLeft, +Yaxis, topRight, +Xaxis, bottomRight, +Xaxis, topRight");
 
         assertTrue(testFeature.test(TestHelpers.lineOf(x -> x*x*x - 3*x*x + 2, -10, 10)));
         assertFalse(testFeature.test(TestHelpers.lineOf(x -> x*x - 3*x*x + 2, -10, 10)));
@@ -66,8 +66,8 @@ public class ExpectedSectorsFeatureTest {
 
     @Test
     public void cosXFromMinus2PiTo2Pi() {
-        Predicate<Line> testFeature = line -> expectedSectorsFeature.deserializeInternal(
-            "topLeft, -Xaxis, bottomLeft, -Xaxis, topLeft, +Yaxis, topRight, +Xaxis, bottomRight, +Xaxis, topRight").test(line);
+        Predicate<Line> testFeature = expectedSectorsFeature.deserializeInternal(
+            "topLeft, -Xaxis, bottomLeft, -Xaxis, topLeft, +Yaxis, topRight, +Xaxis, bottomRight, +Xaxis, topRight");
 
         assertTrue(testFeature.test(TestHelpers.lineOf(Math::cos, -2 * Math.PI, 2 * Math.PI)));
         assertFalse(testFeature.test(TestHelpers.lineOf(x -> Math.cos(x + Math.PI / 2), -2 * Math.PI, 2 * Math.PI)));
@@ -75,8 +75,8 @@ public class ExpectedSectorsFeatureTest {
 
     @Test
     public void sinXFromMinus2PiTo2Pi() {
-        Predicate<Line> testFeature = line -> expectedSectorsFeature.deserializeInternal(
-            "-Xaxis, topLeft, -Xaxis, bottomLeft, origin, topRight, +Xaxis, bottomRight, +Xaxis").test(line);
+        Predicate<Line> testFeature = expectedSectorsFeature.deserializeInternal(
+            "-Xaxis, topLeft, -Xaxis, bottomLeft, origin, topRight, +Xaxis, bottomRight, +Xaxis");
 
         assertTrue(testFeature.test(TestHelpers.lineOf(Math::sin, -2 * Math.PI, 2 * Math.PI)));
         assertFalse(testFeature.test(TestHelpers.lineOf(Math::cos, -2 * Math.PI, 2 * Math.PI)));
@@ -84,7 +84,7 @@ public class ExpectedSectorsFeatureTest {
 
     @Test
     public void matchCorrectlyWhenStartingAtOrigin() {
-        Predicate<Line> testFeature = line -> expectedSectorsFeature.deserializeInternal("origin, topRight").test(line);
+        Predicate<Line> testFeature = expectedSectorsFeature.deserializeInternal("origin, topRight");
 
         assertTrue(testFeature.test(TestHelpers.lineOf(x -> x, 0, 10)));
     }
@@ -101,7 +101,7 @@ public class ExpectedSectorsFeatureTest {
 
         ExpectedSectorsFeature feature = new ExpectedSectorsFeature(settings);
 
-        Predicate<Line> testFeature = line -> feature.deserializeInternal("topLeft, bottomRight").test(line);
+        Predicate<Line> testFeature = feature.deserializeInternal("topLeft, bottomRight");
 
         assertTrue(testFeature.test(TestHelpers.lineOf(x -> 2 - x, -5, 5)));
     }
@@ -110,7 +110,7 @@ public class ExpectedSectorsFeatureTest {
     public void generateMatchesItself() {
         List<String> data = expectedSectorsFeature.generate((TestHelpers.lineOf(Math::cos, -2 * Math.PI, 2 * Math.PI)));
 
-        Predicate<Line> testFeature = line -> expectedSectorsFeature.deserializeInternal(data.get(0)).test(line);
+        Predicate<Line> testFeature = expectedSectorsFeature.deserializeInternal(data.get(0));
 
         assertTrue(testFeature.test(wobbly(TestHelpers.lineOf(Math::cos, -2 * Math.PI, 2 * Math.PI))));
     }
@@ -129,16 +129,16 @@ public class ExpectedSectorsFeatureTest {
 
         // TODO: How arbitrarily close to the origin can we go?
 
-        Predicate<Line> testFeature = line -> expectedSectorsFeature.deserializeInternal(
-            "bottomLeft, -Xaxis, topLeft, +Yaxis, topRight").test(line);
+        Predicate<Line> testFeature = expectedSectorsFeature.deserializeInternal(
+            "bottomLeft, -Xaxis, topLeft, +Yaxis, topRight");
 
         assertTrue(testFeature.test(TestHelpers.lineOf(x -> 2 * x + 0.03, -0.1, 0.1)));
     }
 
     @Test
     public void crossingTheAxisShouldBeIrreversible() {
-        Predicate<Line> testFeature = line -> expectedSectorsFeature.deserializeInternal(
-            "bottomRight,+Xaxis,topRight,+Xaxis,bottomRight,+Xaxis,topRight").test(line);
+        Predicate<Line> testFeature = expectedSectorsFeature.deserializeInternal(
+            "bottomRight,+Xaxis,topRight,+Xaxis,bottomRight,+Xaxis,topRight");
 
         assertTrue(testFeature.test(TestHelpers.lineOf(x -> (x - 1) * (x - 3) * (x - 4), 0.5, 10)));
 
@@ -150,6 +150,24 @@ public class ExpectedSectorsFeatureTest {
 
         // But only just going over the axis should still be allowed
         assertTrue(testFeature.test(TestHelpers.lineOf(x -> (x - 1) * (x - 3) * (x - 4) - minimaY - (SettingsWrapper.DEFAULT.getAxisSlop() / 4), 0.5, 10)));
+    }
+
+    @Test(timeout=1000)
+    public void checkPerformance() {
+        double size = 50 * Math.PI / 2;
+        Line upAndDown = lineOf(Math::sin, -size, size);
+        Line downAndUp = lineOf(x -> -Math.sin(x), -size, size);
+        Line shifted = lineOf(x -> -Math.cos(x), -size, size);
+
+        List<String> features = expectedSectorsFeature.generate(upAndDown);
+
+        String feature = features.get(0);
+
+        Predicate<Line> testFeature = expectedSectorsFeature.deserializeInternal(feature);
+
+        assertTrue(testFeature.test(upAndDown));
+        assertFalse(testFeature.test(downAndUp));
+        assertFalse(testFeature.test(shifted));
     }
 
 }
