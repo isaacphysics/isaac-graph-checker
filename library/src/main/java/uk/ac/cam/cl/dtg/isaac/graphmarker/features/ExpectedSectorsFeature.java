@@ -42,7 +42,13 @@ import java.util.stream.Collectors;
 import static uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.SectorBuilder.*;
 
 /**
- * An line feature which requires the line to pass exactly through a list of sectors.
+ * A line feature which requires the line to pass exactly through a list of sectors.
+ *
+ * This feature works out which sectors the user's line might have passed through (for example, getting near an axis
+ * might mean they have touched the axis, or it might not), and then matches that with the expected path of the line.
+ *
+ * Crossing any axis is considered inviolate though; if you cross the axis, even a little bit, then you definitely have
+ * at least touched that axis (this is what invalidSectorSets ensures.)
  */
 public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.Instance, SectorClassifier.Settings> {
     private static final Logger log = LoggerFactory.getLogger(ExpectedSectorsFeature.class);
