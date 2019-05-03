@@ -5,16 +5,16 @@
     <parent>
         <artifactId>isaac-graph-checker</artifactId>
         <groupId>org.isaacphysics</groupId>
-        <version>1.0</version>
+        <version>1.0.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>isaac-graph-checker-tuner</artifactId>
     <dependencies>
         <dependency>
-            <groupId>uk.ac.cam.cl.dtg.teaching</groupId>
-            <artifactId>isaac-graph-marker-library</artifactId>
-            <version>0.1-SNAPSHOT</version>
+            <groupId>org.isaacphysics</groupId>
+            <artifactId>isaac-graph-checker-library</artifactId>
+            <version>1.0.2-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
