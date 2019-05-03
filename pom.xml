@@ -6,7 +6,7 @@
 
   <groupId>org.isaacphysics</groupId>
   <artifactId>isaac-graph-checker</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.1</version>
 
   <modules>
     <module>demo</module>
@@ -17,6 +17,8 @@
   <packaging>pom</packaging>
 
   <name>isaac-graph-checker parent POM</name>
+  <description>Parent POM for isaac-graph-checker libraries</description>
+
 
   <url>https://github.com/isaacphysics/isaac-graph-checker</url>
 
@@ -224,7 +226,7 @@
               <artifactId>license-maven-plugin</artifactId>
               <version>3.0</version>
               <configuration>
-                  <header>../.config/apache-2-header.txt</header>
+                  <header>./.config/apache-2-header.txt</header>
                   <properties>
                       <owner>University of Cambridge</owner>
                       <project.inceptionYear>2019</project.inceptionYear>
@@ -276,7 +278,7 @@
           <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-gpg-plugin</artifactId>
-              <version>1.5</version>
+              <version>1.6</version>
               <executions>
                   <execution>
                       <id>sign-artifacts</id>
