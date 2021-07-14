@@ -15,7 +15,9 @@
  */
 package org.isaacphysics.graphchecker.features.internals;
 
+import java.util.function.Predicate;
 import org.apache.commons.lang3.NotImplementedException;
+import org.isaacphysics.graphchecker.data.Input;
 import org.isaacphysics.graphchecker.settings.SettingsInterface;
 import org.isaacphysics.graphchecker.features.Context;
 
@@ -44,7 +46,7 @@ abstract class Feature<FeatureInstance extends Feature.AbstractInstance, InputTy
      * An instance of a feature.
      */
     abstract class AbstractInstance
-        extends Item<FeatureInstance, InputType, GeneratedType, SettingsType>.AbstractInstance {
+        extends Item<FeatureInstance, InputType, GeneratedType, SettingsType>.AbstractInstance implements Predicate<InputType> {
         /**
          * Create an instance of a feature.
          * @param featureData The specification for this feature.
@@ -76,7 +78,7 @@ abstract class Feature<FeatureInstance extends Feature.AbstractInstance, InputTy
          * @param inputType The input.
          * @return True if there is a match.
          */
-        protected boolean test(InputType inputType) {
+        public boolean test(InputType inputType) {
             throw new NotImplementedException("A derived type must overide this or the function above.");
         }
     }

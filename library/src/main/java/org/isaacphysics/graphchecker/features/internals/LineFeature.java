@@ -42,7 +42,7 @@ public abstract class LineFeature<FeatureInstance extends LineFeature.Instance, 
     /**
      * An instance of a LineFeature.
      */
-    public abstract class Instance extends AbstractInstance implements Predicate<Line> {
+    public abstract class Instance extends AbstractInstance {
         /**
          * Create an instance of this feature; this is wrapped for type purposes.
          * @param item The feature specification.
