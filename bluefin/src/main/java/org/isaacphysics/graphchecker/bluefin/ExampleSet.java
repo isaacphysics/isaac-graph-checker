@@ -18,7 +18,7 @@ package org.isaacphysics.graphchecker.bluefin;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.GraphAnswer;
+import org.isaacphysics.graphchecker.dos.GraphAnswer;
 
 import java.util.HashMap;
 import java.util.Map;

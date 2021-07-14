@@ -24,10 +24,10 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.Sector;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.SectorBuilder;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.geometry.SectorClassifier;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsWrapper;
+import org.isaacphysics.graphchecker.geometry.Sector;
+import org.isaacphysics.graphchecker.geometry.SectorBuilder;
+import org.isaacphysics.graphchecker.geometry.SectorClassifier;
+import org.isaacphysics.graphchecker.settings.SettingsWrapper;
 
 import java.io.IOException;
 import java.util.List;

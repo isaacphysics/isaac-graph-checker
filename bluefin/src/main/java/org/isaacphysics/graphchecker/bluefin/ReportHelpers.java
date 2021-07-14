@@ -16,10 +16,10 @@
 package org.isaacphysics.graphchecker.bluefin;
 
 import com.google.common.collect.ImmutableList;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.GraphAnswer;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.translation.AnswerToInput;
+import org.isaacphysics.graphchecker.data.Input;
+import org.isaacphysics.graphchecker.data.Point;
+import org.isaacphysics.graphchecker.dos.GraphAnswer;
+import org.isaacphysics.graphchecker.translation.AnswerToInput;
 
 import javax.imageio.ImageIO;
 import java.awt.Color;
@@ -129,7 +129,7 @@ enum ReportHelpers {
         g2d.setColor(color);
 
         input.getLines().forEach(line -> {
-            uk.ac.cam.cl.dtg.isaac.graphmarker.data.Point lastPoint = null;
+            org.isaacphysics.graphchecker.data.Point lastPoint = null;
             for (Point point : line.getPoints()) {
                 if (lastPoint != null) {
                     g2d.drawLine(

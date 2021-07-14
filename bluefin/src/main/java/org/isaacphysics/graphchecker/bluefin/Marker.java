@@ -17,11 +17,11 @@
 package org.isaacphysics.graphchecker.bluefin;
 
 import org.apache.commons.lang3.tuple.Pair;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.GraphAnswer;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.features.Features;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.settings.SettingsWrapper;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.translation.AnswerToInput;
+import org.isaacphysics.graphchecker.data.Input;
+import org.isaacphysics.graphchecker.dos.GraphAnswer;
+import org.isaacphysics.graphchecker.features.Features;
+import org.isaacphysics.graphchecker.settings.SettingsWrapper;
+import org.isaacphysics.graphchecker.translation.AnswerToInput;
 
 import java.util.HashMap;
 import java.util.List;

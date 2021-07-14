@@ -17,8 +17,8 @@
 package org.isaacphysics.graphchecker.bluefin;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.data.Input;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.features.Features;
+import org.isaacphysics.graphchecker.data.Input;
+import org.isaacphysics.graphchecker.features.Features;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;

@@ -20,7 +20,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.cam.cl.dtg.isaac.graphmarker.dos.GraphAnswer;
+import org.isaacphysics.graphchecker.dos.GraphAnswer;
 
 import java.io.File;
 import java.io.IOException;
