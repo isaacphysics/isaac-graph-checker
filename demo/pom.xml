@@ -15,7 +15,7 @@
         <dependency>
             <groupId>org.isaacphysics</groupId>
             <artifactId>isaac-graph-checker-library</artifactId>
-            <version>1.0</version>
+            <version>1.0.1</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
