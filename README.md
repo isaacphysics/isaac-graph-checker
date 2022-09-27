@@ -17,7 +17,7 @@ There are three top-level modules:
 
 - **library** The library itself.
 - **demo** A demo wiring up of the library to an HTTP endpoint that can be jury-rigged to Isaac.
-- **bluefin** A simple web application for tuning the settings and examining samples.
+- **bluefin** A simple web application for tuning the settings and examining samples (see 'Tuning' section).
 
 The demo application writes samples into the top-level samples directory, and the bluefin application reads its samples
 from there.
@@ -54,6 +54,25 @@ All features are described with a feature specification with the following synta
                   | <lineSelectorTag> : <lineSelectorSpec> ; <lineFeature>
   <lineFeature> ::= <lineFeatureTag> : <lineFeatureSpec>
 ```
+
+## Tuning
+The settings used by the graph checker can be calibrated using bluefin.
+
+Bluefin allows us to test the settings used for marking graphs (e.g. the size of various sectors), and marks a series of
+sample graphs with these settings applied. This shows us how the checker performs on samples for which the true class 
+(correct/incorrect) is known.
+
+### Adding samples
+_Note: Perhaps there is/was a less cumbersome way of doing this._
+ * in `bluefin.standalone.MarkerController`, add an entry to the map with a graph spec for your sample. 
+ * Sketch a graph on the graph sketcher sample page that should match your graph spec, and capture the request body.
+ * Run `demo` and send a POST request to `localhost:8080/isaac-api/api/questions/graph_sketcher_test%7C{{question}}/answer`, where `question` is a name for the specification, with the captured body.
+   * This will create a new specification.
+ * Run `bluefin` and you should see your new specification in the web interface.
+ * For however many samples you would like against that specification:
+   * Sketch a graph on the graph sketcher sample page and capture the request body.
+   * Send a POST request to `localhost:8080/isaac-api/api/questions/graph_sketcher_test%7C{{question}}/answer`, where `question` is the specification name from before, with the captured body.
+   * On the `bluefin` web interface, mark the sample as 'correct' or 'incorrect'. 
 
 ## License
 

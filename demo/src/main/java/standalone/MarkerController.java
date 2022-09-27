@@ -98,6 +98,18 @@ public class MarkerController {
                 "intersects: a to b nowhere",
                 "intersects: a to c nowhere",
                 "intersects: b to c nowhere"))
+            .put("asymptotic-curve",
+                getSolution(
+                    "through: topRight",
+                    "slope: start=down, end=flat"
+                )
+            )
+            .put("intersecting-curve",
+                getSolution(
+                    "through: +Yaxis, topRight, +Xaxis",
+                    "slope: start=down, end=flat"
+                )
+            )
             .build();
     }
 
