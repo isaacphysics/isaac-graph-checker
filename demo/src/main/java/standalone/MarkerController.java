@@ -110,6 +110,11 @@ public class MarkerController {
                     "slope: start=down, end=flat"
                 )
             )
+            .put("origin-intersecting-curve",
+                    getSolution(
+                    "through: bottomLeft, origin, topRight"
+                    )
+            )
             .build();
     }
 

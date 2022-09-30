@@ -56,7 +56,7 @@ All features are described with a feature specification with the following synta
 ```
 
 ## Tuning
-The settings used by the graph checker can be calibrated using bluefin.
+The settings used by the graph checker can be calibrated using Bluefin.
 
 Bluefin allows us to test the settings used for marking graphs (e.g. the size of various sectors), and marks a series of
 sample graphs with these settings applied. This shows us how the checker performs on samples for which the true class 
@@ -72,7 +72,10 @@ _Note: Perhaps there is/was a less cumbersome way of doing this._
  * For however many samples you would like against that specification:
    * Sketch a graph on the graph sketcher sample page and capture the request body.
    * Send a POST request to `localhost:8080/isaac-api/api/questions/graph_sketcher_test%7C{{question}}/answer`, where `question` is the specification name from before, with the captured body.
-   * On the `bluefin` web interface, mark the sample as 'correct' or 'incorrect'. 
+   * On the `bluefin` web interface, mark the sample as 'correct' or 'incorrect'.
+ 
+ * You should now adjust the settings at the bottom and 'Re-run' until all samples show either "Incorrect and failing" or "Correct and passing".
+   * Note that Bluefin populates the settings from the library defaults, which can be overridden and [have been in Isaac's case](https://github.com/isaacphysics/isaac-api/blob/master/src/main/java/uk/ac/cam/cl/dtg/isaac/quiz/IsaacGraphSketcherSettings.java), so first you should change them to match your application.
 
 ## License
 
