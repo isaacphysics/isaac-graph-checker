@@ -35,13 +35,14 @@ public class SlopeFeatureTest {
 
     @Test
     public void slopeCalculatorIsCorrect() {
-        Map<Line, SlopeFeature.Slope> expectations = ImmutableMap.of(
-            TestHelpers.lineOf(new Point(0, 0), new Point(10, 100)), SlopeFeature.Slope.UP,
-            TestHelpers.lineOf(new Point(10, 0), new Point(15, -50)), SlopeFeature.Slope.DOWN,
-            TestHelpers.lineOf(new Point(0, 0), new Point(100, -5)), SlopeFeature.Slope.FLAT,
-            TestHelpers.lineOf(new Point(0, 0), new Point(-100, -5)), SlopeFeature.Slope.FLAT,
-            TestHelpers.lineOf(new Point(0, 0), new Point(100, 100)), SlopeFeature.Slope.OTHER
-        );
+        Map<Line, SlopeFeature.Slope> expectations = ImmutableMap.<Line, SlopeFeature.Slope>builder()
+                .put(TestHelpers.lineOf(new Point(0, 0), new Point(10, 100)), SlopeFeature.Slope.UP)
+                .put(TestHelpers.lineOf(new Point(10, 0), new Point(15, -50)), SlopeFeature.Slope.DOWN)
+                .put(TestHelpers.lineOf(new Point(0, 0), new Point(100, -5)), SlopeFeature.Slope.FLAT)
+                .put(TestHelpers.lineOf(new Point(0, 0), new Point(-100, -5)), SlopeFeature.Slope.FLAT)
+                .put(TestHelpers.lineOf(new Point(0, 0), new Point(100, 100)), SlopeFeature.Slope.POSITIVE)
+                .put(TestHelpers.lineOf(new Point(0, 0), new Point(100, -100)), SlopeFeature.Slope.NEGATIVE)
+                .build();
 
         expectations.forEach((line, slope) -> assertEquals(slope, slopeFeature.lineToSlope(line)));
     }
