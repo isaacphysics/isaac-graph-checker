@@ -61,7 +61,8 @@ public class Features {
             new ExpectedSectorsFeature(settings),
             new SlopeFeature(settings),
             new SymmetryFeature(settings),
-            new PointsFeature(settings)
+            new PointsFeature(settings),
+            new UnorderedPointsFeature(settings)
         );
         curvesCountFeature = new CurvesCountFeature(settings);
         inputFeatures = ImmutableList.of(

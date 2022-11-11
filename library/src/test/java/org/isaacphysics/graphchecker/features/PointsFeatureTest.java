@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.isaacphysics.graphchecker.data.Line;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -50,6 +51,68 @@ public class PointsFeatureTest {
         pointsFeature.deserializeInternal("middle, flat");
     }
 
+    @Test
+    public void pointsFeature_curveWithPOIsMatchingSpec_matches(){
+        // Arrange
+        Line sine = TestHelpers.lineOf(Math::sin, -Math.PI, Math.PI);
+        String spec = "minima in bottomLeft, maxima in topRight";
 
+        // Act
+        boolean matches = pointsFeature.deserializeInternal(spec).test(sine);
 
+        // Assert
+        assertTrue(matches);
+    }
+
+    @Test
+    public void pointsFeature_curveWithPOIsMatchingAnySectorSpec_matches(){
+        // Arrange
+        Line sine = TestHelpers.lineOf(Math::sin, -Math.PI, Math.PI);
+        String spec = "minima in any, maxima in any";
+
+        // Act
+        boolean matches = pointsFeature.deserializeInternal(spec).test(sine);
+
+        // Assert
+        assertTrue(matches);
+    }
+
+    @Test
+    public void pointsFeature_curveWithPOIsMatchingPartialAnySectorSpec_matches(){
+        // Arrange
+        Line sine = TestHelpers.lineOf(Math::sin, -Math.PI, Math.PI);
+        String spec = "minima in any, maxima in topRight";
+
+        // Act
+        boolean matches = pointsFeature.deserializeInternal(spec).test(sine);
+
+        // Assert
+        assertTrue(matches);
+    }
+
+    @Test
+    public void pointsFeature_curveWithOutOfOrderPOIs_fails(){
+        // Arrange
+        Line sine = TestHelpers.lineOf(Math::sin, -Math.PI, Math.PI);
+        String spec = "maxima in topRight, minima in bottomLeft";
+
+        // Act
+        boolean matches = pointsFeature.deserializeInternal(spec).test(sine);
+
+        // Assert
+        assertFalse(matches);
+    }
+
+    @Test
+    public void pointsFeature_curveWithOutOfOrderPOIsAnySectorSpec_fails(){
+        // Arrange
+        Line sine = TestHelpers.lineOf(Math::sin, -Math.PI, Math.PI);
+        String spec = "maxima in any, minima in any";
+
+        // Act
+        boolean matches = pointsFeature.deserializeInternal(spec).test(sine);
+
+        // Assert
+        assertFalse(matches);
+    }
 }
