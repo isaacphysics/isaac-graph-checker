@@ -115,4 +115,17 @@ public class PointsFeatureTest {
         // Assert
         assertFalse(matches);
     }
+
+    @Test
+    public void pointsFeature_curveWithPOIsNotMatchingSpec_fails(){
+        // Arrange
+        Line sine = TestHelpers.lineOf(Math::sin, -Math.PI, Math.PI);
+        String spec = "maxima in topLeft, minima in topRight";
+
+        // Act
+        boolean matches = pointsFeature.deserializeInternal(spec).test(sine);
+
+        // Assert
+        assertFalse(matches);
+    }
 }

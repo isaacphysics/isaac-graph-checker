@@ -52,9 +52,8 @@ public class UnorderedPointsFeature extends PointsFeature{
     }
 
     @Override
-    public PointsFeature.Instance deserializeInternal(String featureData) {
+    public Instance deserializeInternal(String featureData) {
         String[] items = featureData.split("\\s*,\\s*");
         return new Instance(featureData, Arrays.stream(items).map(this::deserializeItem).collect(Collectors.toSet()));
     }
-
 }
