@@ -98,10 +98,11 @@ public class SlopeFeature extends LineFeature<SlopeFeature.Instance, SlopeFeatur
      * The shape of the slope.
      */
     enum Slope implements HumanNamedEnum {
-        FLAT, // Nearly horizontal
         UP, // Nearly vertical going upwards
+        POSITIVE, // Between UP and FLAT
+        FLAT, // Nearly horizontal
+        NEGATIVE, // Between FLAT and DOWN
         DOWN, // Nearly vertical going downwards
-        OTHER // Any other slope
     }
 
     @Override
@@ -158,7 +159,6 @@ public class SlopeFeature extends LineFeature<SlopeFeature.Instance, SlopeFeatur
     public List<String> generate(Line expectedLine) {
         return Collections.singletonList(Arrays.stream(Position.values())
         .map(position -> ImmutablePair.of(position, lineToSlope(lineAtPosition(expectedLine, position))))
-        .filter(pair -> pair.getRight() != Slope.OTHER)
         .map(pair -> pair.getLeft().humanName() + "=" + pair.getRight().humanName())
         .collect(Collectors.joining(", ")));
     }
@@ -181,15 +181,19 @@ public class SlopeFeature extends LineFeature<SlopeFeature.Instance, SlopeFeatur
         }
 
         double highIfSteep = size.getY() / size.getX();
-        if (Math.abs(highIfSteep) > settings().getSlopeThreshold()) {
-            if (highIfSteep > 0) {
+        if (highIfSteep > 0) {
+            if (Math.abs(highIfSteep) > settings().getSlopeThreshold()) {
                 return Slope.UP;
             } else {
+                return Slope.POSITIVE;
+            }
+        } else {
+            if (Math.abs(highIfSteep) > settings().getSlopeThreshold()) {
                 return Slope.DOWN;
+            } else {
+                return Slope.NEGATIVE;
             }
         }
-
-        return Slope.OTHER;
     }
 
     /**
