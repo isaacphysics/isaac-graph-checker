@@ -16,6 +16,7 @@
 package org.isaacphysics.graphchecker.features;
 
 import com.google.common.collect.Streams;
+import org.isaacphysics.graphchecker.data.PointOfInterest;
 import org.isaacphysics.graphchecker.features.internals.LineFeature;
 import org.isaacphysics.graphchecker.geometry.Sector;
 import org.isaacphysics.graphchecker.geometry.SectorBuilder;
@@ -53,7 +54,7 @@ public class PointsFeature extends LineFeature<PointsFeature.Instance, SectorCla
      */
     protected class Instance extends LineFeature<?, ?>.Instance {
 
-        private final List<ImmutablePair<PointType, Sector>> expectedPoints;
+        protected final List<ImmutablePair<PointType, Sector>> expectedPoints;
 
         /**
          * Create an instance which expects these points in order.
@@ -71,27 +72,31 @@ public class PointsFeature extends LineFeature<PointsFeature.Instance, SectorCla
                 return false;
             }
 
-            return Streams.zip(expectedPoints.stream(), line.getPointsOfInterest().stream(),
-                (expected, actual) -> expected.getLeft() == actual.getPointType()
-                    && settings().getSectorClassifier().classifyAll(actual).contains(expected.getRight()))
-                .allMatch(Boolean::booleanValue);
+            return Streams.zip(expectedPoints.stream(), line.getPointsOfInterest().stream(), this::pointsMatch)
+                    .allMatch(Boolean::booleanValue);
+        }
+        
+        protected boolean pointsMatch(ImmutablePair<PointType, Sector> expected, PointOfInterest actual) {
+            return expected.getLeft() == actual.getPointType()
+                    && (expected.getRight() == settings().getSectorBuilder().byName(SectorBuilder.ANY)
+                    || settings().getSectorClassifier().classifyAll(actual).contains(expected.getRight()));
         }
     }
 
     @Override
     public Instance deserializeInternal(String featureData) {
         String[] items = featureData.split("\\s*,\\s*");
-        return new Instance(featureData, Arrays.stream(items)
-            .map(item -> {
-                String[] parts = item.split(" (in|on|at) ");
-                if (parts.length != 2) {
-                    throw new IllegalArgumentException("Incorrect number of point parts in: " + item);
-                }
-                PointType expectedType = PointType.valueOf(parts[0].trim().toUpperCase());
-                Sector expectedSector = settings().getSectorBuilder().byName(parts[1].trim());
-                return ImmutablePair.of(expectedType, expectedSector);
-            })
-            .collect(Collectors.toList()));
+        return new Instance(featureData, Arrays.stream(items).map(this::deserializeItem).collect(Collectors.toList()));
+    }
+
+    protected ImmutablePair<PointType, Sector> deserializeItem(String item) {
+        String[] parts = item.split(" (in|on|at) ");
+        if (parts.length != 2) {
+            throw new IllegalArgumentException("Incorrect number of point parts in: " + item);
+        }
+        PointType expectedType = PointType.valueOf(parts[0].trim().toUpperCase());
+        Sector expectedSector = settings().getSectorBuilder().byName(parts[1].trim());
+        return ImmutablePair.of(expectedType, expectedSector);
     }
 
     @Override
