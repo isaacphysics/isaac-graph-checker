@@ -24,6 +24,8 @@ import org.isaacphysics.graphchecker.geometry.SectorClassifier;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -69,5 +71,16 @@ public class UnorderedPointsFeature extends PointsFeature{
     public Instance deserializeInternal(String featureData) {
         String[] items = featureData.split("\\s*,\\s*");
         return new Instance(featureData, Arrays.stream(items).map(this::deserializeItem).collect(Collectors.toSet()));
+    }
+
+    @Override
+    public List<String> generate(Line expectedLine) {
+        return Collections.singletonList(
+                expectedLine.getPointsOfInterest().stream()
+                        .map(point -> ImmutablePair.of(point.getPointType(), settings().getSectorClassifier().classify(point)))
+                        .distinct()
+                        .map(this::generatePointSpec)
+                        .collect(Collectors.joining(", "))
+        );
     }
 }

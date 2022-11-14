@@ -104,16 +104,18 @@ public class PointsFeature extends LineFeature<PointsFeature.Instance, SectorCla
         return Collections.singletonList(
             expectedLine.getPointsOfInterest().stream()
             .map(point -> ImmutablePair.of(point.getPointType(), settings().getSectorClassifier().classify(point)))
-            .map(entry -> {
-                Sector sector = entry.getRight();
-                String sectorName = sector.toString();
-                @SuppressWarnings("checkstyle:avoidInlineConditionals")
-                String preposition = sector == settings().getSectorBuilder().byName(SectorBuilder.ORIGIN) ? "at"
-                    : sectorName.matches("[-+].*") ? "on"
-                    : "in";
-                return entry.getLeft().humanName() + " " + preposition + " " + sectorName;
-            })
+            .map(this::generatePointSpec)
             .collect(Collectors.joining(", "))
         );
+    }
+
+    public String generatePointSpec(ImmutablePair<PointType, Sector> entry) {
+        Sector sector = entry.getRight();
+        String sectorName = sector.toString();
+        @SuppressWarnings("checkstyle:avoidInlineConditionals")
+        String preposition = sector == settings().getSectorBuilder().byName(SectorBuilder.ORIGIN) ? "at"
+                : sectorName.matches("[-+].*") ? "on"
+                : "in";
+        return entry.getLeft().humanName() + " " + preposition + " " + sectorName;
     }
 }
