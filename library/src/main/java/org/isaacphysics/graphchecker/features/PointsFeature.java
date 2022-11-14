@@ -77,9 +77,9 @@ public class PointsFeature extends LineFeature<PointsFeature.Instance, SectorCla
         }
         
         protected boolean pointsMatch(ImmutablePair<PointType, Sector> expected, PointOfInterest actual) {
-            return expected.getLeft() == actual.getPointType() 
-                    && expected.getRight() == settings().getSectorBuilder().byName(SectorBuilder.ANY) 
-                        || (settings().getSectorClassifier().classifyAll(actual).contains(expected.getRight()));
+            return expected.getLeft() == actual.getPointType()
+                    && (expected.getRight() == settings().getSectorBuilder().byName(SectorBuilder.ANY)
+                    || settings().getSectorClassifier().classifyAll(actual).contains(expected.getRight()));
         }
     }
 
