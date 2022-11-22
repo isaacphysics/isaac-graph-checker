@@ -6,7 +6,7 @@
 
   <groupId>org.isaacphysics</groupId>
   <artifactId>isaac-graph-checker</artifactId>
-  <version>1.1.1-SNAPSHOT</version>
+  <version>1.1.2</version>
 
   <modules>
     <module>demo</module>
