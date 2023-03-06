@@ -60,8 +60,8 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
     <!-- Dependency versions -->
-    <resteasy.version>3.0.11.Final</resteasy.version>
-    <junit.version>4.11</junit.version>
+    <resteasy.version>3.0.20.Final</resteasy.version>
+    <junit.version>4.13.2</junit.version>
     <jackson.version>2.13.4</jackson.version>
     <jackson-databind.version>2.13.4.2</jackson-databind.version>
 
@@ -90,7 +90,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>27.0-jre</version>
+            <version>31.1-jre</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
