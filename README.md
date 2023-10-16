@@ -55,6 +55,16 @@ All features are described with a feature specification with the following synta
   <lineFeature> ::= <lineFeatureTag> : <lineFeatureSpec>
 ```
 
+## Development
+Before you can run `bluefin`, `demo` or use the library with `isaac-api`, you need to build and 'install' a snapshot version of the library so it exists in your local Maven cache. 
+
+### Building
+The build process involves signing the artefact with your GPG key. Either:
+ * Pass `-Dgpg.passphrase=[your_gpg_passphrase]` to the Maven command
+ * or comment out `maven-gpg-plugin` in the parent POM, for now.
+
+Then, run the top level POM's `install` Maven target and the library will be available.
+
 ## Tuning
 The settings used by the graph checker can be calibrated using Bluefin.
 
