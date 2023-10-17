@@ -65,6 +65,9 @@ The build process involves signing the artefact with your GPG key. Either:
 
 Then, run the top level POM's `install` Maven target and the library will be available.
 
+### Using with `isaac-api`
+Temporarily change the version of `isaac-graph-checker` in `isaac-api`'s POM to the version string for the snapshot version you've just built.
+
 ## Tuning
 The settings used by the graph checker can be calibrated using Bluefin.
 
