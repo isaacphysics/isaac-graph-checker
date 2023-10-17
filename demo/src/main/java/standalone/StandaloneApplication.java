@@ -17,8 +17,8 @@ package standalone;
 
 import org.jboss.resteasy.plugins.interceptors.CorsFilter;
 
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
+import jakarta.ws.rs.ApplicationPath;
+import jakarta.ws.rs.core.Application;
 import java.util.HashSet;
 import java.util.Set;
 

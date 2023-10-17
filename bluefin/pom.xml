@@ -10,6 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>isaac-graph-checker-tuner</artifactId>
+    <packaging>war</packaging>
     <dependencies>
         <dependency>
             <groupId>org.isaacphysics</groupId>

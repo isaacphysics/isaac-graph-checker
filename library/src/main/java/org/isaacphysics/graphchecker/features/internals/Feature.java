@@ -21,7 +21,7 @@ import org.isaacphysics.graphchecker.data.Input;
 import org.isaacphysics.graphchecker.settings.SettingsInterface;
 import org.isaacphysics.graphchecker.features.Context;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * A feature which matches against some kind of input or generates feature specifications based on some input.

@@ -20,7 +20,7 @@ import org.isaacphysics.graphchecker.data.Point;
 import org.isaacphysics.graphchecker.data.Line;
 import org.isaacphysics.graphchecker.data.PointOfInterest;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;

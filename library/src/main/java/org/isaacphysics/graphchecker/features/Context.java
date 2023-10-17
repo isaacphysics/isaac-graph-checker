@@ -21,7 +21,7 @@ import com.google.common.collect.ImmutableSet;
 import org.isaacphysics.graphchecker.data.Input;
 import org.isaacphysics.graphchecker.data.Line;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;

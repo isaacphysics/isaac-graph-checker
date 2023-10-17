@@ -15,7 +15,7 @@
  */
 package org.isaacphysics.graphchecker.data;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
