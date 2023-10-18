@@ -124,6 +124,7 @@ public class MarkerController {
     @Produces(MediaType.APPLICATION_JSON)
     public IsaacAnswerResponse getMarks(@PathParam("question") String questionId,
                                         IsaacAnswer answer) throws Exception {
+
         if ("graphChoice".equals(answer.getType())) {
             GraphAnswer graphAnswer = om.readValue(answer.getValue(), GraphAnswer.class);
 
@@ -163,7 +164,8 @@ public class MarkerController {
                 user = currentRequest.getRemoteAddr();
             }
 
-            String name = DateTimeFormatter.ISO_INSTANT.format(Instant.now()) + " " + requestId++ + " " + user + ".json";
+            Instant instant = Instant.ofEpochMilli(System.currentTimeMillis());
+            String name = instant.toEpochMilli() + " " + requestId++ + " " + user + ".json";
 
             File filePath = new File(unknownPath, name);
             om.writeValue(filePath, graphAnswer);
