@@ -77,10 +77,13 @@ sample graphs with these settings applied. This shows us how the checker perform
 
 ### Adding samples
 _Note: Perhaps there is/was a less cumbersome way of doing this._
- * in `bluefin.standalone.MarkerController`, add an entry to the map with a graph spec for your sample. 
+ * in `demo.src.main.java.standalone.MarkerController`, add an entry to the `questionData` map with a graph spec for your sample. 
  * Sketch a graph on the graph sketcher sample page that should match your graph spec, and capture the request body.
+   * To capture the request body sign in to a staff account and (with `Network>XHR` open) click the debug icon.
  * Run `demo` and send a POST request to `localhost:8080/isaac-api/api/questions/graph_sketcher_test%7C{{question}}/answer`, where `question` is a name for the specification, with the captured body.
    * This will create a new specification.
+   * _note: the posts expects `{"type":"graphChoice", "value":"<value>"}`_
+   * _note: the `<value>` needs to have the quotation marks escaped_
  * Run `bluefin` and you should see your new specification in the web interface.
  * For however many samples you would like against that specification:
    * Sketch a graph on the graph sketcher sample page and capture the request body.
