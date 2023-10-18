@@ -115,6 +115,22 @@ public class MarkerController {
                     "through: bottomLeft, origin, topRight"
                     )
             )
+            .put("function-types-and-inverse-mismatch",
+                    getSolution(
+                    "line: 1; through: topLeft, +Yaxis, topRight, +Xaxis, bottomRight",
+                    "line: 2; slope: end=up",
+                    "curves: 2",
+                    "intersects: A to B nowhere"
+                    )
+                )
+            .put("function-types-and-inverse-match",
+                    getSolution(
+                    "line: 1; slope: start=negative",
+                    "line: 2; through: bottomRight, +Xaxis, topRight",
+                    "curves: 2",
+                    "intersects: A to B nowhere"
+                    )
+            )
             .build();
     }
 
@@ -124,6 +140,7 @@ public class MarkerController {
     @Produces(MediaType.APPLICATION_JSON)
     public IsaacAnswerResponse getMarks(@PathParam("question") String questionId,
                                         IsaacAnswer answer) throws Exception {
+
         if ("graphChoice".equals(answer.getType())) {
             GraphAnswer graphAnswer = om.readValue(answer.getValue(), GraphAnswer.class);
 
@@ -163,7 +180,8 @@ public class MarkerController {
                 user = currentRequest.getRemoteAddr();
             }
 
-            String name = DateTimeFormatter.ISO_INSTANT.format(Instant.now()) + " " + requestId++ + " " + user + ".json";
+            Instant instant = Instant.ofEpochMilli(System.currentTimeMillis());
+            String name = instant.toEpochMilli() + " " + requestId++ + " " + user + ".json";
 
             File filePath = new File(unknownPath, name);
             om.writeValue(filePath, graphAnswer);
