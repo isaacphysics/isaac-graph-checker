@@ -115,22 +115,6 @@ public class MarkerController {
                     "through: bottomLeft, origin, topRight"
                     )
             )
-            .put("function-types-and-inverse-mismatch",
-                    getSolution(
-                    "line: 1; through: topLeft, +Yaxis, topRight, +Xaxis, bottomRight",
-                    "line: 2; slope: end=up",
-                    "curves: 2",
-                    "intersects: A to B nowhere"
-                    )
-                )
-            .put("function-types-and-inverse-match",
-                    getSolution(
-                    "line: 1; slope: start=negative",
-                    "line: 2; through: bottomRight, +Xaxis, topRight",
-                    "curves: 2",
-                    "intersects: A to B nowhere"
-                    )
-            )
             .build();
     }
 
