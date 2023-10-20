@@ -194,6 +194,20 @@ public class SectorBuilder {
     }
 
     /**
+     * Helper method to create a quadrant sector centred on the origin with axis slop
+     *
+     * @param axis1 The direction of one side of the quadrant
+     * @param axis2 The direction of the other side of the quadrant
+     * @return The segments of the quadrant
+     */
+    private List<Segment> sloppyQuadrant(Point axis1, Point axis2) {
+        final Point axis1Scaled = axis1.times(settings.getAxisSlop());
+        final Point axis2Scaled = axis2.times(settings.getAxisSlop());
+        final Point shiftedOrigin = axis1Scaled.add(axis2Scaled);
+        return quadrant(shiftedOrigin, axis1Scaled, axis2Scaled);
+    }
+
+    /**
      * Helper to create a Sector which represents an area near an axis.
      *
      * The area is defined as between the points left and right, scaled by AXIS_SLOP, extending out to infinity in the
@@ -269,10 +283,10 @@ public class SectorBuilder {
             .put(POSITIVE_Y_AXIS, builder -> builder.sloppyAxis(LEFT, RIGHT, UP))
             .put(NEGATIVE_Y_AXIS, builder -> builder.sloppyAxis(RIGHT, LEFT, DOWN))
 
-            .put(TOP_LEFT, builder -> builder.centeredQuadrant(LEFT, UP))
-            .put(TOP_RIGHT, builder -> builder.centeredQuadrant(RIGHT, UP))
-            .put(BOTTOM_LEFT, builder -> builder.centeredQuadrant(LEFT, DOWN))
-            .put(BOTTOM_RIGHT, builder -> builder.centeredQuadrant(RIGHT, DOWN))
+            .put(TOP_LEFT, builder -> builder.sloppyQuadrant(LEFT, UP))
+            .put(TOP_RIGHT, builder -> builder.sloppyQuadrant(RIGHT, UP))
+            .put(BOTTOM_LEFT, builder -> builder.sloppyQuadrant(LEFT, DOWN))
+            .put(BOTTOM_RIGHT, builder -> builder.sloppyQuadrant(RIGHT, DOWN))
 
             .put(LEFT_HALF, builder -> builder.centeredHalf(UP))
             .put(RIGHT_HALF, builder -> builder.centeredHalf(DOWN))

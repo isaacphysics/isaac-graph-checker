@@ -176,6 +176,10 @@ public class SectorTest {
 
     @Test
     public void quadrantsHaveCorrectPointHandling() {
+        // ARRANGE
+        double axisSlop = SettingsWrapper.DEFAULT.getAxisSlop();
+        Point sloppyOrigin = new Point(axisSlop, axisSlop);
+
         Sector[] quadrants = new Sector[] {
             sectorBuilder.byName(SectorBuilder.TOP_RIGHT),
             sectorBuilder.byName(SectorBuilder.TOP_LEFT),
@@ -186,17 +190,19 @@ public class SectorTest {
         Point[] outsidePoints = new Point[] {
                 x_1y_1,
                 x0y_1,
-                new Point(1, -0.0001),
+                new Point(1, -0.019),
+                new Point(1, 0.019), // Make sure the slop is ignored
         };
 
         Point[] insidePoints = new Point[] {
                 x1y1,
-                new Point(+0.005, 0.0001),
-                new Point(+0.005, 10),
-                new Point(100, 0.01),
-                x0y0,
+                new Point(+0.0205, 0.0201),
+                new Point(+0.0205, 10),
+                new Point(100, 0.0205),
+                sloppyOrigin,
         };
 
+        // ASSERT
         for (Sector quadrant : quadrants) {
             for (Point p : outsidePoints) {
                 assertFalse(quadrant + " should not contain " + p, quadrant.contains(p));

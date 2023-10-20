@@ -124,15 +124,14 @@ public class ExpectedSectorsFeatureTest {
     }
 
     @Test
-    public void twoXminusThreeCanPassNearOrigin() {
-        // Due to the scaling of everything to -1 to 1, a correct answer can be arbitrarily close to the origin
-
-        // TODO: How arbitrarily close to the origin can we go?
+    public void twoXPlusNoughtPointOneCanPassNearOrigin() {
+        // How arbitrarily close to the origin can we go?
+        // Not as close as 2x + 0.03 (origin slop is 0.05 for these tests)
 
         Predicate<Line> testFeature = expectedSectorsFeature.deserializeInternal(
             "bottomLeft, -Xaxis, topLeft, +Yaxis, topRight");
 
-        assertTrue(testFeature.test(TestHelpers.lineOf(x -> 2 * x + 0.03, -0.1, 0.1)));
+        assertTrue(testFeature.test(TestHelpers.lineOf(x -> 2 * x + 0.1, -0.1, 0.1)));
     }
 
     @Test
@@ -140,16 +139,24 @@ public class ExpectedSectorsFeatureTest {
         Predicate<Line> testFeature = expectedSectorsFeature.deserializeInternal(
             "bottomRight,+Xaxis,topRight,+Xaxis,bottomRight,+Xaxis,topRight");
 
-        assertTrue(testFeature.test(TestHelpers.lineOf(x -> (x - 1) * (x - 3) * (x - 4), 0.5, 10)));
+        double axisSlop = SettingsWrapper.DEFAULT.getAxisSlop();
+        // Should calculate this from the function but this is a quick fix
+        double maxFunctionValue = (6 - 1)*(6 - 3)*(6 - 5);
+        // need to unnormalise the slop
+        double adjustedSlop = (axisSlop * maxFunctionValue) + 0.0001;
 
-        // Shift graph up so the crossing back into the bottomRight doesn't happen properly
-        assertFalse(testFeature.test(TestHelpers.lineOf(x -> (x - 1) * (x - 3) * (x - 4) + 0.64, 0.5, 10)));
+        double minimaX = (9 + (2*Math.sqrt(3))) / 3;
+        double minimaY = (minimaX - 1) * (minimaX - 3) * (minimaX - 5);
+        // So that the adjusted curve is not exactly on the line
+        double minimaYSloppy = minimaY - 0.01;
 
-        double minimaX = (8 + Math.sqrt(7)) / 3;
-        double minimaY = (minimaX - 1) * (minimaX - 3) * (minimaX - 4);
+        // New function so that maxima - minima is outside the axisSlop range
+        assertTrue(testFeature.test(TestHelpers.lineOf(x -> (x - 1) * (x - 3) * (x - 5), 0.5, 6)));
 
-        // But only just going over the axis should still be allowed
-        assertTrue(testFeature.test(TestHelpers.lineOf(x -> (x - 1) * (x - 3) * (x - 4) - minimaY - (SettingsWrapper.DEFAULT.getAxisSlop() / 4), 0.5, 10)));
+        assertFalse(testFeature.test(TestHelpers.lineOf(x -> (x - 1) * (x - 3) * (x - 5) - minimaYSloppy + adjustedSlop, 0.5, 6)));
+
+        // But only just going over the axis (including the slop) should still be allowed
+        assertTrue(testFeature.test(TestHelpers.lineOf(x -> (x - 1) * (x - 3) * (x - 5) - minimaY - adjustedSlop, 0.5, 6)));
     }
 
     @Test(timeout=1000)
