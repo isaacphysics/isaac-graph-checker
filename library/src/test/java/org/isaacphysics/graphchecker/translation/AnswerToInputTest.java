@@ -54,9 +54,9 @@ public class AnswerToInputTest {
             maxY,
             null,
             null,
-            null,
             Collections.emptyList(),
             Collections.emptyList(),
+            false,
             0
         );
     }
