@@ -42,8 +42,14 @@ enum ReportHelpers {
     static final Color ARGH = new Color(1.0f, 0.5f, 0.3f);
     static final AnswerToInput answerToInput = new AnswerToInput();
 
-    static void displayForClassification(StringBuilder response, ExampleSet example, Marker.Context markerContext,
-                                         Marks marks, String name, AnswerStatus status, boolean passed) {
+    static void displayForClassification(StringBuilder response,
+                                         ExampleSet example,
+                                         Marker.Context markerContext,
+                                         Marks marks,
+                                         String name,
+                                         AnswerStatus status,
+                                         boolean passed,
+                                         CustomSettings settings) {
         Marks.Mark mark = marks.get(status);
         ImmutableList<String> answers = mark.get(passed);
 
@@ -64,7 +70,10 @@ enum ReportHelpers {
             answers.forEach(exampleGraph -> {
                 String fullId = example.getId() + "/" + status.name().toLowerCase() + "/" + exampleGraph;
                 response.append("<tr id=\"").append(fullId).append("\"><td>");
-                response.append(drawGraph(example.getAnswers().get(exampleGraph), colorLookup(status, passed)));
+                response.append(drawGraph(
+                        example.getAnswers().get(exampleGraph), colorLookup(status, passed),
+                        settings.getAxisSlop(), settings.getOriginSlop()
+                ));
 
                 response.append(buttons);
 
@@ -96,6 +105,10 @@ enum ReportHelpers {
     }
 
     static String drawGraph(GraphAnswer graphAnswer, Color color) {
+        return drawGraph(graphAnswer, color, 0, 0);
+    }
+
+    static String drawGraph(GraphAnswer graphAnswer, Color color, double axisSlop, double originSlop) {
         Input input = answerToInput.apply(graphAnswer);
 
         int width = 300;
@@ -123,6 +136,64 @@ enum ReportHelpers {
             0,
             height / 2,
             width,
+            height / 2
+        );
+
+        // Draw axisSlop lines
+        g2d.drawLine(
+            (int) ((width/2) + (width * axisSlop)),
+            0,
+            (int) ((width/2) + (width * axisSlop)),
+            height
+        );
+
+        g2d.drawLine(
+            (int) ((width/2) - (width * axisSlop)),
+            0,
+            (int) ((width/2) - (width * axisSlop)),
+            height
+        );
+
+        g2d.drawLine(
+            0,
+            (int) ((height/2) + (height * axisSlop)),
+            width,
+            (int) ((height/2) + (height * axisSlop))
+        );
+
+        g2d.drawLine(
+            0,
+            (int) ((height/2) - (height * axisSlop)),
+            width,
+            (int) ((height/2) - (height * axisSlop))
+        );
+
+        // draw originSlop lines
+        g2d.drawLine(
+            (int) ((width/2) + (width * originSlop)),
+            height / 2,
+            width / 2,
+            (int) ((height/2) - (height * originSlop))
+        );
+
+        g2d.drawLine(
+            width / 2,
+            (int) ((height/2) - (height * originSlop)),
+            (int) ((width/2) - (width * originSlop)),
+            height / 2
+        );
+
+        g2d.drawLine(
+            (int) ((width/2) - (width * originSlop)),
+            height / 2,
+            width / 2,
+            (int) ((height/2) + (height * originSlop))
+        );
+
+        g2d.drawLine(
+            width / 2,
+            (int) ((height/2) + (height * originSlop)),
+            (int) ((width/2) + (width * originSlop)),
             height / 2
         );
 

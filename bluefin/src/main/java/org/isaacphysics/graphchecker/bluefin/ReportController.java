@@ -114,7 +114,12 @@ public class ReportController {
             boolean canonicalPasses;
             if (example.getCanonical() != null) {
                 canonicalPasses = marker.mark(example.getSpecification(), example.getCanonical());
-                response.append("<td>").append(ReportHelpers.drawGraph(example.getCanonical(), canonicalPasses ? ReportHelpers.GREY : ReportHelpers.ARGH));
+                response.append("<td>").append(ReportHelpers.drawGraph(
+                        example.getCanonical(),
+                        canonicalPasses ? ReportHelpers.GREY : ReportHelpers.ARGH,
+                        settings.getAxisSlop(),
+                        settings.getOriginSlop()
+                ));
             } else {
                 canonicalPasses = true;
             }
@@ -132,23 +137,23 @@ public class ReportController {
             response.append(ReportHelpers.marksInfo(marks));
 
             ReportHelpers.displayForClassification(response, example, markerContext, marks,
-                "Incorrect but passing", AnswerStatus.INCORRECT, true);
+                "Incorrect but passing", AnswerStatus.INCORRECT, true, settings);
 
             ReportHelpers.displayForClassification(response, example, markerContext, marks,
-                "Correct but failing", AnswerStatus.CORRECT, false);
+                "Correct but failing", AnswerStatus.CORRECT, false, settings);
 
             ReportHelpers.displayForClassification(response, example, markerContext, marks,
-                "Fails to be classified", AnswerStatus.UNKNOWN, false);
+                "Fails to be classified", AnswerStatus.UNKNOWN, false, settings);
 
             ReportHelpers.displayForClassification(response, example, markerContext, marks,
-                "Passes to be classified", AnswerStatus.UNKNOWN, true);
+                "Passes to be classified", AnswerStatus.UNKNOWN, true, settings);
 
             if (withoutSuppression) {
                 ReportHelpers.displayForClassification(response, example, markerContext, marks,
-                    "Incorrect and failing", AnswerStatus.INCORRECT, false);
+                    "Incorrect and failing", AnswerStatus.INCORRECT, false, settings);
 
                 ReportHelpers.displayForClassification(response, example, markerContext, marks,
-                    "Correct and passing", AnswerStatus.CORRECT, true);
+                    "Correct and passing", AnswerStatus.CORRECT, true, settings);
             }
         });
 
