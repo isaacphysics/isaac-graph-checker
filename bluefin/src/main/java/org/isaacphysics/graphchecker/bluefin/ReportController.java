@@ -190,6 +190,7 @@ public class ReportController {
         response.append("<h1>Settings</h1>");
         response.append("<form>");
         response.append("<input type=hidden name=withoutSuppression value=").append(withoutSuppression).append(">");
+        response.append("<input type=hidden name=withSlop value=").append(withSlop).append(">");
 
         response.append("<textarea rows=10 cols=80 name=settings>");
         response.append(CustomSettings.OBJECT_MAPPER.writeValueAsString(settings));
