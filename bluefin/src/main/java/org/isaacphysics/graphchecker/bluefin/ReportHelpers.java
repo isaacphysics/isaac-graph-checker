@@ -49,7 +49,8 @@ enum ReportHelpers {
                                          String name,
                                          AnswerStatus status,
                                          boolean passed,
-                                         CustomSettings settings) {
+                                         CustomSettings settings,
+                                         boolean withSlop) {
         Marks.Mark mark = marks.get(status);
         ImmutableList<String> answers = mark.get(passed);
 
@@ -72,7 +73,7 @@ enum ReportHelpers {
                 response.append("<tr id=\"").append(fullId).append("\"><td>");
                 response.append(drawGraph(
                         example.getAnswers().get(exampleGraph), colorLookup(status, passed),
-                        settings.getAxisSlop(), settings.getOriginSlop()
+                        settings.getAxisSlop(), settings.getOriginSlop(), withSlop
                 ));
 
                 response.append(buttons);
@@ -105,10 +106,10 @@ enum ReportHelpers {
     }
 
     static String drawGraph(GraphAnswer graphAnswer, Color color) {
-        return drawGraph(graphAnswer, color, 0, 0);
+        return drawGraph(graphAnswer, color, 0, 0, false);
     }
 
-    static String drawGraph(GraphAnswer graphAnswer, Color color, double axisSlop, double originSlop) {
+    static String drawGraph(GraphAnswer graphAnswer, Color color, double axisSlop, double originSlop, boolean withSlop) {
         Input input = answerToInput.apply(graphAnswer);
 
         int width = 300;
@@ -139,63 +140,65 @@ enum ReportHelpers {
             height / 2
         );
 
-        // Draw axisSlop lines
-        g2d.drawLine(
-            (int) ((width/2) + (width * axisSlop)),
-            0,
-            (int) ((width/2) + (width * axisSlop)),
-            height
-        );
+        if (withSlop) {
+            // Draw axisSlop lines
+            g2d.drawLine(
+                    (int) ((width / 2) + (width * axisSlop)),
+                    0,
+                    (int) ((width / 2) + (width * axisSlop)),
+                    height
+            );
 
-        g2d.drawLine(
-            (int) ((width/2) - (width * axisSlop)),
-            0,
-            (int) ((width/2) - (width * axisSlop)),
-            height
-        );
+            g2d.drawLine(
+                    (int) ((width / 2) - (width * axisSlop)),
+                    0,
+                    (int) ((width / 2) - (width * axisSlop)),
+                    height
+            );
 
-        g2d.drawLine(
-            0,
-            (int) ((height/2) + (height * axisSlop)),
-            width,
-            (int) ((height/2) + (height * axisSlop))
-        );
+            g2d.drawLine(
+                    0,
+                    (int) ((height / 2) + (height * axisSlop)),
+                    width,
+                    (int) ((height / 2) + (height * axisSlop))
+            );
 
-        g2d.drawLine(
-            0,
-            (int) ((height/2) - (height * axisSlop)),
-            width,
-            (int) ((height/2) - (height * axisSlop))
-        );
+            g2d.drawLine(
+                    0,
+                    (int) ((height / 2) - (height * axisSlop)),
+                    width,
+                    (int) ((height / 2) - (height * axisSlop))
+            );
 
-        // draw originSlop lines
-        g2d.drawLine(
-            (int) ((width/2) + (width * originSlop)),
-            height / 2,
-            width / 2,
-            (int) ((height/2) - (height * originSlop))
-        );
+            // draw originSlop lines
+            g2d.drawLine(
+                    (int) ((width / 2) + (width * originSlop)),
+                    height / 2,
+                    width / 2,
+                    (int) ((height / 2) - (height * originSlop))
+            );
 
-        g2d.drawLine(
-            width / 2,
-            (int) ((height/2) - (height * originSlop)),
-            (int) ((width/2) - (width * originSlop)),
-            height / 2
-        );
+            g2d.drawLine(
+                    width / 2,
+                    (int) ((height / 2) - (height * originSlop)),
+                    (int) ((width / 2) - (width * originSlop)),
+                    height / 2
+            );
 
-        g2d.drawLine(
-            (int) ((width/2) - (width * originSlop)),
-            height / 2,
-            width / 2,
-            (int) ((height/2) + (height * originSlop))
-        );
+            g2d.drawLine(
+                    (int) ((width / 2) - (width * originSlop)),
+                    height / 2,
+                    width / 2,
+                    (int) ((height / 2) + (height * originSlop))
+            );
 
-        g2d.drawLine(
-            width / 2,
-            (int) ((height/2) + (height * originSlop)),
-            (int) ((width/2) + (width * originSlop)),
-            height / 2
-        );
+            g2d.drawLine(
+                    width / 2,
+                    (int) ((height / 2) + (height * originSlop)),
+                    (int) ((width / 2) + (width * originSlop)),
+                    height / 2
+            );
+        }
 
         g2d.setColor(color);
 
