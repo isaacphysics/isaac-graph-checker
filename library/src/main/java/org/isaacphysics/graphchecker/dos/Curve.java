@@ -27,11 +27,11 @@ public class Curve {
     private final double maxX;
     private final double minY;
     private final double maxY;
-    private final List<Point> endPt;
     private final List<Point> interX; // What is this?
     private final List<Point> interY; // What is this
     private final List<Point> maxima;
     private final List<Point> minima;
+    private final boolean isClosed;
     private final int colorIdx;
 
     @JsonCreator
@@ -40,23 +40,23 @@ public class Curve {
                  @JsonProperty("maxX") double maxX,
                  @JsonProperty("minY") double minY,
                  @JsonProperty("maxY") double maxY,
-                 @JsonProperty("endPt") List<Point> endPt,
                  @JsonProperty("interX") List<Point> interX,
                  @JsonProperty("interY") List<Point> interY,
                  @JsonProperty("maxima") List<Point> maxima,
                  @JsonProperty("minima") List<Point> minima,
+                 @JsonProperty("isClosed") boolean isClosed,
                  @JsonProperty("colorIdx") int colorIdx) {
         this.pts = pts;
         this.minX = minX;
         this.maxX = maxX;
         this.minY = minY;
         this.maxY = maxY;
-        this.endPt = endPt;
         this.interX = interX;
         this.interY = interY;
         this.maxima = maxima;
         this.minima = minima;
         this.colorIdx = colorIdx;
+        this.isClosed = isClosed;
     }
 
     public List<Point> getPts() {
@@ -79,10 +79,6 @@ public class Curve {
         return maxY;
     }
 
-    public List<Point> getEndPt() {
-        return endPt;
-    }
-
     public List<Point> getInterX() {
         return interX;
     }
@@ -97,6 +93,10 @@ public class Curve {
 
     public List<Point> getMinima() {
         return minima;
+    }
+
+    public boolean isClosed() {
+        return isClosed;
     }
 
     public int getColorIdx() {

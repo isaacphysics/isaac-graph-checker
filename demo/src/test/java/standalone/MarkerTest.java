@@ -79,7 +79,6 @@ public class MarkerTest {
             maxY,
             null,
             null,
-            null,
             line.getPointsOfInterest().stream()
                 .filter(p -> p.getPointType() == PointType.MAXIMA)
                 .map(this::toPoint)
@@ -88,6 +87,7 @@ public class MarkerTest {
                 .filter(p -> p.getPointType() == PointType.MINIMA)
                 .map(this::toPoint)
                 .collect(Collectors.toList()),
+            false,
             0
         );
     }
