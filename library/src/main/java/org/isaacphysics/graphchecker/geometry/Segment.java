@@ -130,10 +130,17 @@ public class Segment {
             return false;
         }
 
-         // Project originPoints onto line and check inside this segment
+        // Project originPoints onto line and check inside this segment
+        // equivalent to |b| x |b| x cos(0) = |b|^2
         double dotEndPrime = endPrime.getX() * endPrime.getX() + endPrime.getY() * endPrime.getY();
+        // equivalent to |a| x |b| x cos(theta)
         double pDotEndPrime = pPrime.getX() * endPrime.getX() + pPrime.getY() * endPrime.getY();
+        // equivalent to (|a| x cos(theta)) / |b| (that is a normalised sign of a)
         double coefficientOfSegment = pDotEndPrime / dotEndPrime;
+        // If openBothEnds then don't worry about it being "behind"
+        //      Otherwise must make sure it doesn't go "behind"
+        // Must also remain within the length of the segment
+        //      Unless this has a specific side
         return (this.openBothEnds || coefficientOfSegment >= 0) && (this.side != null || coefficientOfSegment <= 1);
     }
 

@@ -67,9 +67,12 @@ public class FeaturesTest {
     public void testLineRecognitionWorks() {
         Predicate<Input> testFeature = new Features().matcher("line: 1; through:  bottomLeft\r\nline: 2; through: topRight");
 
+        double axisSlop = SettingsWrapper.DEFAULT.getAxisSlop();
+
+        // Because of axisSlop |minX| < 1/slop (so that Y > slop) and X > slop
         assertTrue(testFeature.test(inputOf(
-            lineOf(x -> 1 / x, -10, -0.01),
-            lineOf(x -> 1 / x, 0.01, 10)
+            lineOf(x -> 1 / x, -(1/axisSlop), -axisSlop),
+            lineOf(x -> 1 / x, axisSlop, 1/axisSlop)
         )));
 
         assertFalse(testFeature.test(inputOf(
@@ -117,9 +120,11 @@ public class FeaturesTest {
             "line: 2; slope: start = down",
             "line: 2; slope: end= flat"));
 
+        double axisSlop = SettingsWrapper.DEFAULT.getAxisSlop();
+
         assertTrue(testFeature.test(inputOf(
-            lineOf(x -> 1 / x, -10, -0.01),
-            lineOf(x -> 1 / x, 0.01, 10)
+            lineOf(x -> 1 / x, -(1/axisSlop), -axisSlop),
+            lineOf(x -> 1 / x, axisSlop, 1/axisSlop)
         )));
     }
 
