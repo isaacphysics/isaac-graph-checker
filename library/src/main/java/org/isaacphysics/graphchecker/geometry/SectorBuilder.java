@@ -276,7 +276,6 @@ public class SectorBuilder {
 
             .put(LEFT_HALF, builder -> builder.centeredHalf(UP))
             .put(RIGHT_HALF, builder -> builder.centeredHalf(DOWN))
-
             .put(TOP_HALF, builder -> builder.centeredHalf(RIGHT))
             .put(BOTTOM_HALF, builder -> builder.centeredHalf(LEFT))
 

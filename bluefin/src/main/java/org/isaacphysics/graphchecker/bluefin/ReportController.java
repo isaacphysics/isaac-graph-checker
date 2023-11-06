@@ -62,6 +62,7 @@ public class ReportController {
 
     @GET
     public String report(@QueryParam("withoutSuppression") boolean withoutSuppression,
+                         @QueryParam("withSlop") boolean withSlop,
                          @QueryParam("settings") String settingsParam,
                          @QueryParam("only") String only) throws JsonProcessingException {
         final StringBuilder response = new StringBuilder();
@@ -114,7 +115,13 @@ public class ReportController {
             boolean canonicalPasses;
             if (example.getCanonical() != null) {
                 canonicalPasses = marker.mark(example.getSpecification(), example.getCanonical());
-                response.append("<td>").append(ReportHelpers.drawGraph(example.getCanonical(), canonicalPasses ? ReportHelpers.GREY : ReportHelpers.ARGH));
+                response.append("<td>").append(ReportHelpers.drawGraph(
+                        example.getCanonical(),
+                        canonicalPasses ? ReportHelpers.GREY : ReportHelpers.ARGH,
+                        settings.getAxisSlop(),
+                        settings.getOriginSlop(),
+                        withSlop
+                ));
             } else {
                 canonicalPasses = true;
             }
@@ -132,23 +139,23 @@ public class ReportController {
             response.append(ReportHelpers.marksInfo(marks));
 
             ReportHelpers.displayForClassification(response, example, markerContext, marks,
-                "Incorrect but passing", AnswerStatus.INCORRECT, true);
+                "Incorrect but passing", AnswerStatus.INCORRECT, true, settings, withSlop);
 
             ReportHelpers.displayForClassification(response, example, markerContext, marks,
-                "Correct but failing", AnswerStatus.CORRECT, false);
+                "Correct but failing", AnswerStatus.CORRECT, false, settings, withSlop);
 
             ReportHelpers.displayForClassification(response, example, markerContext, marks,
-                "Fails to be classified", AnswerStatus.UNKNOWN, false);
+                "Fails to be classified", AnswerStatus.UNKNOWN, false, settings, withSlop);
 
             ReportHelpers.displayForClassification(response, example, markerContext, marks,
-                "Passes to be classified", AnswerStatus.UNKNOWN, true);
+                "Passes to be classified", AnswerStatus.UNKNOWN, true, settings, withSlop);
 
             if (withoutSuppression) {
                 ReportHelpers.displayForClassification(response, example, markerContext, marks,
-                    "Incorrect and failing", AnswerStatus.INCORRECT, false);
+                    "Incorrect and failing", AnswerStatus.INCORRECT, false, settings, withSlop);
 
                 ReportHelpers.displayForClassification(response, example, markerContext, marks,
-                    "Correct and passing", AnswerStatus.CORRECT, true);
+                    "Correct and passing", AnswerStatus.CORRECT, true, settings, withSlop);
             }
         });
 
@@ -162,18 +169,28 @@ public class ReportController {
             response.append("</ul>");
         }
 
-        if (withoutSuppression) {
-            response.append("<a href=\"?withoutSuppression=false\">Hide boring things</a>");
-        } else {
-            response.append("<a href=\"?withoutSuppression=true\">Show all without suppression</a>");
-        }
+        String suppressionLink = String.format(
+                "<a href=\"?withoutSuppression=%s&withSlop=%s\">%s</a>",
+                withoutSuppression ? "false" : "true",
+                withSlop ? "true" : "false",
+                withoutSuppression ? "Hide all the boring things" : "Show all without suppression"
+        );
 
+        String slopLink = String.format(
+                "<br><a href=\"?withoutSuppression=%s&withSlop=%s\">Toggle slop lines</a>",
+                withoutSuppression ? "true" : "false",
+                withSlop ? "false" : "true"
+        );
+
+        response.append(suppressionLink);
+        response.append(slopLink);
         response.append("<br><a href=\"/crossValidate\">Cross-validate</a>");
 
         // parameter adjustments
         response.append("<h1>Settings</h1>");
         response.append("<form>");
         response.append("<input type=hidden name=withoutSuppression value=").append(withoutSuppression).append(">");
+        response.append("<input type=hidden name=withSlop value=").append(withSlop).append(">");
 
         response.append("<textarea rows=10 cols=80 name=settings>");
         response.append(CustomSettings.OBJECT_MAPPER.writeValueAsString(settings));
