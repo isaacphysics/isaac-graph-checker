@@ -34,6 +34,8 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -117,6 +119,11 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
          * In order to find the path, we could imagine building the grid above, and then replacing each true with a true
          * if and only if there is a true above or left of it (working downwards).
          *
+         * In order to return feedback when this check fails we carry around a set of failures that (if fixed) would
+         * result in a path. We want this set to be minimal, that is the fewest changes required to changed the wrong
+         * answer into the correct answer. This means that truth is represented by an empty set and falsity is
+         * represented by a set with any items.
+         *
          * And finally, we can make the standard dynamic programming optimisation and keep just the last row and the row
          * we're building up from the top.
          *
@@ -124,25 +131,46 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
          * @return True if there is a match.
          */
         private boolean match(List<Set<Sector>> actual) {
+            // TODO: Figure out what object is best to store the errors in
 
             // This has a phantom left-half column to avoid a test in the loop below
             // The phantom column will always be false except above the first row to anchor the beginning.
             int matchArraySize = actual.size() + 1;
 
-            boolean[] matches = new boolean[matchArraySize];
-            matches[0] = true; // This is the fake match to anchor things to the beginning.
+            ArrayList<Set<Sector>> matches = new ArrayList<>(Collections.nCopies(matchArraySize, null));
+            matches.add(0, new HashSet<>()); // Nothing has failed before the matching starts
 
             for (Sector expectedSector : expectedSectors) {
-                boolean[] nextMatches = new boolean[matchArraySize];
+                ArrayList<Set<Sector>> nextMatches = new ArrayList<>(Collections.nCopies(matchArraySize, null));
+
                 for (int j = 0; j < actual.size(); j++) {
+                    // Get the previous matches along possible paths through this match
+                    List<Set<Sector>> previousMatches = new ArrayList<>();
+                    previousMatches.add(matches.get(j));
+                    previousMatches.add(matches.get(j+1));
+                    previousMatches.add(nextMatches.get(j));
+
+                    // Find the match with the least failures
+                    Set<Sector> minimalSet = new HashSet<>(
+                            previousMatches.stream()
+                            .filter(Objects::nonNull)
+                            .min(Comparator.comparingInt(Set::size))
+                            .orElse(new HashSet<>())
+                    );
+
+                    // Update the failures and store as this match
                     if (actual.get(j).contains(expectedSector)) {
-                        nextMatches[j + 1] = matches[j] || matches[j + 1] || nextMatches[j];
+                        nextMatches.add(j+1, minimalSet);
+                    } else {
+                        minimalSet.add(expectedSector);
+                        nextMatches.add(j+1, minimalSet);
                     }
                 }
                 matches = nextMatches;
             }
 
-            return matches[matchArraySize - 1];
+            // TODO: Utilise the failure set to generate `through` feedback
+            return matches.get(matchArraySize - 1).isEmpty();
         }
     }
 
