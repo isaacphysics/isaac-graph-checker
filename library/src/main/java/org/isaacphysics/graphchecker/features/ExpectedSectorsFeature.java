@@ -36,6 +36,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -137,33 +138,33 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
             // The phantom column will always be false except above the first row to anchor the beginning.
             int matchArraySize = actual.size() + 1;
 
-            ArrayList<Set<Sector>> matches = new ArrayList<>(Collections.nCopies(matchArraySize, null));
-            matches.add(0, new HashSet<>()); // Nothing has failed before the matching starts
+            ArrayList<List<Sector>> matches = new ArrayList<>(Collections.nCopies(matchArraySize, null));
+            matches.add(0, new LinkedList<>()); // Nothing has failed before the matching starts
 
             for (Sector expectedSector : expectedSectors) {
-                ArrayList<Set<Sector>> nextMatches = new ArrayList<>(Collections.nCopies(matchArraySize, null));
+                ArrayList<List<Sector>> nextMatches = new ArrayList<>(Collections.nCopies(matchArraySize, null));
 
                 for (int j = 0; j < actual.size(); j++) {
                     // Get the previous matches along possible paths through this match
-                    List<Set<Sector>> previousMatches = new ArrayList<>();
+                    List<List<Sector>> previousMatches = new ArrayList<>();
                     previousMatches.add(matches.get(j));
                     previousMatches.add(matches.get(j+1));
                     previousMatches.add(nextMatches.get(j));
 
-                    // Find the match with the least failures
-                    Set<Sector> minimalSet = new HashSet<>(
+                    // Find the match with the least failures and create a deepcopy
+                    List<Sector> minimalList = new LinkedList<>(
                             previousMatches.stream()
                             .filter(Objects::nonNull)
-                            .min(Comparator.comparingInt(Set::size))
-                            .orElse(new HashSet<>())
+                            .min(Comparator.comparingInt(List::size))
+                            .orElse(new LinkedList<>())
                     );
 
                     // Update the failures and store as this match
                     if (actual.get(j).contains(expectedSector)) {
-                        nextMatches.add(j+1, minimalSet);
+                        nextMatches.add(j+1, minimalList);
                     } else {
-                        minimalSet.add(expectedSector);
-                        nextMatches.add(j+1, minimalSet);
+                        minimalList.add(expectedSector);
+                        nextMatches.add(j+1, minimalList);
                     }
                 }
                 matches = nextMatches;
