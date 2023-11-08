@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -96,7 +95,9 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
         public boolean test(Line line) {
             List<Set<Sector>> actualSectors = convertLineToSectorSetList(line);
             log.debug("User line passed through sectors: " + actualSectors);
-            return match(actualSectors);
+            // TODO: store failures to be accessed later
+            List<Failure> failures = match(actualSectors);
+            return failures.isEmpty();
         }
 
         /**
@@ -129,49 +130,48 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
          * we're building up from the top.
          *
          * @param actual The sectors we possibly pass through, in order.
-         * @return True if there is a match.
+         * @return A list of failures. The list is empty if there is a match.
          */
-        private boolean match(List<Set<Sector>> actual) {
-            // TODO: Figure out what object is best to store the errors in
-
-            // This has a phantom left-half column to avoid a test in the loop below
-            // The phantom column will always be false except above the first row to anchor the beginning.
+        private List<Failure> match(List<Set<Sector>> actual) {
+            // This has a phantom left column to avoid adding a test in the loop below
             int matchArraySize = actual.size() + 1;
 
-            ArrayList<List<Sector>> matches = new ArrayList<>(Collections.nCopies(matchArraySize, null));
+            ArrayList<List<Failure>> matches = new ArrayList<>(Collections.nCopies(matchArraySize, null));
             matches.add(0, new LinkedList<>()); // Nothing has failed before the matching starts
 
+            int location = 0;
             for (Sector expectedSector : expectedSectors) {
-                ArrayList<List<Sector>> nextMatches = new ArrayList<>(Collections.nCopies(matchArraySize, null));
+                ArrayList<List<Failure>> nextMatches = new ArrayList<>(Collections.nCopies(matchArraySize, null));
 
                 for (int j = 0; j < actual.size(); j++) {
                     // Get the previous matches along possible paths through this match
-                    List<List<Sector>> previousMatches = new ArrayList<>();
+                    List<List<Failure>> previousMatches = new ArrayList<>();
                     previousMatches.add(matches.get(j));
                     previousMatches.add(matches.get(j+1));
                     previousMatches.add(nextMatches.get(j));
 
                     // Find the match with the least failures and create a deepcopy
-                    List<Sector> minimalList = new LinkedList<>(
+                    List<Failure> minimalList = new LinkedList<>(
                             previousMatches.stream()
                             .filter(Objects::nonNull)
                             .min(Comparator.comparingInt(List::size))
                             .orElse(new LinkedList<>())
                     );
 
-                    // Update the failures and store as this match
+                    // Update the failures and store failures for this match
                     if (actual.get(j).contains(expectedSector)) {
                         nextMatches.add(j+1, minimalList);
                     } else {
-                        minimalList.add(expectedSector);
+                        Failure failure = new Failure(expectedSector, actual.get(j), location);
+                        minimalList.add(failure);
                         nextMatches.add(j+1, minimalList);
                     }
                 }
                 matches = nextMatches;
+                location++;
             }
 
-            // TODO: Utilise the failure set to generate `through` feedback
-            return matches.get(matchArraySize - 1).isEmpty();
+            return matches.get(matchArraySize - 1);
         }
     }
 

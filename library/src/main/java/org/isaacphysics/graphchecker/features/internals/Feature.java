@@ -15,9 +15,10 @@
  */
 package org.isaacphysics.graphchecker.features.internals;
 
+import java.util.Set;
 import java.util.function.Predicate;
 import org.apache.commons.lang3.NotImplementedException;
-import org.isaacphysics.graphchecker.data.Input;
+import org.isaacphysics.graphchecker.geometry.Sector;
 import org.isaacphysics.graphchecker.settings.SettingsInterface;
 import org.isaacphysics.graphchecker.features.Context;
 
@@ -69,6 +70,43 @@ abstract class Feature<FeatureInstance extends Feature.AbstractInstance, InputTy
                 return context;
             } else {
                 return null;
+            }
+        }
+
+        protected class Failure {
+            private final Sector expectedSector;
+            private final Set<Sector> actualSectors;
+            private final int location;
+
+            /**
+             * Create a failure for the expected sector at a specific location in the expected path
+             * @param expectedSector The expected sector
+             * @param actualSectors The sectors that were actually found
+             * @param location The index of the expected sector in the list of expected sectors
+             */
+            public Failure(Sector expectedSector, Set<Sector> actualSectors, int location) {
+                this.expectedSector = expectedSector;
+                this.actualSectors = actualSectors;
+                this.location = location;
+            }
+
+            public Sector getExpectedSector() {
+                return expectedSector;
+            }
+
+            public Set<Sector> getActualSectors() {
+                return actualSectors;
+            }
+
+            public int getLocation() {
+                return location;
+            }
+
+            @Override
+            public String toString() {
+                return "Failure at " + location +
+                        ": " + actualSectors.toString() +
+                        " -> " + expectedSector.toString();
             }
         }
 

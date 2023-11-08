@@ -21,7 +21,6 @@ import org.isaacphysics.graphchecker.settings.SettingsInterface;
 import org.isaacphysics.graphchecker.data.Line;
 
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * A feature which matches against a line.
