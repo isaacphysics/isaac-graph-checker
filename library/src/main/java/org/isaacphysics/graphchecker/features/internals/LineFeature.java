@@ -58,6 +58,12 @@ public abstract class LineFeature<FeatureInstance extends LineFeature.Instance, 
             return new LineFeatureWrapper(settings()).new Instance(this.getTaggedFeatureData(), this);
         }
 
+        public abstract class LineFailure<ExpectedType, ActualType> extends AbstractFailure<ExpectedType, ActualType> {
+            public LineFailure(ExpectedType expectedFeature, ActualType actualFeature, Integer location) {
+                super(expectedFeature, actualFeature, location);
+            }
+        }
+
         /**
          * Test if this line feature matches this line. Line features cannot have context which is ensured by the above.
          * @param line The line to test.

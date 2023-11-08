@@ -73,29 +73,34 @@ abstract class Feature<FeatureInstance extends Feature.AbstractInstance, InputTy
             }
         }
 
-        protected class Failure {
-            private final Sector expectedSector;
-            private final Set<Sector> actualSectors;
-            private final int location;
+        /**
+         * A single failure object where an input did not match this feature
+         */
+        abstract class AbstractFailure<ExpectedFeatureType, ActualFeatureType> {
+            private final ExpectedFeatureType expectedFeature;
+            private final ActualFeatureType actualFeature;
+            private final Integer location;
 
             /**
-             * Create a failure for the expected sector at a specific location in the expected path
-             * @param expectedSector The expected sector
-             * @param actualSectors The sectors that were actually found
-             * @param location The index of the expected sector in the list of expected sectors
+             * Create a failure that occurred at a specific location in the expected features.
+             * A specific expected feature failed given the actual feature was provided.
+             *
+             * @param expectedFeature The expected feature that failed to be met
+             * @param actualFeature The actual features provided instead
+             * @param location An indication of where the failure occurred
              */
-            public Failure(Sector expectedSector, Set<Sector> actualSectors, int location) {
-                this.expectedSector = expectedSector;
-                this.actualSectors = actualSectors;
+            public AbstractFailure(ExpectedFeatureType expectedFeature, ActualFeatureType actualFeature, Integer location) {
+                this.expectedFeature = expectedFeature;
+                this.actualFeature = actualFeature;
                 this.location = location;
             }
 
-            public Sector getExpectedSector() {
-                return expectedSector;
+            public ExpectedFeatureType getExpectedFeature() {
+                return expectedFeature;
             }
 
-            public Set<Sector> getActualSectors() {
-                return actualSectors;
+            public ActualFeatureType getActualFeature() {
+                return actualFeature;
             }
 
             public int getLocation() {
@@ -104,9 +109,7 @@ abstract class Feature<FeatureInstance extends Feature.AbstractInstance, InputTy
 
             @Override
             public String toString() {
-                return "Failure at " + location +
-                        ": " + actualSectors.toString() +
-                        " -> " + expectedSector.toString();
+                throw new NotImplementedException("A derived type must provide an output string.");
             }
         }
 

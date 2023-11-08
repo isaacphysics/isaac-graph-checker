@@ -91,12 +91,26 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
             this.expectedSectors = expectedSectors;
         }
 
+        protected class SectorFailure extends LineFailure<Sector, Set<Sector>> {
+            public SectorFailure(Sector expectedFeature, Set<Sector> actualFeature, Integer location) {
+                super(expectedFeature, actualFeature, location);
+            }
+
+            @Override
+            public String toString() {
+                return "Failure at " + getLocation() +
+                        ": " + getActualFeature() +
+                        " -> " + getExpectedFeature();
+            }
+        }
+
         @Override
         public boolean test(Line line) {
             List<Set<Sector>> actualSectors = convertLineToSectorSetList(line);
             log.debug("User line passed through sectors: " + actualSectors);
             // TODO: store failures to be accessed later
-            List<Failure> failures = match(actualSectors);
+            List<SectorFailure> failures = match(actualSectors);
+            System.out.println(failures);
             return failures.isEmpty();
         }
 
@@ -132,26 +146,26 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
          * @param actual The sectors we possibly pass through, in order.
          * @return A list of failures. The list is empty if there is a match.
          */
-        private List<Failure> match(List<Set<Sector>> actual) {
+        private List<SectorFailure> match(List<Set<Sector>> actual) {
             // This has a phantom left column to avoid adding a test in the loop below
             int matchArraySize = actual.size() + 1;
 
-            ArrayList<List<Failure>> matches = new ArrayList<>(Collections.nCopies(matchArraySize, null));
+            ArrayList<List<SectorFailure>> matches = new ArrayList<>(Collections.nCopies(matchArraySize, null));
             matches.add(0, new LinkedList<>()); // Nothing has failed before the matching starts
 
             int location = 0;
             for (Sector expectedSector : expectedSectors) {
-                ArrayList<List<Failure>> nextMatches = new ArrayList<>(Collections.nCopies(matchArraySize, null));
+                ArrayList<List<SectorFailure>> nextMatches = new ArrayList<>(Collections.nCopies(matchArraySize, null));
 
                 for (int j = 0; j < actual.size(); j++) {
                     // Get the previous matches along possible paths through this match
-                    List<List<Failure>> previousMatches = new ArrayList<>();
+                    List<List<SectorFailure>> previousMatches = new ArrayList<>();
                     previousMatches.add(matches.get(j));
                     previousMatches.add(matches.get(j+1));
                     previousMatches.add(nextMatches.get(j));
 
                     // Find the match with the least failures and create a deepcopy
-                    List<Failure> minimalList = new LinkedList<>(
+                    List<SectorFailure> minimalList = new LinkedList<>(
                             previousMatches.stream()
                             .filter(Objects::nonNull)
                             .min(Comparator.comparingInt(List::size))
@@ -162,7 +176,7 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
                     if (actual.get(j).contains(expectedSector)) {
                         nextMatches.add(j+1, minimalList);
                     } else {
-                        Failure failure = new Failure(expectedSector, actual.get(j), location);
+                        SectorFailure failure = new SectorFailure(expectedSector, actual.get(j), location);
                         minimalList.add(failure);
                         nextMatches.add(j+1, minimalList);
                     }
