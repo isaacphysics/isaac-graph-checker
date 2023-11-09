@@ -109,7 +109,6 @@ public abstract class LineFeature<FeatureInstance extends LineFeature.Instance, 
                 this.lineFeatureInstance = lineFeatureInstance;
             }
 
-            @Override
             public Context test(Input input, Context context) {
                 if (input.getLines().stream().anyMatch(lineFeatureInstance)) {
                     return context;
