@@ -155,6 +155,7 @@ public abstract class LineSelector<SelectorInstance extends LineSelector.Instanc
                 this.lineFeatureInstance = lineFeatureInstance;
             }
 
+            @Override
             public Context test(Input input, Context context) {
                 return selectorInstance.test(input, lineFeatureInstance, context);
             }
