@@ -75,7 +75,6 @@ public class IntersectionPointsFeature extends InputFeature<IntersectionPointsFe
             this.sectors = sectors;
         }
 
-        @Override
         public Context test(Input input, Context context) {
             return context.makeNewContext(mapping -> {
                 Line theLineA = mapping.get(lineA);
