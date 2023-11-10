@@ -94,7 +94,12 @@ public class ExpectedSectorsFeatureTest {
         SectorClassifier.Settings settings = new SectorClassifier.Settings() {
             public List<Sector> getOrderedSectors() {
                 SectorBuilder sectorBuilder = getSectorBuilder();
-                Sector[] sectors = {sectorBuilder.byName(SectorBuilder.TOP_LEFT), sectorBuilder.byName(SectorBuilder.BOTTOM_RIGHT)};
+                // Need to add the slop for the chosen quadrants
+                Sector[] sectors = {
+                        sectorBuilder.byName(SectorBuilder.TOP_LEFT),
+                        sectorBuilder.byName(SectorBuilder.BOTTOM_RIGHT),
+                        sectorBuilder.byName(SectorBuilder.TOP_LEFT_SLOP),
+                        sectorBuilder.byName(SectorBuilder.BOTTOM_RIGHT_SLOP)};
                 return Arrays.asList(sectors);
             }
         };
