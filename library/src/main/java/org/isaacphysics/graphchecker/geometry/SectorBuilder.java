@@ -151,7 +151,7 @@ public class SectorBuilder {
             newSectors.add(currentSector);
 
             /*
-            This could add double slop [topLeft, topLeft] -> [topLeft, topLeftSlop, topLeftSlop, topLeft]
+            This should add slop twice `[topLeft, topRight] -> [topLeft, topLeftSlop, topRightSlop, topRight]`
             But this case is not sensible as the above should be reduced to just [topLeft]
              */
             if (Objects.equals(currentSector.toString(), TOP_LEFT) ||
