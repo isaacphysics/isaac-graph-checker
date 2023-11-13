@@ -127,10 +127,9 @@ public class MarkerTest {
         ), Collections.emptyList());
 
         Set<String> features = new HashSet<>(Arrays.asList(marker.generate(correctAnswer).split("\r\n")));
-        assertTrue(features.contains("points: maxima in topRight, minima in bottomRight"));
-        assertTrue(features.contains("symmetry: antisymmetric"));
-        assertTrue(features.contains("through: bottomLeft, -Yaxis, bottomRight, +Xaxis, topRight, +Xaxis, bottomRight, +Xaxis, topRight"));
-        // TODO: fix slope detector and add the following:
-        // assertTrue(features.contains("slope: start=up, end=up"));
+        assertTrue("Contains stationary points.", features.contains("points: maxima in topRight, minima in bottomRight"));
+        assertTrue("Contains symmetry.", features.contains("symmetry: antisymmetric"));
+        assertTrue("Contains line feature.", features.contains("through: bottomLeft, -Yaxis, bottomRight, +Xaxis, topRight, +Xaxis, bottomRight, +Xaxis, topRight"));
+        assertTrue("Contains slope.", features.contains("slope: start=up, end=up"));
     }
 }

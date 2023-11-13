@@ -21,11 +21,13 @@ import com.google.common.collect.Streams;
 import org.isaacphysics.graphchecker.data.Point;
 import org.isaacphysics.graphchecker.settings.SettingsInterface;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -100,7 +102,11 @@ public class SectorBuilder {
             byName(TOP_RIGHT),
             byName(TOP_LEFT),
             byName(BOTTOM_LEFT),
-            byName(BOTTOM_RIGHT));
+            byName(BOTTOM_RIGHT),
+            byName(TOP_RIGHT_SLOP),
+            byName(TOP_LEFT_SLOP),
+            byName(BOTTOM_LEFT_SLOP),
+            byName(BOTTOM_RIGHT_SLOP));
     }
 
     public static final String ORIGIN = "origin";
@@ -113,6 +119,10 @@ public class SectorBuilder {
     public static final String TOP_RIGHT = "topRight";
     public static final String BOTTOM_LEFT = "bottomLeft";
     public static final String BOTTOM_RIGHT = "bottomRight";
+    public static final String TOP_LEFT_SLOP = "topLeftSlop";
+    public static final String TOP_RIGHT_SLOP = "topRightSlop";
+    public static final String BOTTOM_LEFT_SLOP = "bottomLeftSlop";
+    public static final String BOTTOM_RIGHT_SLOP = "bottomRightSlop";
     public static final String LEFT_HALF = "left";
     public static final String RIGHT_HALF = "right";
     public static final String TOP_HALF = "top";
@@ -124,6 +134,47 @@ public class SectorBuilder {
     private static final Point RIGHT = new Point(1, 0);
     private static final Point UP = new Point(0, 1);
     private static final Point DOWN = new Point(0, -1);
+
+    private List<Sector> addSlop(List<Sector> sectorList) {
+        int sectorListSize = sectorList.size();
+
+        if (sectorListSize < 2) {
+            // Can only add slop between elements in the list
+            return sectorList;
+        }
+
+        List<Sector> newSectors = new ArrayList<>();
+        // Loop through all the sectors except for the last
+        for (int i = 0; i < sectorListSize - 1; i++) {
+            Sector currentSector = sectorList.get(i);
+            Sector nextSector = sectorList.get(i + 1);
+            newSectors.add(currentSector);
+
+            /*
+            This should add slop twice `[topLeft, topRight] -> [topLeft, topLeftSlop, topRightSlop, topRight]`
+            Except in the case of `[topLeft, topLeft]` but this should be reduced to just `[topLeft]` beforehand
+             */
+            if (Objects.equals(currentSector.toString(), TOP_LEFT) ||
+                    Objects.equals(nextSector.toString(), TOP_LEFT)) {
+                newSectors.add(byName(TOP_LEFT_SLOP));
+            }
+            if (Objects.equals(currentSector.toString(), TOP_RIGHT) ||
+                    Objects.equals(nextSector.toString(), TOP_RIGHT)) {
+                newSectors.add(byName(TOP_RIGHT_SLOP));
+            }
+            if (Objects.equals(currentSector.toString(), BOTTOM_LEFT) ||
+                    Objects.equals(nextSector.toString(), BOTTOM_LEFT)) {
+                newSectors.add(byName(BOTTOM_LEFT_SLOP));
+            }
+            if (Objects.equals(currentSector.toString(), BOTTOM_RIGHT) ||
+                    Objects.equals(nextSector.toString(), BOTTOM_RIGHT)) {
+                newSectors.add(byName(BOTTOM_RIGHT_SLOP));
+            }
+        }
+
+        newSectors.add(sectorList.get(sectorListSize - 1));
+        return newSectors;
+    }
 
     /**
      * Get a sector by name.
@@ -146,9 +197,10 @@ public class SectorBuilder {
      * @return The list of sectors.
      */
     public List<Sector> fromList(Stream<String> sectors) {
-        return sectors
-            .map(this::byName)
-            .collect(Collectors.toList());
+        return addSlop(
+                sectors.map(this::byName)
+                .collect(Collectors.toList())
+        );
     }
 
     /**
@@ -158,8 +210,7 @@ public class SectorBuilder {
      */
     public List<Sector> fromList(String csv) {
         String[] sectorNames = csv.split(",");
-        return fromList(Arrays.stream(sectorNames)
-            .map(String::trim));
+        return fromList(Arrays.stream(sectorNames).map(String::trim));
     }
 
 
@@ -287,6 +338,12 @@ public class SectorBuilder {
             .put(TOP_RIGHT, builder -> builder.sloppyQuadrant(RIGHT, UP))
             .put(BOTTOM_LEFT, builder -> builder.sloppyQuadrant(LEFT, DOWN))
             .put(BOTTOM_RIGHT, builder -> builder.sloppyQuadrant(RIGHT, DOWN))
+
+            // Add back the ignored slop to allow for lines to travel through the slop region
+            .put(TOP_LEFT_SLOP, builder -> builder.centeredQuadrant(LEFT, UP))
+            .put(TOP_RIGHT_SLOP, builder -> builder.centeredQuadrant(RIGHT, UP))
+            .put(BOTTOM_LEFT_SLOP, builder -> builder.centeredQuadrant(LEFT, DOWN))
+            .put(BOTTOM_RIGHT_SLOP, builder -> builder.centeredQuadrant(RIGHT, DOWN))
 
             .put(LEFT_HALF, builder -> builder.centeredHalf(UP))
             .put(RIGHT_HALF, builder -> builder.centeredHalf(DOWN))

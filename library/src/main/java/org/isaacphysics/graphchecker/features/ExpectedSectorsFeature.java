@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -163,7 +164,21 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
 
     @Override
     public List<String> generate(Line expectedLine) {
-        return Collections.singletonList(Joiner.on(", ").join(convertLineToSectorList(expectedLine)));
+        List<String> slopQuadrants = new LinkedList<>(){{
+            add("topLeftSlop");
+            add("topRightSlop");
+            add("bottomLeftSlop");
+            add("bottomRightSlop");
+        }};
+
+        // Don't generate lines with slop as this should be explicitly added later
+        return Collections.singletonList(
+                Joiner.on(", ").join(
+                        convertLineToSectorList(expectedLine).stream()
+                                .filter(s -> !slopQuadrants.contains(s.toString()))
+                                .collect(Collectors.toList())
+                )
+        );
     }
 
     /**
