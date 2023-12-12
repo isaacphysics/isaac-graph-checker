@@ -111,9 +111,19 @@ public class MarkerController {
                 )
             )
             .put("origin-intersecting-curve",
-                    getSolution(
-                    "through: bottomLeft, origin, topRight"
-                    )
+                getSolution(
+                "through: bottomLeft, origin, topRight"
+                )
+            )
+            .put("the-problem",
+                getSolution(
+                    "match: A; through: bottomLeft, -Yaxis, bottomRight, +Xaxis, topRight",
+                        "match: A; slope: start=flat, end=up",
+                        "match: B; through: bottomLeft, origin, topRight",
+                        "match: B; slope: start=up, end=flat",
+                        "curves: 2",
+                        "intersects: A to B at bottomLeft, topRight"
+                )
             )
             .build();
     }

@@ -153,7 +153,7 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
      * @return A list of Sectors.
      */
     private List<Sector> deserializeSectors(String sectors) {
-        return settings().getSectorBuilder().fromList(sectors);
+        return settings().getSectorBuilder().fromList(sectors, true);
     }
 
     @Override
