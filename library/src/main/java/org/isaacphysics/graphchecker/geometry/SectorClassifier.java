@@ -55,6 +55,13 @@ public class SectorClassifier {
         }
 
         /**
+         * @return The sectors without the transition zones
+         */
+        default List<Sector> getOrderedSectorsNoSlop() {
+            return getSectorBuilder().getDefaultOrderedSectorsNoSlop();
+        }
+
+        /**
          * Factory method to get a SectorClassifier with these settings.
          *
          * SectorClassifier objects are cached by this method for performance.
@@ -73,7 +80,8 @@ public class SectorClassifier {
      */
     public Sector classify(Point point) {
         Set<Sector> possibleSectors = classifyAll(point);
-        return settings.getOrderedSectors().stream()
+        // When classifying individual points there are no transition zones (so no slop)
+        return settings.getOrderedSectorsNoSlop().stream()
             .filter(possibleSectors::contains)
             .findFirst()
             .get();

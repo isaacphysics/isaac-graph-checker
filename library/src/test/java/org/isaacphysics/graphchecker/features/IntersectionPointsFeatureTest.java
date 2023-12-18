@@ -49,6 +49,25 @@ public class IntersectionPointsFeatureTest {
     }
 
     @Test
+    public void testMatchIntersectionInTopRightSector() {
+        IntersectionPointsFeature.Instance instance = intersectionPointsFeature.deserializeInternal("a to b at topRight");
+
+        Line line1 = TestHelpers.lineOf(x -> x, -10, 10);
+        Line line2 = TestHelpers.lineOf(x -> -x + 4.0, -10, 10);
+        Line line3 = TestHelpers.lineOf(x -> 0.0, -10, 10);
+        Line line4 = TestHelpers.lineOf(x -> 2.0, -10, 10);
+        Input input = TestHelpers.inputOf(line1, line2, line3, line4);
+
+        Context context = new Context(input);
+
+        Context match = instance.test(input, context);
+
+        assertNotNull(match);
+
+        assertEquals(6, match.getAssignmentsCopy().size());
+    }
+
+    @Test
     public void testMatchNonIntersection() {
         IntersectionPointsFeature.Instance instance = intersectionPointsFeature.deserializeInternal("a to b nowhere");
 
