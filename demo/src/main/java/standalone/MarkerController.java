@@ -38,7 +38,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.Instant;
-import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Map;
 
@@ -115,7 +114,7 @@ public class MarkerController {
                 "through: bottomLeft, origin, topRight"
                 )
             )
-            .put("the-problem",
+            .put("multiple-intersections",
                 getSolution(
                     "match: A; through: bottomLeft, -Yaxis, bottomRight, +Xaxis, topRight",
                         "match: A; slope: start=flat, end=up",
