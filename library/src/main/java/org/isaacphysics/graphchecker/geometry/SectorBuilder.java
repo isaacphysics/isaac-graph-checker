@@ -109,6 +109,22 @@ public class SectorBuilder {
             byName(BOTTOM_RIGHT_SLOP));
     }
 
+    /**
+     * @return The default ordered list of sectors without transition zones.
+     */
+    public List<Sector> getDefaultOrderedSectorsNoSlop() {
+        return Arrays.asList(
+                byName(ORIGIN),
+                byName(POSITIVE_X_AXIS),
+                byName(POSITIVE_Y_AXIS),
+                byName(NEGATIVE_X_AXIS),
+                byName(NEGATIVE_Y_AXIS),
+                byName(TOP_RIGHT),
+                byName(TOP_LEFT),
+                byName(BOTTOM_LEFT),
+                byName(BOTTOM_RIGHT));
+    }
+
     public static final String ORIGIN = "origin";
     public static final String RELAXED_ORIGIN = "relaxedOrigin";
     public static final String POSITIVE_X_AXIS = "+Xaxis";
@@ -196,11 +212,9 @@ public class SectorBuilder {
      * @param sectors The stream of sector names.
      * @return The list of sectors.
      */
-    public List<Sector> fromList(Stream<String> sectors) {
-        return addSlop(
-                sectors.map(this::byName)
-                .collect(Collectors.toList())
-        );
+    public List<Sector> fromList(Stream<String> sectors, boolean withSlop) {
+        List<Sector> sectorList = sectors.map(this::byName).collect(Collectors.toList());
+        return withSlop ? addSlop(sectorList) : sectorList;
     }
 
     /**
@@ -208,11 +222,10 @@ public class SectorBuilder {
      * @param csv The comma-separated sectors.
      * @return The list of sectors.
      */
-    public List<Sector> fromList(String csv) {
+    public List<Sector> fromList(String csv, boolean withSlop) {
         String[] sectorNames = csv.split(",");
-        return fromList(Arrays.stream(sectorNames).map(String::trim));
+        return fromList(Arrays.stream(sectorNames).map(String::trim), withSlop);
     }
-
 
     private final Map<String, Sector> sectorCache = new HashMap<>();
 

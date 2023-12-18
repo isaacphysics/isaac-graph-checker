@@ -115,7 +115,7 @@ public class IntersectionPointsFeature extends InputFeature<IntersectionPointsFe
             if (m.group(4) == null) {
                 sectors = Collections.emptyList();
             } else {
-                sectors = settings().getSectorBuilder().fromList(m.group(4));
+                sectors = settings().getSectorBuilder().fromList(m.group(4), false);
             }
             return new Instance(m.group(1).trim(), m.group(2).trim(), sectors);
         } else {
