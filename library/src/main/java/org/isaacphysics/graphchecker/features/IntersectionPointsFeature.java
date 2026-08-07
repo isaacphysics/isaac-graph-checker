@@ -55,7 +55,7 @@ public class IntersectionPointsFeature extends InputFeature<IntersectionPointsFe
     /**
      * An instance of the intersection points feature.
      */
-    public class Instance extends InputFeature<?, ?>.Instance {
+    public class Instance extends InputFeature<Instance, SectorClassifier.Settings>.Instance {
 
         private final String lineA;
         private final String lineB;
@@ -84,6 +84,12 @@ public class IntersectionPointsFeature extends InputFeature<IntersectionPointsFe
 
                 return matches.equals(sectors);
             }, lineA, lineB);
+        }
+
+        @Override
+        public boolean test(Input input) {
+            // requires context!
+            return false;
         }
     }
 

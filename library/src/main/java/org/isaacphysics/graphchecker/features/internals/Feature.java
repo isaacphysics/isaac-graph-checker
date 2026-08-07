@@ -46,7 +46,7 @@ abstract class Feature<FeatureInstance extends Feature<FeatureInstance, InputTyp
      * An instance of a feature.
      */
     abstract class AbstractInstance
-        extends Item<FeatureInstance, InputType, GeneratedType, SettingsType>.AbstractInstance {
+        extends Item<FeatureInstance, InputType, GeneratedType, SettingsType>.AbstractInstance implements Predicate<InputType> {
         /**
          * Create an instance of a feature.
          * @param featureData The specification for this feature.
