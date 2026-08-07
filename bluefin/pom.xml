@@ -9,6 +9,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <name>isaac-graph-checker-tuner</name>
+
     <artifactId>isaac-graph-checker-tuner</artifactId>
     <packaging>war</packaging>
     <dependencies>

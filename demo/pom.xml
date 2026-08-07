@@ -10,6 +10,8 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>war</packaging>
 
+    <name>isaac-graph-checker-demo</name>
+
     <artifactId>isaac-graph-checker-demo</artifactId>
 
     <dependencies>
