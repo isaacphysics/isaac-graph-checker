@@ -93,7 +93,7 @@ public class SymmetryFeature extends LineFeature<SymmetryFeature.Instance, Symme
     /**
      * An instance of the Symmetry feature.
      */
-    public class Instance extends LineFeature<?, ?>.Instance {
+    public class Instance extends LineFeature<Instance, SymmetryFeature.Settings>.Instance {
 
         private final SymmetryType symmetryType;
 

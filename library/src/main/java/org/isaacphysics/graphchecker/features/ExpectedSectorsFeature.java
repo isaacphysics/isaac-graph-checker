@@ -77,7 +77,7 @@ public class ExpectedSectorsFeature extends LineFeature<ExpectedSectorsFeature.I
     /**
      * An instance of the ExpectedSectors feature.
      */
-    protected class Instance extends LineFeature<?, ?>.Instance {
+    protected class Instance extends LineFeature<Instance, SectorClassifier.Settings>.Instance {
         private final List<Sector> expectedSectors;
 
         /**

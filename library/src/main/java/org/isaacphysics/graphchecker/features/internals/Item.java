@@ -24,7 +24,7 @@ import org.isaacphysics.graphchecker.settings.SettingsInterface;
  * @param <GeneratedType> Some kind of collection of feature specifications this can generate.
  * @param <SettingsType> The settings that are being used in this lineFeatureSpec.
  */
-abstract class Item<Instance extends Item.AbstractInstance, InputType, GeneratedType,
+abstract class Item<Instance extends Item<Instance, InputType, GeneratedType, SettingsType>.AbstractInstance, InputType, GeneratedType,
                     SettingsType extends SettingsInterface> {
 
     private final SettingsType settings;

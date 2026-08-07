@@ -30,7 +30,7 @@ import jakarta.annotation.Nullable;
  * @param <GeneratedType> The type of output this feature can generate. Should be some kind of String collection.
  * @param <SettingsType> The settings type used for this feature.
  */
-abstract class Feature<FeatureInstance extends Feature.AbstractInstance, InputType, GeneratedType,
+abstract class Feature<FeatureInstance extends Feature<FeatureInstance, InputType, GeneratedType, SettingsType>.AbstractInstance, InputType, GeneratedType,
                        SettingsType extends SettingsInterface>
     extends Item<FeatureInstance, InputType, GeneratedType, SettingsType> {
 
@@ -74,12 +74,11 @@ abstract class Feature<FeatureInstance extends Feature.AbstractInstance, InputTy
 
         /**
          * Test if the given input matches this feature instance without looking at context.
+         * A derived type must override this or the function above.
          *
          * @param inputType The input.
          * @return True if there is a match.
          */
-        public boolean test(InputType inputType) {
-            throw new NotImplementedException("A derived type must overide this or the function above.");
-        }
+        public abstract boolean test(InputType inputType);
     }
 }

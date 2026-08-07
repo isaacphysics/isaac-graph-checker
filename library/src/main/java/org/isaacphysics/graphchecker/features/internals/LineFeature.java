@@ -28,7 +28,7 @@ import java.util.function.Predicate;
  * @param <FeatureInstance> The class representing instances of this feature.
  * @param <SettingsType> The settings type used for this feature.
  */
-public abstract class LineFeature<FeatureInstance extends LineFeature.Instance, SettingsType extends SettingsInterface>
+public abstract class LineFeature<FeatureInstance extends LineFeature<FeatureInstance, SettingsType>.Instance, SettingsType extends SettingsInterface>
     extends Feature<FeatureInstance, Line, List<String>, SettingsType> {
 
     /**
@@ -42,7 +42,7 @@ public abstract class LineFeature<FeatureInstance extends LineFeature.Instance, 
     /**
      * An instance of a LineFeature.
      */
-    public abstract class Instance extends AbstractInstance {
+    public abstract class Instance extends LineFeature<FeatureInstance, SettingsType>.AbstractInstance {
         /**
          * Create an instance of this feature; this is wrapped for type purposes.
          * @param item The feature specification.
@@ -64,7 +64,8 @@ public abstract class LineFeature<FeatureInstance extends LineFeature.Instance, 
          * @param line The line to test.
          * @return True if this line matches this feature.
          */
-        public abstract boolean test(Line line);
+//        @Override
+//        public abstract boolean test(Line line);
     }
 
     /**
@@ -89,14 +90,14 @@ public abstract class LineFeature<FeatureInstance extends LineFeature.Instance, 
          * Constructor to wire up settings.
          * @param settings Settings for this feature.
          */
-        private LineFeatureWrapper(SettingsInterface settings) {
+        private LineFeatureWrapper(SettingsType settings) {
             super(settings);
         }
 
         /**
          * An instance of this feature.
          */
-        class Instance extends InputFeature<Instance, SettingsType>.Instance {
+        class Instance extends InputFeature<LineFeatureWrapper.Instance, SettingsInterface>.Instance {
             private final LineFeature<?, ?>.Instance lineFeatureInstance;
 
             /**
@@ -104,18 +105,23 @@ public abstract class LineFeature<FeatureInstance extends LineFeature.Instance, 
              * @param item The specification text that created this feature.
              * @param lineFeatureInstance The line feature instance.
              */
-            private Instance(String item, LineFeature<?, ?>.Instance lineFeatureInstance) {
+            private Instance(String item, LineFeature<FeatureInstance, SettingsType>.Instance lineFeatureInstance) {
                 super(item, false);
                 this.lineFeatureInstance = lineFeatureInstance;
             }
 
             @Override
             public Context test(Input input, Context context) {
-                if (input.getLines().stream().anyMatch(lineFeatureInstance)) {
+                if (input.getLines().stream().anyMatch(lineFeatureInstance::test)) {
                     return context;
                 } else {
                     return null;
                 }
+            }
+
+            @Override
+            public boolean test(Input input) {
+                return input.getLines().stream().anyMatch(lineFeatureInstance::test);
             }
         }
     }
