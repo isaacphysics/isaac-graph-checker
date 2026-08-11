@@ -28,7 +28,7 @@ import java.util.Map;
  * @param <SelectorInstance> The class representing instances of this selector.
  * @param <SettingsType> The settings type used for this feature.
  */
-public abstract class LineSelector<SelectorInstance extends LineSelector.Instance,
+public abstract class LineSelector<SelectorInstance extends LineSelector<SelectorInstance, SettingsType>.AbstractInstance,
                                    SettingsType extends SettingsInterface>
     extends Item<SelectorInstance, Input, Map<String, Line>, SettingsType> {
 
@@ -43,7 +43,7 @@ public abstract class LineSelector<SelectorInstance extends LineSelector.Instanc
     /**
      * An instance of a LineSelector that can be used to test against input.
      */
-    public abstract class Instance extends Item.AbstractInstance {
+    public abstract class Instance extends Item<SelectorInstance, Input, Map<String, Line>, SettingsType>.AbstractInstance {
         private final String lineFeatureSpec;
 
         /**
@@ -104,7 +104,7 @@ public abstract class LineSelector<SelectorInstance extends LineSelector.Instanc
          * @param instance The line predicate to wrap.
          * @return An input feature instance that recognises the line feature in the selected line.
          */
-        public InputFeature.Instance wrapToItemFeature(LineFeature<?, ?>.Instance instance) {
+        public InputFeature<?, ?>.Instance wrapToItemFeature(LineFeature<?, ?>.Instance instance) {
             return new LineSelectorWrapperFeature(settings()).new Instance(this, instance);
         }
     }
