@@ -14,4 +14,43 @@
     <artifactId>isaac-graph-checker-library</artifactId>
 
     <packaging>jar</packaging>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <executions>
+                    <!--
+                        The features/internals classes form a self-referential generic hierarchy
+                        (each Feature's FeatureInstance type parameter is bounded by its own inner
+                        class). Some javac builds miscompile this pattern - silently dropping
+                        generic signatures and override bridges - when these classes are compiled
+                        in the same batch as their many subclasses. Compiling internals first, as
+                        its own batch, avoids the issue.
+                    -->
+                    <execution>
+                        <id>compile-internals-first</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <includes>
+                                <include>org/isaacphysics/graphchecker/features/internals/**/*.java</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>default-compile</id>
+                        <configuration>
+                            <excludes>
+                                <exclude>org/isaacphysics/graphchecker/features/internals/**/*.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

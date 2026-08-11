@@ -43,7 +43,7 @@ public class CurvesCountFeature extends InputFeature<CurvesCountFeature.Instance
     /**
      * An instance of the CurvesCount feature.
      */
-    public class Instance extends InputFeature<Instance, SettingsInterface.None>.Instance {
+    public class Instance extends InputFeature<?, ?>.Instance {
 
         private final int count;
 

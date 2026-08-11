@@ -155,14 +155,8 @@ public abstract class LineSelector<SelectorInstance extends LineSelector.Instanc
                 this.lineFeatureInstance = lineFeatureInstance;
             }
 
-            @Override
             public Context test(Input input, Context context) {
                 return selectorInstance.test(input, lineFeatureInstance, context);
-            }
-
-            @Override
-            public boolean test(Input input) {
-                return selectorInstance.test(input, lineFeatureInstance);
             }
         }
     }
