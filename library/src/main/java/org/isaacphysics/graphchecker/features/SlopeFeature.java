@@ -113,7 +113,7 @@ public class SlopeFeature extends LineFeature<SlopeFeature.Instance, SlopeFeatur
     /**
      * An instance of the Slope feature.
      */
-    protected class Instance extends LineFeature<Instance, SlopeFeature.Settings>.Instance {
+    protected class Instance extends LineFeature<?, ?>.Instance {
 
         private final Map<Position, Slope> expectedSlopes;
 

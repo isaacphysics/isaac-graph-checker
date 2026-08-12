@@ -25,7 +25,7 @@ import java.util.List;
  * @param <FeatureInstance> The class representing instances of this feature.
  * @param <SettingsType> The settings type used for this feature.
  */
-public abstract class InputFeature<FeatureInstance extends InputFeature<FeatureInstance, SettingsType>.Instance,
+public abstract class InputFeature<FeatureInstance extends InputFeature.Instance,
                                    SettingsType extends SettingsInterface>
     extends Feature<FeatureInstance, Input, List<String>, SettingsType> {
 
@@ -40,7 +40,7 @@ public abstract class InputFeature<FeatureInstance extends InputFeature<FeatureI
     /**
      * An instance of an InputFeature.
      */
-    public abstract class Instance extends InputFeature<FeatureInstance, SettingsType>.AbstractInstance {
+    public abstract class Instance extends AbstractInstance {
         /**
          * Create an instance of this feature; this is wrapped for type purposes.
          * @param item The feature specification.
@@ -68,7 +68,7 @@ public abstract class InputFeature<FeatureInstance extends InputFeature<FeatureI
      * A type of input feature which wraps other features so doesn't have its own parsing or generation or settings.
      * @param <T> The type of instances of this feature.
      */
-    abstract static class WrapperFeature<T extends InputFeature<T, SettingsInterface>.Instance> extends InputFeature<T, SettingsInterface> {
+    abstract static class WrapperFeature<T extends InputFeature.Instance> extends InputFeature<T, SettingsInterface> {
 
         /**
          * Constructor to wire up settings.

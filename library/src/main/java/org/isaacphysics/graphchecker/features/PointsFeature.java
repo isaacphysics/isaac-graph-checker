@@ -52,7 +52,7 @@ public class PointsFeature extends LineFeature<PointsFeature.Instance, SectorCla
     /**
      * An instance of the PointsOfInterest feature.
      */
-    protected class Instance extends LineFeature<Instance, SectorClassifier.Settings>.Instance {
+    protected class Instance extends LineFeature<?, ?>.Instance {
 
         protected final List<ImmutablePair<PointType, Sector>> expectedPoints;
 
